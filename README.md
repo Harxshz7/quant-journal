@@ -248,6 +248,9 @@ docker build -t tradingjournal-frontend:latest ./frontend
 docker-compose build
 ```
 
+## Bootstrap Guide
+For initial setup and environment preparation, see [README_BOOTSTRAP.md](README_BOOTSTRAP.md).
+
 ## Security Features
 
 ✅ **Authentication**: JWT tokens with 1-hour expiration  
