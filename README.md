@@ -1,382 +1,398 @@
-# Trading Journal Application
+# Trading Journal Application — Master Technical Specification & Developer Guide
 
-A production-ready Trading Journal application for traders to track, analyze, and improve their trading performance.
+A production-ready, full-stack Trading Journal platform built with Java 21, Spring Boot 3, React 18, and PostgreSQL. Designed using Clean Architecture principles to record trades, analyze risk/reward dynamics, visualize performance, and maintain trading reflections with media upload capabilities.
 
-## Project Overview
+---
 
-**Status**: 📋 Architecture & Planning Phase (Ready for Implementation)
+## Table of Contents
 
-This is a comprehensive trading journal platform that enables traders to:
-- ✅ Record and manage trade entries
-- ✅ Track win rates and P&L metrics
-- ✅ Analyze risk/reward ratios
-- ✅ Visualize trading performance
-- ✅ Upload and organize screenshots
+1. [Project Overview & Tech Stack](#1-project-overview--tech-stack)
+2. [Clean Architecture & System Design](#2-clean-architecture--system-design)
+3. [Project Folder & Repository Structure](#3-project-folder--repository-structure)
+4. [Database Schema & Data Model](#4-database-schema--data-model)
+5. [REST API Specification](#5-rest-api-specification)
+6. [Development Roadmap & Implementation Phases](#6-development-roadmap--implementation-phases)
+7. [Developer Quick Start & Execution Guide](#7-developer-quick-start--execution-guide)
+8. [Code Standards & Best Practices](#8-code-standards--best-practices)
 
-## Tech Stack
+---
 
-### Backend
-- **Language**: Java 21
-- **Framework**: Spring Boot 3
-- **Database**: PostgreSQL
-- **Build Tool**: Maven
-- **Authentication**: JWT
+## 1. Project Overview & Tech Stack
 
-### Frontend
-- **Framework**: React 18+
-- **HTTP Client**: Axios
-- **Routing**: React Router v6
+### Executive Summary
+The Trading Journal Application enables quantitative and discretionary traders to:
+- Log, monitor, and manage trade entries, exits, position sizing, and order types.
+- Calculate key statistical metrics (Win Rate, Profit Factor, Gross/Net P&L, Risk/Reward Ratios).
+- Attach technical analysis screenshots and interactive trade setup reflections.
+- Monitor historical performance trends via analytics dashboards.
 
-### DevOps
-- **Containerization**: Docker
-- **Orchestration**: Docker Compose (Kubernetes ready)
-- **CI/CD**: GitHub Actions
+### Core Technology Stack
 
-## Architecture
+| Domain | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Backend** | Java | 21 (LTS) | Modern Java runtime featuring Records & Pattern Matching |
+| | Spring Boot | 3.x | Enterprise application framework |
+| | Spring Security | 6.x | Stateless JWT authentication & RBAC authorization |
+| | Spring Data JPA | 3.x | ORM & data persistence via Hibernate |
+| | PostgreSQL | 15+ | Relational financial data store |
+| | Maven | 3.8+ | Dependency management and build automation |
+| **Frontend** | React | 18.x | Component-driven Single Page Application |
+| | React Router | 6.x | Client-side routing |
+| | Axios | 1.x | Promise-based HTTP client |
+| **DevOps** | Docker | 24+ | Containerization engine |
+| | Docker Compose | 2.x | Multi-container dev & production deployment orchestration |
 
-This project follows **Clean Architecture** principles with clear separation of concerns:
+---
 
-```
-Presentation Layer (Controllers/REST APIs)
-    ↓
-Application Layer (Services/Business Logic/DTOs)
-    ↓
-Domain Layer (Entities/Business Rules)
-    ↓
-Infrastructure Layer (Repositories/Data Access)
-    ↓
-Cross-Cutting Concerns (Logging, Exception Handling, Security)
-```
+## 2. Clean Architecture & System Design
 
-**See** [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture documentation.
-
-## Project Structure
+The backend enforces strict **Clean Architecture** boundaries. High-level modules do not depend on low-level infrastructure modules; both depend on abstractions.
 
 ```
-TradingJournalApp/
-├── backend/                    # Spring Boot Application
-│   ├── src/
-│   │   ├── main/java/         # Source code (organized by layer)
-│   │   ├── test/java/         # Test suite
-│   │   └── resources/         # Configuration files
-│   ├── pom.xml               # Maven dependencies
-│   └── Dockerfile            # Docker image
-│
-├── frontend/                  # React Application
-│   ├── src/
-│   │   ├── pages/            # Page components
-│   │   ├── components/       # Reusable components
-│   │   ├── api/              # API integration
-│   │   ├── hooks/            # Custom React hooks
-│   │   └── utils/            # Utility functions
-│   ├── package.json
-│   └── Dockerfile
-│
-├── docs/                      # Documentation
-├── scripts/                   # Utility scripts
-├── docker-compose.yml         # Local development environment
-├── README.md                  # This file
-├── ARCHITECTURE.md            # Architecture documentation
-├── DATABASE_SCHEMA.md         # Database design
-├── FOLDER_STRUCTURE.md        # Directory structure rationale
-├── DEVELOPMENT_ROADMAP.md     # Implementation roadmap
-├── API_SPECIFICATION.md       # Complete API documentation
-└── PROJECT_SUMMARY.md         # Project overview & checklist
+┌───────────────────────────────────────────────────────────┐
+│           Presentation Layer (REST Controllers)           │
+│           - Request Validation & Response Serialization   │
+└─────────────────────────────┬─────────────────────────────┘
+                              │ (Depends On)
+                              ▼
+┌───────────────────────────────────────────────────────────┐
+│            Application Layer (Services & DTOs)            │
+│            - Transaction Logic & DTO Mapping              │
+└─────────────────────────────┬─────────────────────────────┘
+                              │ (Depends On)
+                              ▼
+┌───────────────────────────────────────────────────────────┐
+│               Domain Layer (Entities & Rules)             │
+│               - Domain Models & Business Logic            │
+└─────────────────────────────┬─────────────────────────────┘
+                              │ (Depends On)
+                              ▼
+┌───────────────────────────────────────────────────────────┐
+│           Infrastructure Layer (Repositories & DB)        │
+│           - Database Access, Spring Data JPA, Storage     │
+└───────────────────────────────────────────────────────────┘
 ```
 
-**See** [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md) for detailed structure explanation.
+### Architectural Principles
+- **Separation of Concerns**: Controllers only handle HTTP mechanics; Services handle orchestration; Entities encapsulate domain rules; Repositories handle database persistence.
+- **Stateless Authentication**: Security is maintained via JWT bearer tokens (1-hour expiration with 7-day refresh cycles).
+- **Denormalized Analytical Caching**: Complex statistical aggregations are continuously maintained in a `trade_statistics` table for sub-50ms dashboard loading.
 
-## Database Schema
+---
 
-The application uses PostgreSQL with the following core tables:
+## 3. Project Folder & Repository Structure
 
-- **Users** - User accounts and authentication
-- **Trades** - Trade entries with entry/exit data
-- **Screenshots** - Trade-related images
-- **TradeStatistics** - Aggregated user metrics
-- **JournalEntries** - Trade reflections and notes
-- **PerformanceHistory** - Historical performance snapshots
+```
+quant-journal/
+├── docker-compose.yml             # Local multi-container database & services deployment
+├── run.bat                        # Windows execution helper script
+├── README.md                      # Unified Master Documentation
+├── backend/                       # Spring Boot Application Root
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/
+│       ├── main/
+│       │   ├── java/com/tradingjournal/
+│       │   │   ├── presentation/   # REST Controllers, API Request/Response DTOs
+│       │   │   ├── application/    # Service Implementation, Mappers, Business Logic
+│       │   │   ├── domain/         # JPA Entities, Enums, Domain Exceptions
+│       │   │   ├── infrastructure/ # JPA Repositories, Security Interceptors, Storage
+│       │   │   └── common/         # Global Exception Handlers, Audit Loggers
+│       │   └── resources/
+│       │       ├── application.yml
+│       │       ├── application-dev.yml
+│       │       └── application-prod.yml
+│       └── test/                   # JUnit 5 & Mockito test suite
+└── frontend/                      # React SPA Application Root
+    ├── Dockerfile
+    ├── package.json
+    └── src/
+        ├── api/                    # Axios API integration endpoints
+        ├── components/             # Reusable UI widgets & navigation elements
+        ├── hooks/                  # Custom React state management hooks
+        ├── pages/                  # Top-level routes (Dashboard, TradeHistory, Auth)
+        └── utils/                  # Formatting & calculation utilities
+```
 
-**See** [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for complete database design.
+---
 
-## API Documentation
+## 4. Database Schema & Data Model
 
-REST APIs with the following resource endpoints:
+### Entity-Relationship Architecture
 
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/refresh-token` - Refresh JWT token
+```
+┌──────────────┐          1:M          ┌──────────────┐          1:M          ┌───────────────────┐
+│    Users     ├──────────────────────►│    Trades    ├──────────────────────►│ Trade_Screenshots │
+└──────┬───────┘                       └──────┬───────┘                       └───────────────────┘
+       │ 1:1                                  │ 1:M
+       ▼                                      ▼
+┌──────────────┐                       ┌──────────────┐
+│  Trade_Stats │                       │JournalEntries│
+└──────────────┘                       └──────────────┘
+```
 
-### Trades
-- `POST /api/v1/trades` - Create trade
-- `GET /api/v1/trades` - List trades (paginated)
-- `GET /api/v1/trades/{id}` - Get trade details
-- `PUT /api/v1/trades/{id}` - Update trade
-- `DELETE /api/v1/trades/{id}` - Delete trade
+### DDL Specification (PostgreSQL)
 
-### Statistics
-- `GET /api/v1/dashboard/overview` - Dashboard summary
-- `GET /api/v1/statistics/summary` - Detailed statistics
-- `GET /api/v1/statistics/win-rate` - Win rate analysis
-- `GET /api/v1/statistics/pnl` - P&L analysis
-- `GET /api/v1/statistics/risk-reward` - Risk/reward analysis
+```sql
+-- Extensions
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-### Files
-- `POST /api/v1/trades/{tradeId}/screenshots` - Upload screenshot
-- `GET /api/v1/trades/{tradeId}/screenshots` - List screenshots
-- `DELETE /api/v1/screenshots/{id}` - Delete screenshot
+-- 1. Users Table
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN')),
+    account_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (account_status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED')),
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-**See** [API_SPECIFICATION.md](API_SPECIFICATION.md) for complete API documentation.
+-- 2. Trades Table
+CREATE TABLE trades (
+    trade_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    ticker VARCHAR(10) NOT NULL,
+    position_type VARCHAR(10) NOT NULL CHECK (position_type IN ('LONG', 'SHORT')),
+    status VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'CLOSED', 'PENDING', 'CANCELLED')),
+    entry_date TIMESTAMP NOT NULL,
+    entry_price DECIMAL(15,4) NOT NULL CHECK (entry_price > 0),
+    quantity DECIMAL(15,2) NOT NULL CHECK (quantity > 0),
+    exit_date TIMESTAMP,
+    exit_price DECIMAL(15,4) CHECK (exit_price IS NULL OR exit_price > 0),
+    gross_pnl DECIMAL(15,2),
+    net_pnl DECIMAL(15,2),
+    pnl_percentage DECIMAL(10,4),
+    risk_amount DECIMAL(15,2) CHECK (risk_amount IS NULL OR risk_amount >= 0),
+    reward_amount DECIMAL(15,2) CHECK (reward_amount IS NULL OR reward_amount >= 0),
+    risk_reward_ratio DECIMAL(10,4),
+    win_loss VARCHAR(10) CHECK (win_loss IN ('WIN', 'LOSS', 'BREAK_EVEN', 'OPEN')),
+    trading_strategy VARCHAR(100),
+    setup_description TEXT,
+    notes TEXT,
+    lessons_learned TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-## Development Roadmap
+-- 3. Trade Screenshots Table
+CREATE TABLE trade_screenshots (
+    screenshot_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    trade_id UUID NOT NULL REFERENCES trades(trade_id) ON DELETE CASCADE,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_size BIGINT NOT NULL CHECK (file_size <= 10485760),
+    file_type VARCHAR(50) NOT NULL CHECK (file_type IN ('image/jpeg', 'image/png', 'image/gif', 'image/webp')),
+    original_width INT,
+    original_height INT,
+    upload_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-The project is divided into 7 phases spanning 20 weeks:
+-- 4. Trade Statistics Table (Denormalized)
+CREATE TABLE trade_statistics (
+    stats_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    total_trades INT DEFAULT 0,
+    winning_trades INT DEFAULT 0,
+    losing_trades INT DEFAULT 0,
+    break_even_trades INT DEFAULT 0,
+    win_rate DECIMAL(5,2) DEFAULT 0 CHECK (win_rate BETWEEN 0 AND 100),
+    total_gross_pnl DECIMAL(15,2) DEFAULT 0,
+    total_net_pnl DECIMAL(15,2) DEFAULT 0,
+    largest_win DECIMAL(15,2),
+    largest_loss DECIMAL(15,2),
+    average_win DECIMAL(15,2),
+    average_loss DECIMAL(15,2),
+    profit_factor DECIMAL(10,4),
+    total_risk_amount DECIMAL(15,2) DEFAULT 0,
+    total_reward_amount DECIMAL(15,2) DEFAULT 0,
+    average_risk_reward_ratio DECIMAL(10,4),
+    consecutive_wins INT DEFAULT 0,
+    consecutive_losses INT DEFAULT 0,
+    max_consecutive_wins INT DEFAULT 0,
+    max_consecutive_losses INT DEFAULT 0,
+    last_calculated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-| Phase | Duration | Focus |
-|-------|----------|-------|
-| 1 | Weeks 1-4 | Foundation & Infrastructure |
-| 2 | Weeks 5-7 | User Management & Auth |
-| 3 | Weeks 8-11 | Trade Management |
-| 4 | Weeks 12-15 | Statistics & Analytics |
-| 5 | Week 16 | File Upload & Screenshots |
-| 6 | Weeks 17-18 | Testing & QA |
-| 7 | Weeks 19-20 | Deployment & Production |
+-- Performance Indexes
+CREATE INDEX idx_trades_user_status ON trades(user_id, status);
+CREATE INDEX idx_trades_entry_date ON trades(user_id, entry_date DESC);
+CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
+```
 
-**See** [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) for detailed phase breakdown.
+---
 
-## Getting Started
+## 5. REST API Specification
+
+### Base Path: `/api/v1`
+
+#### 5.1 Authentication Endpoints
+
+##### User Registration
+- **`POST /auth/register`**
+- **Request Payload**:
+  ```json
+  {
+    "username": "trader123",
+    "email": "trader@example.com",
+    "password": "SecurePassword123!",
+    "firstName": "John",
+    "lastName": "Doe"
+  }
+  ```
+- **Response `201 Created`**:
+  ```json
+  {
+    "userId": "d3b07384-d113-460a-4c8a-48d011d61a29",
+    "username": "trader123",
+    "email": "trader@example.com",
+    "message": "User registered successfully"
+  }
+  ```
+
+##### User Login
+- **`POST /auth/login`**
+- **Request Payload**:
+  ```json
+  {
+    "username": "trader123",
+    "password": "SecurePassword123!"
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsIn...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsIn...",
+    "tokenType": "Bearer",
+    "expiresIn": 3600
+  }
+  ```
+
+#### 5.2 Trade Management Endpoints
+
+##### Create Trade
+- **`POST /trades`** *(Requires Auth)*
+- **Request Payload**:
+  ```json
+  {
+    "ticker": "AAPL",
+    "positionType": "LONG",
+    "entryDate": "2026-06-26T10:30:00Z",
+    "entryPrice": 150.50,
+    "quantity": 100,
+    "exitDate": "2026-06-27T14:00:00Z",
+    "exitPrice": 152.75,
+    "riskAmount": 50.00,
+    "rewardAmount": 225.00,
+    "tradingStrategy": "Breakout",
+    "notes": "Broke out of resistance with strong volume"
+  }
+  ```
+- **Response `201 Created`**:
+  ```json
+  {
+    "tradeId": "c8f1e582-74bf-42d2-a7f2-c9d311f421a1",
+    "status": "CLOSED",
+    "grossPnL": 225.00,
+    "netPnL": 225.00,
+    "pnlPercentage": 1.49,
+    "winLoss": "WIN",
+    "riskRewardRatio": 4.5
+  }
+  ```
+
+##### List Trades (Paginated & Filterable)
+- **`GET /trades?page=0&size=20&sort=entryDate,desc&status=CLOSED&ticker=AAPL`**
+- **Response `200 OK`**:
+  ```json
+  {
+    "content": [
+      {
+        "tradeId": "c8f1e582-74bf-42d2-a7f2-c9d311f421a1",
+        "ticker": "AAPL",
+        "positionType": "LONG",
+        "status": "CLOSED",
+        "grossPnL": 225.00,
+        "winLoss": "WIN"
+      }
+    ],
+    "pageable": { "pageNumber": 0, "pageSize": 20, "totalElements": 1, "totalPages": 1 }
+  }
+  ```
+
+#### 5.3 Analytics & Screenshot Endpoints
+
+- **`GET /dashboard/overview`**: Retrieves summary metrics (Total Trades, Win Rate, Profit Factor, Total P&L).
+- **`POST /trades/{tradeId}/screenshots`**: Uploads image files (multipart form field `file`, max 10MB).
+- **`GET /trades/{tradeId}/screenshots`**: Lists metadata for trade screenshots.
+
+---
+
+## 6. Development Roadmap & Implementation Phases
+
+| Phase | Timeline | Key Modules & Deliverables |
+| :--- | :--- | :--- |
+| **Phase 1: Foundation** | Weeks 1–4 | Spring Boot setup, PostgreSQL Docker container, Flyway schema, JWT security core |
+| **Phase 2: User Management** | Weeks 5–7 | User registration, authentication endpoints, token refresh logic, user isolation |
+| **Phase 3: Trade Operations** | Weeks 8–11 | Trade CRUD operations, P&L & Risk/Reward calculation algorithms, pagination |
+| **Phase 4: Analytics** | Weeks 12–15 | `TradeStatistics` caching engine, dashboard metrics, time-series performance charts |
+| **Phase 5: File Storage** | Week 16 | Screenshot upload service, local/S3 storage manager, mime-type validation |
+| **Phase 6: QA & Testing** | Weeks 17–18 | Unit test suite (80%+ target coverage), integration tests, load tests |
+| **Phase 7: Deployment** | Weeks 19–20 | Docker multi-stage builds, production configuration hardening, CI/CD pipeline |
+
+---
+
+## 7. Developer Quick Start & Execution Guide
 
 ### Prerequisites
 - Java 21 JDK
 - Node.js 18+ LTS
 - Docker & Docker Compose
 - Maven 3.8+
-- PostgreSQL client (optional)
 
-### Local Development Setup
+### Step-by-Step Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/TradingJournalApp.git
-   cd TradingJournalApp
-   ```
-
-2. **Start PostgreSQL (Docker)**
-   ```bash
-   docker-compose up -d postgres
-   ```
-
-3. **Backend Setup**
-   ```bash
-   cd backend
-   mvn clean install
-   mvn spring-boot:run
-   ```
-   Backend runs on: `http://localhost:8080`
-
-4. **Frontend Setup**
-   ```bash
-   cd frontend
-   npm install
-   npm start
-   ```
-   Frontend runs on: `http://localhost:3000`
-
-5. **Access the Application**
-   - Frontend: http://localhost:3000
-   - API Docs: http://localhost:8080/swagger-ui.html
-
-### Docker Compose (All Services)
+#### 1. Start Database Container
 ```bash
-docker-compose up       # Start all services
-docker-compose down     # Stop all services
-docker-compose logs -f  # View logs
-```
-
-## Configuration
-
-### Backend Configuration
-- Development: `backend/src/main/resources/application-dev.yml`
-- Production: `backend/src/main/resources/application-prod.yml`
-- Test: `backend/src/main/resources/application-test.yml`
-
-### Frontend Configuration
-- Development: `frontend/.env.development`
-- Production: `frontend/.env.production`
-
-## Testing
-
-### Backend Tests
-```bash
-cd backend
-mvn test                    # Run all tests
-mvn test -Dtest=AuthServiceTest  # Run specific test
-mvn clean jacoco:report    # Generate coverage report
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test                    # Run all tests
-npm test -- --coverage     # Generate coverage report
-```
-
-## Building for Production
-
-### Backend
-```bash
-cd backend
-mvn clean package -DskipTests
-# JAR file: target/tradingjournal-app.jar
-```
-
-### Frontend
-```bash
-cd frontend
-npm run build
-# Production build: build/
-```
-
-### Docker Images
-```bash
-# Build both images
-docker build -t tradingjournal-backend:latest ./backend
-docker build -t tradingjournal-frontend:latest ./frontend
-
-# Or use docker-compose
-docker-compose build
-```
-
-## Bootstrap Guide
-For initial setup and environment preparation, see [README_BOOTSTRAP.md](README_BOOTSTRAP.md).
-
-## Security Features
-
-✅ **Authentication**: JWT tokens with 1-hour expiration  
-✅ **Authorization**: Role-based access control (USER, ADMIN)  
-✅ **Password Security**: BCrypt hashing (min 10 rounds)  
-✅ **API Security**: CORS whitelist, CSRF protection  
-✅ **Data Protection**: SQL injection prevention, input validation  
-✅ **Audit Trail**: User action tracking and logging  
-✅ **File Upload**: Type validation, size limits (10MB max)  
-
-## Performance Optimization
-
-- **Database Indexes**: Optimized for common queries
-- **Denormalization**: TradeStatistics table for fast dashboard
-- **Pagination**: Large result set handling
-- **Caching**: Ready for Redis integration
-- **API Rate Limiting**: 1000 requests/hour per user
-
-## Deployment
-
-The application is containerized and ready for deployment to:
-- ✅ Docker/Docker Compose
-- ✅ Kubernetes (manifests provided)
-- ✅ Cloud platforms (AWS, GCP, Azure)
-
-**See** `docs/DEPLOYMENT_GUIDE.md` for detailed deployment instructions.
-
-## Documentation
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture & design patterns
-- [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) - Database schema & relationships
-- [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md) - Directory structure explanation
-- [DEVELOPMENT_ROADMAP.md](DEVELOPMENT_ROADMAP.md) - Implementation phases
-- [API_SPECIFICATION.md](API_SPECIFICATION.md) - Complete API reference
-- [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) - Overview & checklist
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-**See** CONTRIBUTING.md for detailed guidelines.
-
-## Code Standards
-
-- **Backend**: Google Java Style Guide
-- **Frontend**: AirBnB JavaScript Style Guide
-- **Naming**: Clear, descriptive names
-- **Comments**: Document "why", not "what"
-- **Testing**: Aim for 80%+ coverage
-
-## Troubleshooting
-
-### Port Already in Use
-```bash
-# Find process using port 8080
-lsof -i :8080
-kill -9 <PID>
-```
-
-### Database Connection Error
-```bash
-# Check PostgreSQL container
-docker-compose ps
-docker-compose logs postgres
-
-# Recreate database
-docker-compose down
 docker-compose up -d postgres
 ```
 
-### Frontend Build Issues
+#### 2. Start Backend Service
 ```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
+cd backend
+mvn clean install
+mvn spring-boot:run
+```
+- Backend endpoint: `http://localhost:8080`
+- Swagger API documentation: `http://localhost:8080/swagger-ui.html`
+
+#### 3. Start Frontend Service
+```bash
+cd frontend
 npm install
 npm start
 ```
-
-## Monitoring & Logging
-
-- **Backend Logging**: SLF4J + Logback (configurable levels)
-- **Frontend Logging**: Browser console + Sentry (optional)
-- **Performance Metrics**: Spring Boot Actuator (`/actuator/metrics`)
-- **API Documentation**: Swagger UI (`/swagger-ui.html`)
-
-## Future Enhancements
-
-- Real-time market data integration
-- Machine learning for trade prediction
-- Social trading features
-- Mobile app (Flutter/React Native)
-- Backtesting engine
-- Multi-tenant SaaS support
-- Slack/Email notifications
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For issues, questions, or suggestions:
-1. Check the documentation in `/docs`
-2. Search existing GitHub issues
-3. Create a new issue with detailed information
-4. Contact: support@tradingjournal.com
-
-## Authors
-
-- Your Name - Architecture & Design
-- Team Members - Development
-
-## Acknowledgments
-
-- Clean Architecture principles (Uncle Bob)
-- Spring Boot community
-- React community
-- PostgreSQL documentation
+- Client portal: `http://localhost:3000`
 
 ---
 
-**Last Updated**: 2026-06-26  
-**Version**: 1.0 (Planning Phase)  
-**Status**: 📋 Ready for Implementation
+## 8. Code Standards & Best Practices
 
+1. **Transactional Boundaries**: All service methods modifying state must be annotated with `@Transactional`.
+2. **DTO Isolation**: Entities must never be returned directly by Controller endpoints; convert via Mapper components to DTOs.
+3. **Global Exception Handling**: Throw business-specific domain exceptions (e.g., `TradeNotFoundException`) and let `@ControllerAdvice` catch and format standardized error payloads:
+   ```json
+   {
+     "timestamp": "2026-06-26T10:30:00Z",
+     "status": 404,
+     "error": "Not Found",
+     "message": "Trade not found: c8f1e582-74bf-42d2-a7f2-c9d311f421a1"
+   }
+   ```
+4. **Data Types**: All financial values (prices, quantities, P&L amounts) must use `BigDecimal` to prevent floating-point precision loss.
