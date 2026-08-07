@@ -1,9 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/trading_journal
-    username: trading_user
-    password: trading_password
-    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:trading_journal;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,9 +12,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  jackson:
-    serialization:
-      INDENT_OUTPUT: true
+
 server:
   port: 8080
 
