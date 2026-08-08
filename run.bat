@@ -117,8 +117,9 @@ echo  ============================================================
 echo.
 echo   Service        URL
 echo   -------------- -------------------------------------------
-echo   React App      http://localhost:8080  (or webpack port)
-echo   Spring Boot    http://localhost:8081  (check backend logs)
+echo   React App      http://localhost:3000
+echo   Spring Boot    http://localhost:8080
+echo   Swagger        http://localhost:8080/swagger-ui.html
 echo   PostgreSQL     localhost:5432  (DB: trading_journal)
 echo.
 echo   To STOP all services:

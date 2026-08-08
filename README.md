@@ -356,29 +356,37 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 - Docker & Docker Compose
 - Maven 3.8+
 
-### Step-by-Step Setup
+### Windows: one-click
+Run `run.bat` from the project root. It checks prerequisites, starts Postgres, then opens the backend and frontend in separate windows.
 
-#### 1. Start Database Container
+### Manual setup
+
+#### 1. Database
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
+DB: `trading_journal`, user: `trading_user`, password: `trading_password`, port `5432`.
 
-#### 2. Start Backend Service
+> If you ran this before the Aug 2026 schema change (journal entries added), drop the old volume first: `docker compose down -v`, then bring it back up. `ddl-auto: update` won't add a required column to an existing table on its own.
+
+#### 2. Backend
 ```bash
 cd backend
-mvn clean install
 mvn spring-boot:run
 ```
-- Backend endpoint: `http://localhost:8080`
-- Swagger API documentation: `http://localhost:8080/swagger-ui.html`
+- API: `http://localhost:8080`
+- Swagger: `http://localhost:8080/swagger-ui.html`
 
-#### 3. Start Frontend Service
+#### 3. Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
-- Client portal: `http://localhost:3000`
+- App: `http://localhost:3000`
+
+### Current state (v1)
+Single-user, no login — every endpoint is open. `POST/GET /api/v1/journal` for daily entries, `POST/GET /api/v1/trades` for trades attached to an entry. Auth returns once there's a real `User` entity.
 
 ---
 
