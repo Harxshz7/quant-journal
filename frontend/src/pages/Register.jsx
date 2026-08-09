@@ -48,9 +48,7 @@ export default function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="brand-logo">
-            Quant Journal
-          </div>
+          <div className="brand-logo">Quant Journal</div>
           <h2>Create Account</h2>
           <p>Join Quant Journal to track and elevate your trading</p>
         </div>

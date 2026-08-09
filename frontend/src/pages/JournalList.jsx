@@ -64,7 +64,7 @@ export default function JournalList() {
         <div>
           <h1>Trading Journal</h1>
           {user && (
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
+            <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
               Logged in as <strong>{user.fullName || user.email}</strong>
             </p>
           )}

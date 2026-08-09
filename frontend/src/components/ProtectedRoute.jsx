@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="flex-center" style={{ minHeight: '100vh', color: '#94a3b8' }}>
+      <div className="flex-center" style={{ minHeight: '100vh' }}>
         <div className="spinner"></div>
       </div>
     );

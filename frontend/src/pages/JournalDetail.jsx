@@ -115,7 +115,7 @@ export default function JournalDetail() {
     return (
       <div className="container">
         <div className="error-banner">{error || 'Journal entry not found'}</div>
-        <Link to="/" className="btn btn-secondary" style={{ marginTop: '1rem', display: 'inline-block' }}>
+        <Link to="/" className="btn btn-secondary back-btn">
           &larr; Back to Entries
         </Link>
       </div>
