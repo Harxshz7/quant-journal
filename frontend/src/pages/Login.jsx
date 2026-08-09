@@ -37,7 +37,7 @@ export default function Login() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="brand-logo">
-            <span className="logo-icon">⚡</span> Quant Journal
+            Quant Journal
           </div>
           <h2>Welcome Back</h2>
           <p>Log in to access your trading portal</p>
