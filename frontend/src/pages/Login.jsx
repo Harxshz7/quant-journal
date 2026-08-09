@@ -23,7 +23,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login({ email, password });
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       const msg = err.response?.data?.message || 'Invalid email or password.';
       setError(msg);

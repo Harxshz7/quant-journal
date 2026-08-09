@@ -1,0 +1,143 @@
+package com.tradingjournal.domain.entity;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = "trades")
+public class Trade {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false)
+    private UUID id;
+
+    @Column(name = "ticker", nullable = false)
+    private String ticker;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "position_type", nullable = false)
+    private PositionType positionType;
+
+    @Column(name = "entry_price", nullable = false, precision = 19, scale = 4)
+    private BigDecimal entryPrice;
+
+    @Column(name = "quantity", nullable = false, precision = 19, scale = 4)
+    private BigDecimal quantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source", nullable = false)
+    private TradeSource source = TradeSource.MANUAL;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "journal_entry_id", nullable = false)
+    private JournalEntry journalEntry;
+
+    public Trade() {
+    }
+
+    public Trade(JournalEntry journalEntry, String ticker, PositionType positionType, BigDecimal entryPrice, BigDecimal quantity) {
+        this.journalEntry = journalEntry;
+        this.ticker = ticker;
+        this.positionType = positionType;
+        this.entryPrice = entryPrice;
+        this.quantity = quantity;
+        this.source = TradeSource.MANUAL;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getTradeId() {
+        return id;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public void setTicker(String ticker) {
+        this.ticker = ticker;
+    }
+
+    public PositionType getPositionType() {
+        return positionType;
+    }
+
+    public void setPositionType(PositionType positionType) {
+        this.positionType = positionType;
+    }
+
+    public BigDecimal getEntryPrice() {
+        return entryPrice;
+    }
+
+    public void setEntryPrice(BigDecimal entryPrice) {
+        this.entryPrice = entryPrice;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
+    public TradeSource getSource() {
+        return source;
+    }
+
+    public void setSource(TradeSource source) {
+        this.source = source;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public JournalEntry getJournalEntry() {
+        return journalEntry;
+    }
+
+    public void setJournalEntry(JournalEntry journalEntry) {
+        this.journalEntry = journalEntry;
+    }
+}

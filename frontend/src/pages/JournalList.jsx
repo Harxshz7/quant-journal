@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getJournalEntries, createJournalEntry } from '../api/journal';
+import { useAuth } from '../context/AuthContext';
 
 export default function JournalList() {
   const [entries, setEntries] = useState([]);
@@ -13,6 +14,7 @@ export default function JournalList() {
   const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const fetchEntries = async () => {
     try {
@@ -59,10 +61,22 @@ export default function JournalList() {
   return (
     <div className="container">
       <header className="header">
-        <h1>Trading Journal</h1>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          + New Entry
-        </button>
+        <div>
+          <h1>Trading Journal</h1>
+          {user && (
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
+              Logged in as <strong>{user.fullName || user.email}</strong>
+            </p>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            + New Entry
+          </button>
+          <button className="btn btn-secondary" onClick={logout}>
+            Logout
+          </button>
+        </div>
       </header>
 
       {error && <div className="error-banner">{error}</div>}
