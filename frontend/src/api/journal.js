@@ -32,4 +32,9 @@ export async function getTrades(journalEntryId) {
   return response.data;
 }
 
+export async function closeTrade(id, exitPrice) {
+  const response = await client.put(`/trades/${id}/close`, { exitPrice });
+  return response.data;
+}
+
 export default client;

@@ -2,6 +2,7 @@ package com.tradingjournal.presentation.journal;
 
 import com.tradingjournal.application.journal.TradeService;
 import com.tradingjournal.domain.entity.User;
+import com.tradingjournal.presentation.dto.CloseTradeRequest;
 import com.tradingjournal.presentation.dto.CreateTradeRequest;
 import com.tradingjournal.presentation.dto.TradeDTO;
 import jakarta.validation.Valid;
@@ -30,6 +31,16 @@ public class TradeController {
     ) {
         TradeDTO created = tradeService.createTrade(user, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{id}/close")
+    public ResponseEntity<TradeDTO> closeTrade(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID id,
+            @Valid @RequestBody CloseTradeRequest request
+    ) {
+        TradeDTO closed = tradeService.closeTrade(user, id, request);
+        return ResponseEntity.ok(closed);
     }
 
     @GetMapping

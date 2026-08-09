@@ -368,3 +368,37 @@ textarea:focus {
   color: #94a3b8;
   margin-bottom: 1.25rem;
 }
+
+/* Inline Close Control & P&L Colors */
+.inline-close-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.input-sm {
+  width: 95px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.pnl-positive {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.pnl-negative {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.pnl-neutral {
+  color: #cbd5e1;
+  font-weight: 600;
+}

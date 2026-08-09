@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getJournalEntry, updateJournalEntry, createTrade } from '../api/journal';
+import { getJournalEntry, updateJournalEntry, createTrade, closeTrade } from '../api/journal';
 
 export default function JournalDetail() {
   const { id } = useParams();
@@ -19,6 +19,10 @@ export default function JournalDetail() {
   const [entryPrice, setEntryPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [addingTrade, setAddingTrade] = useState(false);
+
+  // Close trade state
+  const [exitPrices, setExitPrices] = useState({});
+  const [closingTradeId, setClosingTradeId] = useState(null);
 
   const fetchDetail = async () => {
     try {
@@ -83,6 +87,22 @@ export default function JournalDetail() {
     }
   };
 
+  const handleCloseTrade = async (e, tradeId) => {
+    e.preventDefault();
+    const priceStr = exitPrices[tradeId];
+    if (!priceStr || isNaN(parseFloat(priceStr))) return;
+
+    try {
+      setClosingTradeId(tradeId);
+      await closeTrade(tradeId, parseFloat(priceStr));
+      await fetchDetail();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to close trade');
+    } finally {
+      setClosingTradeId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -144,23 +164,61 @@ export default function JournalDetail() {
                 <th>Type</th>
                 <th>Entry Price</th>
                 <th>Quantity</th>
+                <th>Exit Price</th>
+                <th>P&L</th>
                 <th>Source</th>
               </tr>
             </thead>
             <tbody>
-              {entry.trades.map((t) => (
-                <tr key={t.tradeId || t.id}>
-                  <td><strong>{t.ticker}</strong></td>
-                  <td>
-                    <span className={`badge ${t.positionType === 'LONG' ? 'badge-long' : 'badge-short'}`}>
-                      {t.positionType}
-                    </span>
-                  </td>
-                  <td>{t.entryPrice}</td>
-                  <td>{t.quantity}</td>
-                  <td>{t.source || '-'}</td>
-                </tr>
-              ))}
+              {entry.trades.map((t) => {
+                const tradeId = t.tradeId || t.id;
+                const isClosed = t.status === 'CLOSED' || t.exitPrice != null;
+                const pnl = t.realizedPnl;
+                let pnlClass = 'pnl-neutral';
+                if (pnl > 0) pnlClass = 'pnl-positive';
+                else if (pnl < 0) pnlClass = 'pnl-negative';
+
+                return (
+                  <tr key={tradeId}>
+                    <td><strong>{t.ticker}</strong></td>
+                    <td>
+                      <span className={`badge ${t.positionType === 'LONG' ? 'badge-long' : 'badge-short'}`}>
+                        {t.positionType}
+                      </span>
+                    </td>
+                    <td>{t.entryPrice}</td>
+                    <td>{t.quantity}</td>
+                    <td>
+                      {isClosed ? (
+                        t.exitPrice
+                      ) : (
+                        <form onSubmit={(e) => handleCloseTrade(e, tradeId)} className="inline-close-form">
+                          <input
+                            type="number"
+                            step="any"
+                            placeholder="Exit price"
+                            className="input-sm"
+                            value={exitPrices[tradeId] || ''}
+                            onChange={(e) => setExitPrices({ ...exitPrices, [tradeId]: e.target.value })}
+                            required
+                          />
+                          <button
+                            type="submit"
+                            className="btn btn-primary btn-sm"
+                            disabled={closingTradeId === tradeId}
+                          >
+                            {closingTradeId === tradeId ? '...' : 'Close'}
+                          </button>
+                        </form>
+                      )}
+                    </td>
+                    <td className={isClosed ? pnlClass : 'muted'}>
+                      {isClosed ? (pnl > 0 ? `+${pnl}` : pnl) : '-'}
+                    </td>
+                    <td>{t.source || '-'}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         ) : (

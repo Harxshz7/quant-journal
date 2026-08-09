@@ -27,6 +27,12 @@ public class Trade {
     @Column(name = "quantity", nullable = false, precision = 19, scale = 4)
     private BigDecimal quantity;
 
+    @Column(name = "exit_price", precision = 19, scale = 4)
+    private BigDecimal exitPrice;
+
+    @Column(name = "exit_date")
+    private Instant exitDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)
     private TradeSource source = TradeSource.MANUAL;
@@ -107,6 +113,22 @@ public class Trade {
 
     public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
+    }
+
+    public BigDecimal getExitPrice() {
+        return exitPrice;
+    }
+
+    public void setExitPrice(BigDecimal exitPrice) {
+        this.exitPrice = exitPrice;
+    }
+
+    public Instant getExitDate() {
+        return exitDate;
+    }
+
+    public void setExitDate(Instant exitDate) {
+        this.exitDate = exitDate;
     }
 
     public TradeSource getSource() {

@@ -5,6 +5,7 @@ import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
+import com.tradingjournal.presentation.dto.CloseTradeRequest;
 import com.tradingjournal.presentation.dto.CreateTradeRequest;
 import com.tradingjournal.presentation.dto.TradeDTO;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +44,21 @@ public class TradeService {
                 request.entryPrice(),
                 request.quantity()
         );
+
+        Trade saved = tradeRepository.save(trade);
+        return TradeDTO.fromEntity(saved);
+    }
+
+    public TradeDTO closeTrade(User user, UUID tradeId, CloseTradeRequest request) {
+        Trade trade = tradeRepository.findById(tradeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trade not found"));
+
+        if (!trade.getJournalEntry().getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trade not found");
+        }
+
+        trade.setExitPrice(request.exitPrice());
+        trade.setExitDate(Instant.now());
 
         Trade saved = tradeRepository.save(trade);
         return TradeDTO.fromEntity(saved);
