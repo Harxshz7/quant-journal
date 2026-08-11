@@ -1,13 +1,6 @@
+# Local development overrides (activate with --spring.profiles.active=dev)
 spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:trading_journal;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
-
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -21,3 +14,4 @@ logging:
     root: INFO
     org.springframework: INFO
     com.tradingjournal: DEBUG
+    org.hibernate.SQL: DEBUG

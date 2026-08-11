@@ -101,10 +101,12 @@ quant-journal/
 │       │   └── resources/
 │       │       ├── application.yml
 │       │       ├── application-dev.yml
+│       │       ├── application-docker.yml
 │       │       └── application-prod.yml
 │       └── test/                   # JUnit 5 & Mockito test suite
 └── frontend/                      # React SPA Application Root
     ├── Dockerfile
+    ├── nginx.conf                  # Reverse-proxies /api to backend in Compose
     ├── package.json
     └── src/
         ├── api/                    # Axios API integration endpoints
@@ -351,39 +353,55 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 ## 7. Developer Quick Start & Execution Guide
 
 ### Prerequisites
-- Java 21 JDK
-- Node.js 18+ LTS
 - Docker & Docker Compose
-- Maven 3.8+
 
-### Windows: one-click
+### Run everything (recommended)
+```bash
+docker compose up --build
+```
+This starts Postgres, the Spring Boot backend, and the React frontend in one command.
+
+| Service | URL |
+| :--- | :--- |
+| Frontend | `http://localhost:3000` |
+| Backend API | `http://localhost:8080` |
+| Swagger | `http://localhost:8080/swagger-ui.html` |
+| Health | `http://localhost:8080/actuator/health` |
+
+Frontend requests go to relative `/api/v1/...` and are reverse-proxied to the backend by nginx inside the compose network.
+
+> If you ran this before the Aug 2026 schema change (journal entries added), drop the old volume first: `docker compose down -v`, then bring it back up. `ddl-auto: update` won't add a required column to an existing table on its own.
+
+### Alternative: local development
+
+Requires Java 21 JDK, Node.js 18+ LTS, and Maven 3.8+ in addition to Docker.
+
+#### Windows: one-click
 Run `run.bat` from the project root. It checks prerequisites, starts Postgres, then opens the backend and frontend in separate windows.
 
-### Manual setup
+#### Manual setup
 
-#### 1. Database
+**1. Database**
 ```bash
 docker compose up -d postgres
 ```
 DB: `trading_journal`, user: `trading_user`, password: `trading_password`, port `5432`.
 
-> If you ran this before the Aug 2026 schema change (journal entries added), drop the old volume first: `docker compose down -v`, then bring it back up. `ddl-auto: update` won't add a required column to an existing table on its own.
-
-#### 2. Backend
+**2. Backend**
 ```bash
 cd backend
 mvn spring-boot:run
 ```
-- API: `http://localhost:8080`
-- Swagger: `http://localhost:8080/swagger-ui.html`
+Defaults to Postgres on `localhost:5432`. Optional: `--spring.profiles.active=dev` for SQL logging.
 
-#### 3. Frontend
+**3. Frontend**
 ```bash
 cd frontend
 npm install
 npm start
 ```
 - App: `http://localhost:3000`
+- webpack-dev-server proxies `/api` → `http://localhost:8080`
 
 ### Current state (v1)
 Single-user, no login — every endpoint is open. `POST/GET /api/v1/journal` for daily entries, `POST/GET /api/v1/trades` for trades attached to an entry. Auth returns once there's a real `User` entity.

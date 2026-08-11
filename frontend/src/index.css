@@ -137,7 +137,7 @@ h2 {
 .form-group label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #cbd5e1;
+  color: #80b5f5;
 }
 
 input[type="text"],
@@ -163,8 +163,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 select option {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: #5bf5eb;
+  color: #96989b;
 }
 
 input:focus,
