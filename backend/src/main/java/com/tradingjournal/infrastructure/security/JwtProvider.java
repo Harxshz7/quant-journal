@@ -19,7 +19,7 @@ public class JwtProvider {
 
     public JwtProvider(
             @Value("${jwt.secret:quantjournal_secret_key_for_jwt_token_generation_2026_quant}") String secret,
-            @Value("${jwt.expiration-ms:86400000}") long expirationMs) {
+            @Value("${jwt.expiration-ms:900000}") long expirationMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }

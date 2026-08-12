@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getJournalEntries, createJournalEntry } from '../api/journal';
 import { useAuth } from '../context/AuthContext';
 
@@ -70,6 +70,9 @@ export default function JournalList() {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Profile
+          </Link>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + New Entry
           </button>
