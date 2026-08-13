@@ -39,8 +39,6 @@ The Trading Journal Application enables quantitative and discretionary traders t
 | **Frontend** | React | 18.x | Component-driven Single Page Application |
 | | React Router | 6.x | Client-side routing |
 | | Axios | 1.x | Promise-based HTTP client |
-| **DevOps** | Docker | 24+ | Containerization engine |
-| | Docker Compose | 2.x | Multi-container dev & production deployment orchestration |
 
 ---
 
@@ -84,11 +82,9 @@ The backend enforces strict **Clean Architecture** boundaries. High-level module
 
 ```
 quant-journal/
-├── docker-compose.yml             # Local multi-container database & services deployment
 ├── run.bat                        # Windows execution helper script
 ├── README.md                      # Unified Master Documentation
 ├── backend/                       # Spring Boot Application Root
-│   ├── Dockerfile
 │   ├── pom.xml
 │   └── src/
 │       ├── main/
@@ -101,12 +97,9 @@ quant-journal/
 │       │   └── resources/
 │       │       ├── application.yml
 │       │       ├── application-dev.yml
-│       │       ├── application-docker.yml
 │       │       └── application-prod.yml
 │       └── test/                   # JUnit 5 & Mockito test suite
 └── frontend/                      # React SPA Application Root
-    ├── Dockerfile
-    ├── nginx.conf                  # Reverse-proxies /api to backend in Compose
     ├── package.json
     └── src/
         ├── api/                    # Axios API integration endpoints
@@ -340,26 +333,42 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 
 | Phase | Timeline | Key Modules & Deliverables |
 | :--- | :--- | :--- |
-| **Phase 1: Foundation** | Weeks 1–4 | Spring Boot setup, PostgreSQL Docker container, Flyway schema, JWT security core |
+| **Phase 1: Foundation** | Weeks 1–4 | Spring Boot setup, local PostgreSQL, Flyway schema, JWT security core |
 | **Phase 2: User Management** | Weeks 5–7 | User registration, authentication endpoints, token refresh logic, user isolation |
 | **Phase 3: Trade Operations** | Weeks 8–11 | Trade CRUD operations, P&L & Risk/Reward calculation algorithms, pagination |
 | **Phase 4: Analytics** | Weeks 12–15 | `TradeStatistics` caching engine, dashboard metrics, time-series performance charts |
 | **Phase 5: File Storage** | Week 16 | Screenshot upload service, local/S3 storage manager, mime-type validation |
 | **Phase 6: QA & Testing** | Weeks 17–18 | Unit test suite (80%+ target coverage), integration tests, load tests |
-| **Phase 7: Deployment** | Weeks 19–20 | Docker multi-stage builds, production configuration hardening, CI/CD pipeline |
+| **Phase 7: Deployment** | Weeks 19–20 | Production configuration hardening, CI/CD pipeline |
 
 ---
 
 ## 7. Developer Quick Start & Execution Guide
 
 ### Prerequisites
-- Docker & Docker Compose
+- Java 21 JDK
+- Maven 3.8+
+- Node.js 18+ LTS
+- PostgreSQL 15+ (running locally)
 
-### Run everything (recommended)
-```bash
-docker compose up --build
-```
-This starts Postgres, the Spring Boot backend, and the React frontend in one command.
+### Quick Start
+
+1. Install PostgreSQL locally and create the database:
+   ```sql
+   CREATE DATABASE trading_journal;
+   ```
+2. Set your local DB credentials in `backend/src/main/resources/application-dev.yml`.
+3. Start the backend:
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+4. Start the frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
 
 | Service | URL |
 | :--- | :--- |
@@ -368,40 +377,11 @@ This starts Postgres, the Spring Boot backend, and the React frontend in one com
 | Swagger | `http://localhost:8080/swagger-ui.html` |
 | Health | `http://localhost:8080/actuator/health` |
 
-Frontend requests go to relative `/api/v1/...` and are reverse-proxied to the backend by nginx inside the compose network.
+Frontend requests go to relative `/api/v1/...` and are proxied to the backend by webpack-dev-server during local development.
 
-> If you ran this before the Aug 2026 schema change (journal entries added), drop the old volume first: `docker compose down -v`, then bring it back up. `ddl-auto: update` won't add a required column to an existing table on its own.
+### Windows: one-click
 
-### Alternative: local development
-
-Requires Java 21 JDK, Node.js 18+ LTS, and Maven 3.8+ in addition to Docker.
-
-#### Windows: one-click
-Run `run.bat` from the project root. It checks prerequisites, starts Postgres, then opens the backend and frontend in separate windows.
-
-#### Manual setup
-
-**1. Database**
-```bash
-docker compose up -d postgres
-```
-DB: `trading_journal`, user: `trading_user`, password: `trading_password`, port `5432`.
-
-**2. Backend**
-```bash
-cd backend
-mvn spring-boot:run
-```
-Defaults to Postgres on `localhost:5432`. Optional: `--spring.profiles.active=dev` for SQL logging.
-
-**3. Frontend**
-```bash
-cd frontend
-npm install
-npm start
-```
-- App: `http://localhost:3000`
-- webpack-dev-server proxies `/api` → `http://localhost:8080`
+Run `run.bat` from the project root. It checks prerequisites, then opens the backend and frontend in separate windows. PostgreSQL must already be running locally.
 
 ### Current state (v1)
 Single-user, no login — every endpoint is open. `POST/GET /api/v1/journal` for daily entries, `POST/GET /api/v1/trades` for trades attached to an entry. Auth returns once there's a real `User` entity.

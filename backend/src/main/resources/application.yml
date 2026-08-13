@@ -1,9 +1,6 @@
 spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trading_journal}
-    username: ${SPRING_DATASOURCE_USERNAME:trading_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:trading_password}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+  profiles:
+    active: dev
 
   jpa:
     hibernate:
