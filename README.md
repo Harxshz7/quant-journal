@@ -381,10 +381,29 @@ Frontend requests go to relative `/api/v1/...` and are proxied to the backend by
 
 ### Windows: one-click
 
-Run `run.bat` from the project root. It checks prerequisites, then opens the backend and frontend in separate windows. PostgreSQL must already be running locally.
+Run `run.bat` from the project root. It checks prerequisites, then opens the backend and frontend in separate windows. This will:
+- Kill any existing Java processes
+- Build the backend with Maven (`clean package -DskipTests`)
+- Launch the backend in a new terminal window (port 8080)
+- Launch the frontend in a new terminal window (port 3000)
+
+#### Demo Credentials (Development)
+
+For immediate testing in development, the following demo user is seeded automatically:
+
+```
+Email:    demo@quantjournal.local
+Password: Demo@1234
+```
+
+**Access Points:**
+- Frontend: `http://localhost:3000` → Login with demo credentials
+- Backend API: `http://localhost:8080/api/v1`
+- H2 Database Console: `http://localhost:8080/h2-console` (Use SA / blank password)
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ### Current state (v1)
-Single-user, no login — every endpoint is open. `POST/GET /api/v1/journal` for daily entries, `POST/GET /api/v1/trades` for trades attached to an entry. Auth returns once there's a real `User` entity.
+Single-user demonstration mode with JWT authentication. Demo account is automatically created on first backend startup. `POST/GET /api/v1/journal` for daily entries, `POST/GET /api/v1/trades` for trades attached to an entry. User isolation enforced via JWT token claims.
 
 ---
 
