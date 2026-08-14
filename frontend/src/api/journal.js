@@ -25,15 +25,33 @@ export async function createTrade(data) {
   return response.data;
 }
 
-export async function getTrades(journalEntryId) {
-  const response = await client.get('/trades', {
-    params: journalEntryId ? { journalEntryId } : {},
-  });
+export async function updateTrade(id, data) {
+  const response = await client.put(`/trades/${id}`, data);
   return response.data;
 }
 
-export async function closeTrade(id, exitPrice) {
-  const response = await client.put(`/trades/${id}/close`, { exitPrice });
+export async function closeTrade(id, data) {
+  const response = await client.put(`/trades/${id}/close`, data);
+  return response.data;
+}
+
+export async function deleteTrade(id) {
+  const response = await client.delete(`/trades/${id}`);
+  return response.data;
+}
+
+export async function getTrades(filters = {}) {
+  const params = {};
+  const entries = Object.entries(filters);
+  entries.forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params[key] = value;
+    }
+  });
+
+  const response = await client.get('/trades', {
+    params,
+  });
   return response.data;
 }
 

@@ -94,7 +94,7 @@ export default function JournalDetail() {
 
     try {
       setClosingTradeId(tradeId);
-      await closeTrade(tradeId, parseFloat(priceStr));
+      await closeTrade(tradeId, { exitPrice: parseFloat(priceStr) });
       await fetchDetail();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to close trade');
@@ -173,7 +173,7 @@ export default function JournalDetail() {
               {entry.trades.map((t) => {
                 const tradeId = t.tradeId || t.id;
                 const isClosed = t.status === 'CLOSED' || t.exitPrice != null;
-                const pnl = t.realizedPnl;
+                const pnl = t.netPnl ?? t.realizedPnl ?? t.grossPnl;
                 let pnlClass = 'pnl-neutral';
                 if (pnl > 0) pnlClass = 'pnl-positive';
                 else if (pnl < 0) pnlClass = 'pnl-negative';

@@ -6,6 +6,7 @@ import com.tradingjournal.infrastructure.repository.TradeRepository;
 import com.tradingjournal.presentation.dto.CloseTradeRequest;
 import com.tradingjournal.presentation.dto.CreateTradeRequest;
 import com.tradingjournal.presentation.dto.TradeDTO;
+import com.tradingjournal.presentation.dto.UpdateTradeRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,12 +99,60 @@ class TradeServiceTest {
     }
 
     @Test
+    void updateTrade_Success() {
+        UUID tradeId = UUID.randomUUID();
+        Trade trade = new Trade(journalEntryUser1, "AAPL", PositionType.LONG, new BigDecimal("150.00"), new BigDecimal("10"));
+        trade.setId(tradeId);
+
+        UpdateTradeRequest req = new UpdateTradeRequest(
+                "MSFT",
+                PositionType.SHORT,
+                new BigDecimal("250.00"),
+                new BigDecimal("8"),
+                new BigDecimal("245.00"),
+                "Swing"
+        );
+
+        when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
+        when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        TradeDTO dto = tradeService.updateTrade(user1, tradeId, req);
+
+        assertNotNull(dto);
+        assertEquals("MSFT", dto.ticker());
+        assertEquals(PositionType.SHORT, dto.positionType());
+        assertEquals(new BigDecimal("245.00"), dto.stopLoss());
+        assertEquals("Swing", dto.strategy());
+    }
+
+    @Test
+    void updateTrade_ClosedTrade_ThrowsConflict() {
+        UUID tradeId = UUID.randomUUID();
+        Trade trade = new Trade(journalEntryUser1, "AAPL", PositionType.LONG, new BigDecimal("150.00"), new BigDecimal("10"));
+        trade.setId(tradeId);
+        trade.setExitPrice(new BigDecimal("170.00"));
+
+        when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
+
+        UpdateTradeRequest req = new UpdateTradeRequest(
+                "MSFT",
+                PositionType.SHORT,
+                new BigDecimal("250.00"),
+                new BigDecimal("8"),
+                null,
+                null
+        );
+
+        assertThrows(ResponseStatusException.class, () -> tradeService.updateTrade(user1, tradeId, req));
+    }
+
+    @Test
     void closeTrade_Success() {
         UUID tradeId = UUID.randomUUID();
         Trade trade = new Trade(journalEntryUser1, "AAPL", PositionType.LONG, new BigDecimal("150.00"), new BigDecimal("10"));
         trade.setId(tradeId);
 
-        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("170.00"));
+        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("170.00"), new BigDecimal("4.00"));
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
         when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -123,7 +172,7 @@ class TradeServiceTest {
         Trade trade = new Trade(journalEntryUser1, "TSLA", PositionType.SHORT, new BigDecimal("200.00"), new BigDecimal("5"));
         trade.setId(tradeId);
 
-        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("180.00"));
+        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("180.00"), null);
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
         when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -141,10 +190,25 @@ class TradeServiceTest {
         Trade trade = new Trade(journalEntryUser1, "AAPL", PositionType.LONG, new BigDecimal("150.00"), new BigDecimal("10"));
         trade.setId(tradeId);
 
-        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("170.00"));
+        CloseTradeRequest req = new CloseTradeRequest(new BigDecimal("170.00"), null);
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
 
         assertThrows(ResponseStatusException.class, () -> tradeService.closeTrade(user2, tradeId, req));
+    }
+
+    @Test
+    void deleteTrade_SoftDeletesRow() {
+        UUID tradeId = UUID.randomUUID();
+        Trade trade = new Trade(journalEntryUser1, "AAPL", PositionType.LONG, new BigDecimal("150.00"), new BigDecimal("10"));
+        trade.setId(tradeId);
+
+        when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
+        when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        tradeService.deleteTrade(user1, tradeId);
+
+        assertTrue(trade.isDeleted());
+        verify(tradeRepository).save(trade);
     }
 }

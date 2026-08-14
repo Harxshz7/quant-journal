@@ -27,11 +27,23 @@ public class Trade {
     @Column(name = "quantity", nullable = false, precision = 19, scale = 4)
     private BigDecimal quantity;
 
+    @Column(name = "stop_loss", precision = 19, scale = 4)
+    private BigDecimal stopLoss;
+
+    @Column(name = "strategy")
+    private String strategy;
+
     @Column(name = "exit_price", precision = 19, scale = 4)
     private BigDecimal exitPrice;
 
     @Column(name = "exit_date")
     private Instant exitDate;
+
+    @Column(name = "fees", nullable = false, precision = 19, scale = 4)
+    private BigDecimal fees = BigDecimal.ZERO;
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)
@@ -57,6 +69,8 @@ public class Trade {
         this.entryPrice = entryPrice;
         this.quantity = quantity;
         this.source = TradeSource.MANUAL;
+        this.fees = BigDecimal.ZERO;
+        this.deleted = false;
     }
 
     @PrePersist
@@ -115,6 +129,22 @@ public class Trade {
         this.quantity = quantity;
     }
 
+    public BigDecimal getStopLoss() {
+        return stopLoss;
+    }
+
+    public void setStopLoss(BigDecimal stopLoss) {
+        this.stopLoss = stopLoss;
+    }
+
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+
     public BigDecimal getExitPrice() {
         return exitPrice;
     }
@@ -129,6 +159,22 @@ public class Trade {
 
     public void setExitDate(Instant exitDate) {
         this.exitDate = exitDate;
+    }
+
+    public BigDecimal getFees() {
+        return fees;
+    }
+
+    public void setFees(BigDecimal fees) {
+        this.fees = fees;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public TradeSource getSource() {

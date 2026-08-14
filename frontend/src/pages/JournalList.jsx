@@ -70,6 +70,9 @@ export default function JournalList() {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Trades
+          </Link>
           <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Profile
           </Link>
