@@ -48,6 +48,10 @@ backend/apache-maven-*/
 *.log
 logs/
 
+# File uploads (local filesystem storage)
+uploads/
+**/uploads/
+
 # Local tool/cache directories
 .m2/
 

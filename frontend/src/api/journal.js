@@ -60,4 +60,55 @@ export async function getStatistics() {
   return response.data;
 }
 
+/**
+ * Upload a screenshot for a trade
+ * @param {string} tradeId - The trade ID
+ * @param {File} file - The image file to upload
+ * @param {function} onUploadProgress - Optional callback for upload progress
+ * @returns {Promise<TradeScreenshotDTO>}
+ */
+export async function uploadScreenshot(tradeId, file, onUploadProgress) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await client.post(`/screenshots/${tradeId}/upload`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    onUploadProgress,
+  });
+  return response.data;
+}
+
+/**
+ * Get screenshot file as blob (raw image bytes)
+ * @param {string} screenshotId - The screenshot ID
+ * @returns {Promise<Blob>}
+ */
+export async function getScreenshotBlob(screenshotId) {
+  const response = await client.get(`/screenshots/${screenshotId}/file`, {
+    responseType: 'blob',
+  });
+  return response.data;
+}
+
+/**
+ * Delete a screenshot
+ * @param {string} screenshotId - The screenshot ID
+ * @returns {Promise<void>}
+ */
+export async function deleteScreenshot(screenshotId) {
+  await client.delete(`/screenshots/${screenshotId}`);
+}
+
+/**
+ * Get all screenshots for a trade
+ * @param {string} tradeId - The trade ID
+ * @returns {Promise<TradeScreenshotDTO[]>}
+ */
+export async function getScreenshotsForTrade(tradeId) {
+  const response = await client.get(`/screenshots/${tradeId}/list`);
+  return response.data;
+}
+
 export default client;

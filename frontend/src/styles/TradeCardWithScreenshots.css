@@ -1,0 +1,271 @@
+/* TradeCardWithScreenshots Component Styles */
+
+.trade-card-with-screenshots {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.trade-card-with-screenshots:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d0;
+}
+
+/* Card Header */
+.trade-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.trade-card-header:hover {
+  background-color: #f5f5f5;
+}
+
+.trade-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-ticker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-long {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-short {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.trade-prices {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #666;
+  flex-wrap: wrap;
+}
+
+.separator {
+  color: #ddd;
+}
+
+/* Card Stats */
+.trade-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 1rem;
+}
+
+.pnl-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  min-width: 80px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.pnl-positive {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.pnl-negative {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.pnl-neutral {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.expand-btn {
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-btn:hover {
+  color: #333;
+  transform: scale(1.1);
+}
+
+.expand-btn.expanded {
+  color: #2196f3;
+}
+
+/* Card Details (Expanded) */
+.trade-card-details {
+  padding: 1rem;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* Screenshots Section */
+.screenshots-section {
+  padding-top: 1rem;
+  border-top: 1px solid #f5f5f5;
+}
+
+.screenshots-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.screenshots-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  padding: 0.75rem;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 3px solid #e74c3c;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.muted {
+  color: #999;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trade-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .trade-stats {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+
+  .trade-prices {
+    font-size: 0.8rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .detail-label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .trade-card-with-screenshots {
+    margin-bottom: 0.75rem;
+  }
+
+  .trade-card-header {
+    padding: 0.75rem;
+  }
+
+  .trade-ticker {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    gap: 0.5rem;
+  }
+
+  .trade-prices {
+    font-size: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .pnl-badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 70px;
+  }
+
+  .trade-card-details {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .screenshots-section {
+    padding-top: 0.75rem;
+  }
+}
