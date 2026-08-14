@@ -23,6 +23,9 @@ target/
 # VS Code
 .vscode/
 
+# Cursor
+.cursor/
+
 # Node
 node_modules/
 pnpm-lock.yaml
@@ -35,6 +38,12 @@ backend/apache-maven-*/
 # Logs
 *.log
 logs/
+
+# Local tool/cache directories
+.m2/
+
+# Backend build output
+backend/target/
 
 # OS
 .DS_Store

@@ -161,8 +161,8 @@ public class TradeService {
 
     private Specification<Trade> ownedBy(User user) {
         return (root, query, cb) -> {
-            var journalEntry = root.<JournalEntry>join("journalEntry");
-            var owner = journalEntry.<User>join("user");
+            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
+            jakarta.persistence.criteria.Join<JournalEntry, User> owner = journalEntry.join("user");
             return cb.equal(owner.get("id"), user.getId());
         };
     }
@@ -227,7 +227,8 @@ public class TradeService {
             if (fromDate == null) {
                 return cb.conjunction();
             }
-            return cb.greaterThanOrEqualTo(root.<JournalEntry>join("journalEntry").<LocalDate>get("entryDate"), fromDate);
+            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
+            return cb.greaterThanOrEqualTo(journalEntry.get("entryDate"), fromDate);
         };
     }
 
@@ -236,7 +237,8 @@ public class TradeService {
             if (toDate == null) {
                 return cb.conjunction();
             }
-            return cb.lessThanOrEqualTo(root.<JournalEntry>join("journalEntry").<LocalDate>get("entryDate"), toDate);
+            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
+            return cb.lessThanOrEqualTo(journalEntry.get("entryDate"), toDate);
         };
     }
 

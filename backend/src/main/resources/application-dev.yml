@@ -1,16 +1,22 @@
-# Local development — set your PostgreSQL credentials below
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/trading_journal
-    username: your_db_username
-    password: your_db_password
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:trading_journal;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
 
   jpa:
     show-sql: true
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 server:
   port: 8080
