@@ -5,6 +5,7 @@ import com.tradingjournal.domain.entity.PositionType;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.TradeOutcomeFilter;
 import com.tradingjournal.domain.entity.TradeStatusFilter;
+import com.tradingjournal.application.statistics.StatisticsService;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
@@ -33,10 +34,16 @@ public class TradeService {
 
     private final TradeRepository tradeRepository;
     private final JournalEntryRepository journalEntryRepository;
+    private final StatisticsService statisticsService;
 
-    public TradeService(TradeRepository tradeRepository, JournalEntryRepository journalEntryRepository) {
+    public TradeService(
+            TradeRepository tradeRepository,
+            JournalEntryRepository journalEntryRepository,
+            StatisticsService statisticsService
+    ) {
         this.tradeRepository = tradeRepository;
         this.journalEntryRepository = journalEntryRepository;
+        this.statisticsService = statisticsService;
     }
 
     public TradeDTO createTrade(User user, CreateTradeRequest request) {
@@ -73,6 +80,7 @@ public class TradeService {
         trade.setStrategy(normalizeStrategy(request.strategy()));
 
         Trade saved = tradeRepository.save(trade);
+        statisticsService.recalculate(user);
         return TradeDTO.fromEntity(saved);
     }
 
@@ -92,6 +100,7 @@ public class TradeService {
         trade.setFees(request.fees() != null ? request.fees() : ZERO);
 
         Trade saved = tradeRepository.save(trade);
+        statisticsService.recalculate(user);
         return TradeDTO.fromEntity(saved);
     }
 
@@ -99,6 +108,7 @@ public class TradeService {
         Trade trade = findOwnedTradeOrThrow(user, tradeId);
         trade.setDeleted(true);
         tradeRepository.save(trade);
+        statisticsService.recalculate(user);
     }
 
     @Transactional(readOnly = true)
@@ -150,7 +160,11 @@ public class TradeService {
     }
 
     private Specification<Trade> ownedBy(User user) {
-        return (root, query, cb) -> cb.equal(root.<JournalEntry>get("journalEntry").<User>get("user").get("id"), user.getId());
+        return (root, query, cb) -> {
+            var journalEntry = root.<JournalEntry>join("journalEntry");
+            var owner = journalEntry.<User>join("user");
+            return cb.equal(owner.get("id"), user.getId());
+        };
     }
 
     private Specification<Trade> notDeletedIfNeeded(boolean includeArchived) {
@@ -213,7 +227,7 @@ public class TradeService {
             if (fromDate == null) {
                 return cb.conjunction();
             }
-            return cb.greaterThanOrEqualTo(root.<JournalEntry>get("journalEntry").<LocalDate>get("entryDate"), fromDate);
+            return cb.greaterThanOrEqualTo(root.<JournalEntry>join("journalEntry").<LocalDate>get("entryDate"), fromDate);
         };
     }
 
@@ -222,7 +236,7 @@ public class TradeService {
             if (toDate == null) {
                 return cb.conjunction();
             }
-            return cb.lessThanOrEqualTo(root.<JournalEntry>get("journalEntry").<LocalDate>get("entryDate"), toDate);
+            return cb.lessThanOrEqualTo(root.<JournalEntry>join("journalEntry").<LocalDate>get("entryDate"), toDate);
         };
     }
 

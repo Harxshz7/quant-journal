@@ -1,5 +1,6 @@
 package com.tradingjournal.application.journal;
 
+import com.tradingjournal.application.statistics.StatisticsService;
 import com.tradingjournal.domain.entity.*;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
@@ -32,6 +33,9 @@ class TradeServiceTest {
 
     @Mock
     private JournalEntryRepository journalEntryRepository;
+
+    @Mock
+    private StatisticsService statisticsService;
 
     @InjectMocks
     private TradeService tradeService;
@@ -80,6 +84,7 @@ class TradeServiceTest {
         assertNull(dto.exitPrice());
         assertNull(dto.realizedPnl());
         verify(tradeRepository).save(any(Trade.class));
+        verify(statisticsService, never()).recalculate(any());
     }
 
     @Test
@@ -123,6 +128,7 @@ class TradeServiceTest {
         assertEquals(PositionType.SHORT, dto.positionType());
         assertEquals(new BigDecimal("245.00"), dto.stopLoss());
         assertEquals("Swing", dto.strategy());
+        verify(statisticsService).recalculate(user1);
     }
 
     @Test
@@ -164,6 +170,7 @@ class TradeServiceTest {
         assertEquals(new BigDecimal("170.00"), dto.exitPrice());
         assertNotNull(dto.exitDate());
         assertEquals(new BigDecimal("200.00"), dto.realizedPnl());
+        verify(statisticsService).recalculate(user1);
     }
 
     @Test
@@ -182,6 +189,7 @@ class TradeServiceTest {
         assertNotNull(dto);
         assertEquals("CLOSED", dto.status());
         assertEquals(new BigDecimal("100.00"), dto.realizedPnl());
+        verify(statisticsService).recalculate(user1);
     }
 
     @Test
@@ -195,6 +203,7 @@ class TradeServiceTest {
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
 
         assertThrows(ResponseStatusException.class, () -> tradeService.closeTrade(user2, tradeId, req));
+        verify(statisticsService, never()).recalculate(any());
     }
 
     @Test
@@ -210,5 +219,6 @@ class TradeServiceTest {
 
         assertTrue(trade.isDeleted());
         verify(tradeRepository).save(trade);
+        verify(statisticsService).recalculate(user1);
     }
 }

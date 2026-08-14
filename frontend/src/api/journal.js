@@ -55,4 +55,9 @@ export async function getTrades(filters = {}) {
   return response.data;
 }
 
+export async function getStatistics() {
+  const response = await client.get('/statistics');
+  return response.data;
+}
+
 export default client;

@@ -19,4 +19,16 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
 
     @Query("SELECT t FROM Trade t WHERE t.journalEntry.user = :user")
     List<Trade> findByJournalEntry_User(@Param("user") User user);
+
+    @Query("""
+            SELECT t
+            FROM Trade t
+            JOIN FETCH t.journalEntry je
+            JOIN FETCH je.user u
+            WHERE u = :user
+              AND t.deleted = false
+              AND t.exitDate IS NOT NULL
+            ORDER BY t.exitDate ASC
+            """)
+    List<Trade> findClosedActiveTradesForStatistics(@Param("user") User user);
 }
