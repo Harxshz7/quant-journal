@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getScreenshotBlob, deleteScreenshot } from '../api/journal';
 import '../styles/ScreenshotGallery.css';
 
@@ -14,40 +14,66 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
   const [loading, setLoading] = useState({});
   const [deletingId, setDeletingId] = useState(null);
 
+  // Track object URLs in a ref so cleanup can revoke them exactly once, on unmount.
+  // (Revoking in a state-keyed effect would kill URLs that are still on screen.)
+  const urlCacheRef = useRef({});
+  const inFlightRef = useRef({});
+
   /**
-   * Load screenshot blob and create object URL for display
+   * Load screenshot blob and create object URL for display.
+   * Only runs when the screenshot list changes; never revokes on re-render.
    */
   useEffect(() => {
+    let cancelled = false;
+
     screenshots.forEach((screenshot) => {
-      if (!thumbnails[screenshot.id] && !loading[screenshot.id]) {
-        loadThumbnail(screenshot.id);
+      if (urlCacheRef.current[screenshot.id] || inFlightRef.current[screenshot.id]) {
+        return;
       }
+
+      inFlightRef.current[screenshot.id] = true;
+      setLoading((prev) => ({ ...prev, [screenshot.id]: true }));
+
+      getScreenshotBlob(screenshot.id)
+        .then((blob) => {
+          if (cancelled) return;
+          const url = URL.createObjectURL(blob);
+          urlCacheRef.current[screenshot.id] = url;
+          setThumbnails((prev) => ({ ...prev, [screenshot.id]: url }));
+        })
+        .catch((error) => {
+          console.error('Failed to load screenshot:', error);
+          if (!cancelled) {
+            setThumbnails((prev) => ({ ...prev, [screenshot.id]: null }));
+          }
+        })
+        .finally(() => {
+          inFlightRef.current[screenshot.id] = false;
+          if (!cancelled) {
+            setLoading((prev) => ({ ...prev, [screenshot.id]: false }));
+          }
+        });
     });
 
     return () => {
-      // Cleanup object URLs on unmount
-      Object.values(thumbnails).forEach((url) => {
+      cancelled = true;
+      // Let a re-run (e.g. StrictMode's double-invoke or a new screenshots list)
+      // start fresh fetches instead of being blocked by the in-flight guard.
+      inFlightRef.current = {};
+    };
+  }, [screenshots]);
+
+  // Revoke all object URLs exactly once, when the gallery unmounts.
+  useEffect(() => {
+    return () => {
+      Object.values(urlCacheRef.current).forEach((url) => {
         if (url) {
           URL.revokeObjectURL(url);
         }
       });
+      urlCacheRef.current = {};
     };
-  }, [screenshots, thumbnails, loading]);
-
-  const loadThumbnail = async (screenshotId) => {
-    setLoading((prev) => ({ ...prev, [screenshotId]: true }));
-
-    try {
-      const blob = await getScreenshotBlob(screenshotId);
-      const url = URL.createObjectURL(blob);
-      setThumbnails((prev) => ({ ...prev, [screenshotId]: url }));
-    } catch (error) {
-      console.error('Failed to load screenshot:', error);
-      setThumbnails((prev) => ({ ...prev, [screenshotId]: null }));
-    } finally {
-      setLoading((prev) => ({ ...prev, [screenshotId]: false }));
-    }
-  };
+  }, []);
 
   const handleDelete = async (screenshotId) => {
     if (!window.confirm('Delete this screenshot?')) {
@@ -58,13 +84,13 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
 
     try {
       await deleteScreenshot(screenshotId);
-      
-      // Revoke object URL
-      if (thumbnails[screenshotId]) {
-        URL.revokeObjectURL(thumbnails[screenshotId]);
+
+      // Revoke object URL and remove from ref + state
+      const url = urlCacheRef.current[screenshotId];
+      if (url) {
+        URL.revokeObjectURL(url);
+        delete urlCacheRef.current[screenshotId];
       }
-      
-      // Remove from state
       setThumbnails((prev) => {
         const newState = { ...prev };
         delete newState[screenshotId];

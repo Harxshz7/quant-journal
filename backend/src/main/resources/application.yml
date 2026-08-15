@@ -22,16 +22,14 @@ app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   upload:
     dir: ./uploads/screenshots
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 
 management:
   endpoints:
     web:
       exposure:
         include: health
-
-app:
-  cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000}
 
 logging:
   level:

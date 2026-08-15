@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,4 +15,7 @@ public interface TradeScreenshotRepository extends JpaRepository<TradeScreenshot
 
     @Query("SELECT ts FROM TradeScreenshot ts WHERE ts.trade.id = :tradeId ORDER BY ts.uploadedAt DESC")
     List<TradeScreenshot> findByTrade_TradeId(@Param("tradeId") UUID tradeId);
+
+    @Query("SELECT ts FROM TradeScreenshot ts WHERE ts.trade.id IN :tradeIds ORDER BY ts.uploadedAt DESC")
+    List<TradeScreenshot> findByTradeIdIn(@Param("tradeIds") Collection<UUID> tradeIds);
 }

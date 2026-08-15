@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -139,7 +140,15 @@ public class TradeService {
                 .and(entryDateGte(fromDate))
                 .and(entryDateLte(toDate));
 
-        return tradeRepository.findAll(spec, pageable).map(TradeDTO::fromEntity);
+        Page<Trade> page = tradeRepository.findAll(spec, pageable);
+
+        // Batch-initialize journalEntry for the page rows to avoid an N+1 lazy load per trade
+        if (!page.getContent().isEmpty()) {
+            List<UUID> tradeIds = page.getContent().stream().map(Trade::getId).toList();
+            tradeRepository.findWithJournalEntryByIds(tradeIds);
+        }
+
+        return page.map(TradeDTO::fromEntity);
     }
 
     private Trade findOwnedTradeOrThrow(User user, UUID tradeId) {

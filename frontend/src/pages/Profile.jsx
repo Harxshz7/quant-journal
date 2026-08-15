@@ -19,6 +19,7 @@ export default function Profile() {
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookError, setWebhookError] = useState('');
   const [webhookLoading, setWebhookLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
@@ -34,10 +35,12 @@ export default function Profile() {
   const fetchWebhookUrl = async () => {
     try {
       setWebhookLoading(true);
+      setWebhookError('');
       const res = await getWebhookUrl();
       setWebhookUrl(res.webhookUrl || '');
     } catch (err) {
       console.error('Failed to load webhook URL:', err);
+      setWebhookError(err.response?.data?.message || 'Failed to load webhook URL. Please try again.');
     } finally {
       setWebhookLoading(false);
     }
@@ -45,9 +48,16 @@ export default function Profile() {
 
   const handleCopyWebhook = () => {
     if (!webhookUrl) return;
-    navigator.clipboard.writeText(webhookUrl);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
+    navigator.clipboard
+      .writeText(webhookUrl)
+      .then(() => {
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      })
+      .catch(() => {
+        // Clipboard API can be denied (e.g. insecure context / permissions)
+        setWebhookError('Could not copy. Copy the URL manually from the field below.');
+      });
   };
 
   const handleRegenerateWebhook = async () => {
@@ -237,6 +247,8 @@ export default function Profile() {
         <div className="alert" style={{ background: 'rgba(56, 189, 248, 0.1)', borderColor: 'rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '0.85rem' }}>
           💡 <strong>Note:</strong> For future broker/alert automation — receiver is not active yet.
         </div>
+
+        {webhookError && <div className="alert alert-error">{webhookError}</div>}
 
         <div className="form-group">
           <label htmlFor="webhookUrl">Webhook URL</label>

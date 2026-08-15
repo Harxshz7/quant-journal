@@ -114,6 +114,9 @@
                 <version>3.11.0</version>
                 <configuration>
                     <release>${java.version}</release>
+                    <!-- Required so Spring MVC can resolve unnamed @RequestParam names by reflection
+                         (the spring-boot-starter-parent normally sets this; this project imports the BOM) -->
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>

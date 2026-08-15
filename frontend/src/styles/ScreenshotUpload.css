@@ -25,6 +25,12 @@
   cursor: not-allowed;
 }
 
+/* Neumorphic button variant — pressed state presses inward (matches .btn:active in index.css) */
+.btn-neumorphic:active:not(:disabled),
+.btn-neumorphic.is-selected {
+  box-shadow: var(--shadow-inset);
+}
+
 .file-input-hidden {
   display: none;
 }

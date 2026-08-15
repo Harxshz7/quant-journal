@@ -23,6 +23,31 @@ if errorlevel 1 (
 
 echo  [OK] Java found.
 
+:: Verify Java version (project requires JDK 21+; newer JDKs break JaCoCo/Mockito)
+set "JAVA_VERSION_STR="
+for /f "tokens=3" %%v in ('java -version 2^>^&1 ^| findstr /i "version"') do set "JAVA_VERSION_STR=%%~v"
+set "JAVA_MAJOR="
+if defined JAVA_VERSION_STR (
+    for /f "tokens=1 delims=." %%m in ("%JAVA_VERSION_STR%") do set "JAVA_MAJOR=%%m"
+)
+if "%JAVA_MAJOR%"=="1" set "JAVA_MAJOR="
+if not defined JAVA_MAJOR (
+    echo  [ERROR] Could not determine Java version. Install JDK 21 (LTS).
+    pause
+    exit /b 1
+)
+if %JAVA_MAJOR% LSS 21 (
+    echo  [ERROR] Java 21 or newer is required, but Java %JAVA_MAJOR% was found.
+    echo          Install JDK 21 (LTS) and ensure it is first in PATH.
+    pause
+    exit /b 1
+)
+echo  [OK] Java %JAVA_MAJOR% detected.
+if %JAVA_MAJOR% GTR 23 (
+    echo  [WARNING] Java %JAVA_MAJOR% is newer than the tested Java 21. The build may fail
+    echo           (JaCoCo/Mockito instrumentation). Install JDK 21 for the best experience.
+)
+
 set "MVN_CMD=mvn"
 set "MAVEN_REPO_LOCAL=%~dp0.m2\repository"
 

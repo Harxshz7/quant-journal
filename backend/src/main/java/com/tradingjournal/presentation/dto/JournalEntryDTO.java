@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record JournalEntryDTO(
@@ -17,20 +18,21 @@ public record JournalEntryDTO(
     Instant updatedAt
 ) {
     public static JournalEntryDTO fromEntity(JournalEntry entry) {
-        return fromEntity(entry, null);
+        return fromEntity(entry, Collections.emptyMap());
     }
 
-    public static JournalEntryDTO fromEntity(JournalEntry entry, com.tradingjournal.infrastructure.repository.TradeScreenshotRepository screenshotRepository) {
+    /**
+     * Maps an entry to a DTO, attaching screenshots for each trade.
+     * Callers must pass a pre-fetched map of tradeId -> screenshots (batched query)
+     * to avoid an N+1 repository call per trade.
+     */
+    public static JournalEntryDTO fromEntity(JournalEntry entry, Map<UUID, List<TradeScreenshotDTO>> screenshotsByTradeId) {
+        Map<UUID, List<TradeScreenshotDTO>> screenshots = screenshotsByTradeId != null ? screenshotsByTradeId : Collections.emptyMap();
+
         List<TradeDTO> tradeDTOs = entry.getTrades() != null ?
             entry.getTrades().stream().map(trade -> {
-                if (screenshotRepository != null) {
-                    var screenshots = screenshotRepository.findByTrade_TradeId(trade.getId())
-                            .stream()
-                            .map(TradeScreenshotDTO::fromEntity)
-                            .toList();
-                    return TradeDTO.fromEntity(trade, screenshots);
-                }
-                return TradeDTO.fromEntity(trade);
+                List<TradeScreenshotDTO> tradeScreenshots = screenshots.getOrDefault(trade.getId(), Collections.emptyList());
+                return TradeDTO.fromEntity(trade, tradeScreenshots);
             }).toList() : Collections.emptyList();
 
         return new JournalEntryDTO(

@@ -5,6 +5,7 @@ import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
 import com.tradingjournal.presentation.dto.CreateJournalEntryRequest;
 import com.tradingjournal.presentation.dto.JournalEntryDTO;
+import com.tradingjournal.presentation.dto.TradeScreenshotDTO;
 import com.tradingjournal.presentation.dto.UpdateJournalEntryRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,7 +46,7 @@ public class JournalEntryService {
 
     @Transactional(readOnly = true)
     public List<JournalEntryDTO> getUserJournalEntries(User user) {
-        return journalEntryRepository.findByUser(user)
+        return journalEntryRepository.findByUserWithTrades(user)
                 .stream()
                 .map(JournalEntryDTO::fromEntity)
                 .toList();
@@ -51,14 +54,27 @@ public class JournalEntryService {
 
     @Transactional(readOnly = true)
     public JournalEntryDTO getJournalEntryById(User user, UUID id) {
-        JournalEntry entry = journalEntryRepository.findById(id)
+        JournalEntry entry = journalEntryRepository.findWithTradesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found"));
 
         if (!entry.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
-        return JournalEntryDTO.fromEntity(entry, tradeScreenshotRepository);
+        // Batch-load screenshots for all of the entry's trades in a single query
+        List<UUID> tradeIds = entry.getTrades().stream()
+                .map(trade -> trade.getId())
+                .toList();
+
+        Map<UUID, List<TradeScreenshotDTO>> screenshotsByTradeId = tradeIds.isEmpty()
+                ? Map.of()
+                : tradeScreenshotRepository.findByTradeIdIn(tradeIds).stream()
+                        .collect(Collectors.groupingBy(
+                                screenshot -> screenshot.getTrade().getId(),
+                                Collectors.mapping(TradeScreenshotDTO::fromEntity, Collectors.toList())
+                        ));
+
+        return JournalEntryDTO.fromEntity(entry, screenshotsByTradeId);
     }
 
     public JournalEntryDTO updateJournalEntry(User user, UUID id, UpdateJournalEntryRequest request) {

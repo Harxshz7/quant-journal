@@ -41,13 +41,22 @@ export default function TradingViewChart({ symbol, theme = 'dark', height = 500 
     if (window.TradingView) {
       initWidget();
     } else {
-      scriptElement = document.createElement('script');
-      scriptElement.id = 'tradingview-tv-js';
-      scriptElement.src = 'https://s3.tradingview.com/tv.js';
-      scriptElement.type = 'text/javascript';
-      scriptElement.async = true;
-      scriptElement.onload = initWidget;
-      document.head.appendChild(scriptElement);
+      // Reuse the shared tv.js script if another chart already injected it
+      // (multiple expanded trade cards would otherwise create duplicate <script id="tradingview-tv-js"> tags)
+      scriptElement = document.getElementById('tradingview-tv-js');
+      if (!scriptElement) {
+        scriptElement = document.createElement('script');
+        scriptElement.id = 'tradingview-tv-js';
+        scriptElement.src = 'https://s3.tradingview.com/tv.js';
+        scriptElement.type = 'text/javascript';
+        scriptElement.async = true;
+        document.head.appendChild(scriptElement);
+      }
+      if (window.TradingView) {
+        initWidget();
+      } else {
+        scriptElement.addEventListener('load', initWidget);
+      }
     }
 
     return () => {

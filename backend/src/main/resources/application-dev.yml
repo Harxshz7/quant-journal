@@ -21,6 +21,10 @@ spring:
 server:
   port: 8080
 
+jwt:
+  # Dev-only signing key. Production MUST override via JWT_SECRET env var (see application-prod.yml).
+  secret: ${JWT_SECRET:dev-only-insecure-signing-key-change-me-2026}
+
 logging:
   level:
     root: INFO

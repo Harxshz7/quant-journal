@@ -11,6 +11,10 @@ spring:
       ddl-auto: validate
     show-sql: false
 
+jwt:
+  # Required in production — no default on purpose (fail fast if missing)
+  secret: ${JWT_SECRET}
+
 app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}

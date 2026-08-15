@@ -323,7 +323,7 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 
 #### 5.3 Analytics & Screenshot Endpoints
 
-- **`GET /dashboard/overview`**: Retrieves summary metrics (Total Trades, Win Rate, Profit Factor, Total P&L).
+- **`GET /statistics`**: Retrieves summary metrics (Total Trades, Win Rate, Profit Factor, Avg/Largest Win/Loss, streaks, Avg R:R).
 - **`POST /trades/{tradeId}/screenshots`**: Uploads image files (multipart form field `file`, max 10MB).
 - **`GET /trades/{tradeId}/screenshots`**: Lists metadata for trade screenshots.
 
@@ -357,6 +357,7 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
    ```sql
    CREATE DATABASE trading_journal;
    ```
+   > Note: the default `dev` profile runs on an embedded in-memory H2 database and needs no setup.
 2. Set your local DB credentials in `backend/src/main/resources/application-dev.yml`.
 3. Start the backend:
    ```bash
@@ -369,6 +370,20 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
    npm install
    npm start
    ```
+
+### Environment Variables
+
+| Variable | Required | Default | Used by |
+| :--- | :--- | :--- | :--- |
+| `JWT_SECRET` | **prod** (no default) / optional in dev | dev-only value in `application-dev.yml` | JWT signing key — must be a long random string in production |
+| `SPRING_DATASOURCE_URL` | prod | — | JDBC URL (PostgreSQL) |
+| `SPRING_DATASOURCE_USERNAME` | prod | — | DB user |
+| `SPRING_DATASOURCE_PASSWORD` | prod | — | DB password |
+| `SPRING_DATASOURCE_DRIVER` | prod | `org.postgresql.Driver` | JDBC driver class |
+| `APP_CORS_ALLOWED_ORIGINS` | prod | `http://localhost:3000` | Comma-separated allowed CORS origins |
+| `APP_BASE_URL` | no | `http://localhost:8080` | Base URL used to build webhook URLs |
+
+**Important:** In production (`--spring.profiles.active=prod`) the app fails fast at startup if `JWT_SECRET` or any `SPRING_DATASOURCE_*` / `APP_CORS_ALLOWED_ORIGINS` value is missing.
 
 | Service | URL |
 | :--- | :--- |
