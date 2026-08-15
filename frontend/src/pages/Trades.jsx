@@ -255,13 +255,9 @@ export default function Trades() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setIsImportModalOpen(true)}
-          >
+          <Link to="/import" className="btn btn-primary" style={{ textDecoration: 'none' }}>
             📥 Import TradingView
-          </button>
+          </Link>
           <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Journal
           </Link>

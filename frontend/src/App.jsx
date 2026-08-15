@@ -9,6 +9,7 @@ import JournalDetail from './pages/JournalDetail';
 import Profile from './pages/Profile';
 import Trades from './pages/Trades';
 import Statistics from './pages/Statistics';
+import ImportWizard from './pages/ImportWizard';
 
 export default function App() {
   return (
@@ -38,6 +39,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Trades />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/import"
+            element={
+              <ProtectedRoute>
+                <ImportWizard />
               </ProtectedRoute>
             }
           />
