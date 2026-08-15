@@ -3,6 +3,7 @@ import ScreenshotUpload from './ScreenshotUpload';
 import ScreenshotGallery from './ScreenshotGallery';
 import TradingViewChart from './TradingViewChart';
 import { getScreenshotsForTrade } from '../api/journal';
+import { mapTradingViewSymbol } from '../utils/tradingViewSymbol';
 import '../styles/TradeCardWithScreenshots.css';
 
 /**
@@ -56,6 +57,12 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
     setError(errorMsg);
   };
 
+  const handleOpenTradingView = (e) => {
+    e.stopPropagation();
+    const mappedSymbol = mapTradingViewSymbol(trade.ticker);
+    window.open(`https://www.tradingview.com/chart/?symbol=${encodeURIComponent(mappedSymbol)}`, '_blank', 'noopener,noreferrer');
+  };
+
   const pnlClass = isClosed ? (pnl > 0 ? 'pnl-positive' : pnl < 0 ? 'pnl-negative' : 'pnl-neutral') : 'pnl-neutral';
   const pnlDisplay = isClosed ? (pnl > 0 ? `+${pnl}` : pnl) : '-';
 
@@ -82,8 +89,17 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
           </div>
         </div>
 
-        <div className="trade-stats">
+        <div className="trade-stats" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div className={`pnl-badge ${pnlClass}`}>{pnlDisplay}</div>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={handleOpenTradingView}
+            type="button"
+            title="Open symbol chart on TradingView in new tab"
+            style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+          >
+            🔗 TradingView
+          </button>
           <button
             className={`expand-btn ${expanded ? 'expanded' : ''}`}
             onClick={handleExpand}

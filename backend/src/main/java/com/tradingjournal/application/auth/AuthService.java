@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.beans.factory.annotation.Value;
+import com.tradingjournal.presentation.auth.WebhookResponseDTO;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -30,6 +33,9 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     public AuthService(
             UserRepository userRepository,
@@ -121,6 +127,32 @@ public class AuthService {
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public WebhookResponseDTO getOrCreateWebhookUrl(User user) {
+        String token = user.getWebhookToken();
+        if (token == null || token.isBlank()) {
+            token = UUID.randomUUID().toString();
+            user.setWebhookToken(token);
+            userRepository.save(user);
+        }
+        String fullUrl = buildWebhookUrl(token);
+        return new WebhookResponseDTO(fullUrl);
+    }
+
+    @Transactional
+    public WebhookResponseDTO regenerateWebhookUrl(User user) {
+        String newToken = UUID.randomUUID().toString();
+        user.setWebhookToken(newToken);
+        userRepository.save(user);
+        String fullUrl = buildWebhookUrl(newToken);
+        return new WebhookResponseDTO(fullUrl);
+    }
+
+    private String buildWebhookUrl(String token) {
+        String base = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+        return base + "/api/v1/webhooks/tradingview/" + token;
     }
 
     private RefreshToken createRefreshToken(User user) {

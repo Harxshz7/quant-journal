@@ -22,6 +22,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(name = "webhook_token", unique = true)
+    private String webhookToken;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -95,5 +98,13 @@ public class User {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getWebhookToken() {
+        return webhookToken;
+    }
+
+    public void setWebhookToken(String webhookToken) {
+        this.webhookToken = webhookToken;
     }
 }

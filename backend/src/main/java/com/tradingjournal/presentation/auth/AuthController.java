@@ -72,4 +72,22 @@ public class AuthController {
         authService.changePassword(user, request);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/me/webhook")
+    public ResponseEntity<WebhookResponseDTO> getWebhookUrl(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        WebhookResponseDTO response = authService.getOrCreateWebhookUrl(user);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/me/webhook/regenerate")
+    public ResponseEntity<WebhookResponseDTO> regenerateWebhookUrl(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        WebhookResponseDTO response = authService.regenerateWebhookUrl(user);
+        return ResponseEntity.ok(response);
+    }
 }

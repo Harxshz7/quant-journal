@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { changePasswordApi } from '../api/auth';
+import { changePasswordApi, getWebhookUrl, regenerateWebhookUrl } from '../api/auth';
 
 export default function Profile() {
   const { user, logout, updateProfile } = useAuth();
@@ -18,12 +18,54 @@ export default function Profile() {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookLoading, setWebhookLoading] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+
   useEffect(() => {
     if (user) {
       setFullName(user.fullName || '');
       setEmail(user.email || '');
+      fetchWebhookUrl();
     }
   }, [user]);
+
+  const fetchWebhookUrl = async () => {
+    try {
+      setWebhookLoading(true);
+      const res = await getWebhookUrl();
+      setWebhookUrl(res.webhookUrl || '');
+    } catch (err) {
+      console.error('Failed to load webhook URL:', err);
+    } finally {
+      setWebhookLoading(false);
+    }
+  };
+
+  const handleCopyWebhook = () => {
+    if (!webhookUrl) return;
+    navigator.clipboard.writeText(webhookUrl);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const handleRegenerateWebhook = async () => {
+    if (!window.confirm('Regenerate webhook URL? Your previous webhook URL will stop working immediately.')) {
+      return;
+    }
+
+    try {
+      setRegenerating(true);
+      const res = await regenerateWebhookUrl();
+      setWebhookUrl(res.webhookUrl || '');
+      alert('Webhook URL regenerated successfully.');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to regenerate webhook URL');
+    } finally {
+      setRegenerating(false);
+    }
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -184,6 +226,47 @@ export default function Profile() {
             {passwordLoading ? 'Updating...' : 'Change Password'}
           </button>
         </form>
+      </div>
+
+      <div className="auth-card" style={{ marginTop: '1.75rem' }}>
+        <div className="auth-header">
+          <h2>🔗 Webhook & Automation Settings</h2>
+          <p>Personal endpoint for future automated trade logging</p>
+        </div>
+
+        <div className="alert" style={{ background: 'rgba(56, 189, 248, 0.1)', borderColor: 'rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '0.85rem' }}>
+          💡 <strong>Note:</strong> For future broker/alert automation — receiver is not active yet.
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="webhookUrl">Webhook URL</label>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              id="webhookUrl"
+              type="text"
+              readOnly
+              value={webhookLoading ? 'Loading webhook URL...' : webhookUrl}
+              style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleCopyWebhook}
+              disabled={!webhookUrl || webhookLoading}
+            >
+              {copySuccess ? 'Copied!' : 'Copy'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleRegenerateWebhook}
+              disabled={!webhookUrl || regenerating}
+              title="Rotate webhook token if leaked"
+            >
+              {regenerating ? '...' : 'Regenerate'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
