@@ -71,7 +71,7 @@ export async function uploadScreenshot(tradeId, file, onUploadProgress) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await client.post(`/screenshots/${tradeId}/upload`, formData, {
+  const response = await client.post(`/trades/${tradeId}/screenshots`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -107,7 +107,28 @@ export async function deleteScreenshot(screenshotId) {
  * @returns {Promise<TradeScreenshotDTO[]>}
  */
 export async function getScreenshotsForTrade(tradeId) {
-  const response = await client.get(`/screenshots/${tradeId}/list`);
+  const response = await client.get(`/trades/${tradeId}/screenshots`);
+  return response.data;
+}
+
+/**
+ * Import trades from a TradingView CSV export
+ * @param {File} file - CSV file
+ * @param {string} [journalEntryId] - Optional journal entry ID
+ * @returns {Promise<ImportSummaryDTO>}
+ */
+export async function importTradingViewCsv(file, journalEntryId) {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (journalEntryId) {
+    formData.append('journalEntryId', journalEntryId);
+  }
+
+  const response = await client.post('/trades/import/tradingview', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 }
 

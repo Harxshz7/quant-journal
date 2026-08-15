@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/screenshots")
 public class TradeScreenshotController {
 
     private final TradeScreenshotService tradeScreenshotService;
@@ -27,7 +26,7 @@ public class TradeScreenshotController {
      * Upload a screenshot for a trade.
      * POST /api/v1/trades/{tradeId}/screenshots
      */
-    @PostMapping(path = "/{tradeId}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/api/v1/trades/{tradeId}/screenshots", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TradeScreenshotDTO> uploadScreenshot(
             @AuthenticationPrincipal User user,
             @PathVariable UUID tradeId,
@@ -37,10 +36,22 @@ public class TradeScreenshotController {
     }
 
     /**
+     * Get all screenshots for a trade.
+     * GET /api/v1/trades/{tradeId}/screenshots
+     */
+    @GetMapping("/api/v1/trades/{tradeId}/screenshots")
+    public ResponseEntity<List<TradeScreenshotDTO>> getScreenshotsForTrade(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID tradeId) {
+        List<TradeScreenshotDTO> screenshots = tradeScreenshotService.getScreenshotsForTrade(user, tradeId);
+        return ResponseEntity.ok(screenshots);
+    }
+
+    /**
      * Get screenshot file (raw image bytes).
      * GET /api/v1/screenshots/{id}/file
      */
-    @GetMapping("/{id}/file")
+    @GetMapping("/api/v1/screenshots/{id}/file")
     public ResponseEntity<byte[]> getScreenshotFile(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
@@ -56,23 +67,11 @@ public class TradeScreenshotController {
      * Delete a screenshot.
      * DELETE /api/v1/screenshots/{id}
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/v1/screenshots/{id}")
     public ResponseEntity<Void> deleteScreenshot(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
         tradeScreenshotService.deleteScreenshot(user, id);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Get all screenshots for a trade.
-     * GET /api/v1/trades/{tradeId}/screenshots
-     */
-    @GetMapping(path = "/{tradeId}/list")
-    public ResponseEntity<List<TradeScreenshotDTO>> getScreenshotsForTrade(
-            @AuthenticationPrincipal User user,
-            @PathVariable UUID tradeId) {
-        List<TradeScreenshotDTO> screenshots = tradeScreenshotService.getScreenshotsForTrade(user, tradeId);
-        return ResponseEntity.ok(screenshots);
     }
 }

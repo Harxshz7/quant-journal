@@ -71,7 +71,7 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
         return newState;
       });
 
-      onDeleteSuccess?.();
+      onDeleteSuccess?.(screenshotId);
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.message || 'Delete failed';
       console.error('Failed to delete screenshot:', error);

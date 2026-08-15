@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { closeTrade, deleteTrade, getTrades, updateTrade } from '../api/journal';
+import TradingViewImportModal from '../components/TradingViewImportModal';
 
 const DEFAULT_FILTERS = {
   ticker: '',
@@ -44,6 +45,7 @@ export default function Trades() {
 
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [modalMode, setModalMode] = useState(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editForm, setEditForm] = useState(EMPTY_EDIT_FORM);
   const [closeForm, setCloseForm] = useState(EMPTY_CLOSE_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -253,6 +255,13 @@ export default function Trades() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setIsImportModalOpen(true)}
+          >
+            📥 Import TradingView
+          </button>
           <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Journal
           </Link>
@@ -629,6 +638,12 @@ export default function Trades() {
           </div>
         </div>
       )}
+
+      <TradingViewImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportSuccess={applyFilters}
+      />
     </div>
   );
 }

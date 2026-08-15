@@ -45,9 +45,10 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
     setError(errorMsg);
   };
 
-  const handleDeleteSuccess = () => {
-    // Refresh screenshots list
+  const handleDeleteSuccess = (deletedId) => {
+    setScreenshots((prev) => prev.filter((s) => s.id !== deletedId));
     setError(null);
+    onTradeUpdate?.();
   };
 
   const handleDeleteError = (errorMsg) => {

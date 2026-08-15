@@ -31,4 +31,7 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
             ORDER BY t.exitDate ASC
             """)
     List<Trade> findClosedActiveTradesForStatistics(@Param("user") User user);
+
+    @Query("SELECT COUNT(t) > 0 FROM Trade t WHERE t.journalEntry.user = :user AND t.externalId = :externalId")
+    boolean existsByJournalEntry_UserAndExternalId(@Param("user") User user, @Param("externalId") String externalId);
 }

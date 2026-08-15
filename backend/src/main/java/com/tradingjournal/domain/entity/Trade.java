@@ -49,6 +49,9 @@ public class Trade {
     @Column(name = "source", nullable = false)
     private TradeSource source = TradeSource.MANUAL;
 
+    @Column(name = "external_id")
+    private String externalId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -207,5 +210,13 @@ public class Trade {
 
     public void setJournalEntry(JournalEntry journalEntry) {
         this.journalEntry = journalEntry;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 }

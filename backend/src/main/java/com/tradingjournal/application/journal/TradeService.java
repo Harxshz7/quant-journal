@@ -35,15 +35,18 @@ public class TradeService {
     private final TradeRepository tradeRepository;
     private final JournalEntryRepository journalEntryRepository;
     private final StatisticsService statisticsService;
+    private final com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository;
 
     public TradeService(
             TradeRepository tradeRepository,
             JournalEntryRepository journalEntryRepository,
-            StatisticsService statisticsService
+            StatisticsService statisticsService,
+            com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository
     ) {
         this.tradeRepository = tradeRepository;
         this.journalEntryRepository = journalEntryRepository;
         this.statisticsService = statisticsService;
+        this.tradeScreenshotRepository = tradeScreenshotRepository;
     }
 
     public TradeDTO createTrade(User user, CreateTradeRequest request) {
@@ -81,7 +84,9 @@ public class TradeService {
 
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
-        return TradeDTO.fromEntity(saved);
+        var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
+                .stream().map(com.tradingjournal.presentation.dto.TradeScreenshotDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(saved, screenshots);
     }
 
     public TradeDTO closeTrade(User user, UUID tradeId, CloseTradeRequest request) {
@@ -101,7 +106,9 @@ public class TradeService {
 
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
-        return TradeDTO.fromEntity(saved);
+        var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
+                .stream().map(com.tradingjournal.presentation.dto.TradeScreenshotDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(saved, screenshots);
     }
 
     public void deleteTrade(User user, UUID tradeId) {

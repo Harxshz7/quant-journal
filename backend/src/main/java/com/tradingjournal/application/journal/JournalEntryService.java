@@ -20,9 +20,14 @@ import java.util.UUID;
 public class JournalEntryService {
 
     private final JournalEntryRepository journalEntryRepository;
+    private final com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository;
 
-    public JournalEntryService(JournalEntryRepository journalEntryRepository) {
+    public JournalEntryService(
+            JournalEntryRepository journalEntryRepository,
+            com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository
+    ) {
         this.journalEntryRepository = journalEntryRepository;
+        this.tradeScreenshotRepository = tradeScreenshotRepository;
     }
 
     public JournalEntryDTO createJournalEntry(User user, CreateJournalEntryRequest request) {
@@ -53,7 +58,7 @@ public class JournalEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
-        return JournalEntryDTO.fromEntity(entry);
+        return JournalEntryDTO.fromEntity(entry, tradeScreenshotRepository);
     }
 
     public JournalEntryDTO updateJournalEntry(User user, UUID id, UpdateJournalEntryRequest request) {

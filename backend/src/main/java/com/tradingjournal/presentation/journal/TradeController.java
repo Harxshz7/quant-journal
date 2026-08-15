@@ -19,6 +19,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import com.tradingjournal.application.journal.TradeImportService;
+import com.tradingjournal.presentation.dto.ImportSummaryDTO;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -27,9 +32,11 @@ import java.util.UUID;
 public class TradeController {
 
     private final TradeService tradeService;
+    private final TradeImportService tradeImportService;
 
-    public TradeController(TradeService tradeService) {
+    public TradeController(TradeService tradeService, TradeImportService tradeImportService) {
         this.tradeService = tradeService;
+        this.tradeImportService = tradeImportService;
     }
 
     @PostMapping
@@ -39,6 +46,16 @@ public class TradeController {
     ) {
         TradeDTO created = tradeService.createTrade(user, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PostMapping(path = "/import/tradingview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImportSummaryDTO> importTradingViewCsv(
+            @AuthenticationPrincipal User user,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "journalEntryId", required = false) UUID journalEntryId
+    ) {
+        ImportSummaryDTO summary = tradeImportService.importTradingViewCsv(user, file, journalEntryId);
+        return ResponseEntity.ok(summary);
     }
 
     @PutMapping("/{id}")
