@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getJournalEntry, updateJournalEntry, createTrade, closeTrade } from '../api/journal';
+import TradeCardWithScreenshots from '../components/TradeCardWithScreenshots';
 
 export default function JournalDetail() {
   const { id } = useParams();
@@ -157,70 +158,15 @@ export default function JournalDetail() {
       <section className="section-card">
         <h2>Trades ({entry.trades ? entry.trades.length : 0})</h2>
         {entry.trades && entry.trades.length > 0 ? (
-          <table className="trades-table">
-            <thead>
-              <tr>
-                <th>Ticker</th>
-                <th>Type</th>
-                <th>Entry Price</th>
-                <th>Quantity</th>
-                <th>Exit Price</th>
-                <th>P&L</th>
-                <th>Source</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.trades.map((t) => {
-                const tradeId = t.tradeId || t.id;
-                const isClosed = t.status === 'CLOSED' || t.exitPrice != null;
-                const pnl = t.netPnl ?? t.realizedPnl ?? t.grossPnl;
-                let pnlClass = 'pnl-neutral';
-                if (pnl > 0) pnlClass = 'pnl-positive';
-                else if (pnl < 0) pnlClass = 'pnl-negative';
-
-                return (
-                  <tr key={tradeId}>
-                    <td><strong>{t.ticker}</strong></td>
-                    <td>
-                      <span className={`badge ${t.positionType === 'LONG' ? 'badge-long' : 'badge-short'}`}>
-                        {t.positionType}
-                      </span>
-                    </td>
-                    <td>{t.entryPrice}</td>
-                    <td>{t.quantity}</td>
-                    <td>
-                      {isClosed ? (
-                        t.exitPrice
-                      ) : (
-                        <form onSubmit={(e) => handleCloseTrade(e, tradeId)} className="inline-close-form">
-                          <input
-                            type="number"
-                            step="any"
-                            placeholder="Exit price"
-                            className="input-sm"
-                            value={exitPrices[tradeId] || ''}
-                            onChange={(e) => setExitPrices({ ...exitPrices, [tradeId]: e.target.value })}
-                            required
-                          />
-                          <button
-                            type="submit"
-                            className="btn btn-primary btn-sm"
-                            disabled={closingTradeId === tradeId}
-                          >
-                            {closingTradeId === tradeId ? '...' : 'Close'}
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                    <td className={isClosed ? pnlClass : 'muted'}>
-                      {isClosed ? (pnl > 0 ? `+${pnl}` : pnl) : '-'}
-                    </td>
-                    <td>{t.source || '-'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {entry.trades.map((t) => (
+              <TradeCardWithScreenshots
+                key={t.tradeId || t.id}
+                trade={t}
+                onTradeUpdate={fetchDetail}
+              />
+            ))}
+          </div>
         ) : (
           <p className="muted">No trades recorded for this entry yet.</p>
         )}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ScreenshotUpload from './ScreenshotUpload';
 import ScreenshotGallery from './ScreenshotGallery';
+import TradingViewChart from './TradingViewChart';
 import { getScreenshotsForTrade } from '../api/journal';
 import '../styles/TradeCardWithScreenshots.css';
 
@@ -96,6 +97,8 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
 
       {expanded && (
         <div className="trade-card-details">
+          <TradingViewChart symbol={trade.ticker} theme="dark" height={420} />
+
           {trade.strategy && (
             <div className="detail-row">
               <span className="detail-label">Strategy:</span>
