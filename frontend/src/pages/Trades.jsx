@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { closeTrade, deleteTrade, getTrades, updateTrade } from '../api/journal';
+import { closeTrade, deleteTrade, getTrades, updateTrade, exportTradesCsv } from '../api/journal';
 import TradingViewImportModal from '../components/TradingViewImportModal';
+import NavBar from '../components/NavBar';
 
 const DEFAULT_FILTERS = {
   ticker: '',
@@ -46,6 +47,7 @@ export default function Trades() {
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [modalMode, setModalMode] = useState(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [editForm, setEditForm] = useState(EMPTY_EDIT_FORM);
   const [closeForm, setCloseForm] = useState(EMPTY_CLOSE_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -195,6 +197,25 @@ export default function Trades() {
     }));
   };
 
+  const handleExportCsv = async () => {
+    try {
+      setExporting(true);
+      const blob = await exportTradesCsv();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quant-journal-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to export CSV');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const [sortField, sortDirection] = (queryFilters.sort || 'entryDate,desc').split(',');
 
   const formatNumber = (value, digits = 2) => {
@@ -247,32 +268,26 @@ export default function Trades() {
 
   return (
     <div className="container">
+      <NavBar active="trades">
+        <Link to="/import" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+          📥 Import TradingView
+        </Link>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          onClick={handleExportCsv}
+          disabled={exporting}
+        >
+          {exporting ? 'Exporting...' : '⬇ Export CSV'}
+        </button>
+      </NavBar>
+
       <header className="header">
         <div>
           <h1>Trades</h1>
           <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
             Flat view across all journal entries
           </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link to="/import" className="btn btn-primary" style={{ textDecoration: 'none' }}>
-            📥 Import TradingView
-          </Link>
-          <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Dashboard
-          </Link>
-          <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Journal
-          </Link>
-          <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Stats
-          </Link>
-          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Lessons
-          </Link>
-          <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Profile
-          </Link>
         </div>
       </header>
 
@@ -421,41 +436,41 @@ export default function Trades() {
                     const isArchived = trade.deleted;
                     return (
                       <tr key={trade.tradeId} className={isArchived ? 'row-archived' : ''}>
-                        <td>
+                        <td data-label="Date">
                           <Link to={`/journal/${trade.journalEntryId}`} className="table-link">
                             {trade.entryDate}
                           </Link>
                         </td>
-                        <td><strong>{trade.ticker}</strong></td>
-                        <td>{trade.strategy || '-'}</td>
-                        <td>
+                        <td data-label="Ticker"><strong>{trade.ticker}</strong></td>
+                        <td data-label="Strategy">{trade.strategy || '-'}</td>
+                        <td data-label="Type">
                           <span className={`badge ${trade.positionType === 'LONG' ? 'badge-long' : 'badge-short'}`}>
                             {trade.positionType}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Status">
                           <span className={`badge ${isOpen ? 'badge-open' : 'badge-closed'}`}>
                             {trade.status}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Outcome">
                           <span className={`badge ${trade.outcome ? `badge-${trade.outcome.toLowerCase()}` : 'badge-muted'}`}>
                             {trade.outcome || '-'}
                           </span>
                         </td>
-                        <td>{formatNumber(trade.entryPrice)}</td>
-                        <td>{formatNumber(trade.quantity, 4)}</td>
-                        <td>{trade.exitPrice !== null && trade.exitPrice !== undefined ? formatNumber(trade.exitPrice) : '-'}</td>
-                        <td>{trade.stopLoss !== null && trade.stopLoss !== undefined ? formatNumber(trade.stopLoss) : '-'}</td>
-                        <td>{formatNumber(trade.fees)}</td>
-                        <td className={trade.grossPnl > 0 ? 'pnl-positive' : trade.grossPnl < 0 ? 'pnl-negative' : 'pnl-neutral'}>
+                        <td data-label="Entry">{formatNumber(trade.entryPrice)}</td>
+                        <td data-label="Qty">{formatNumber(trade.quantity, 4)}</td>
+                        <td data-label="Exit">{trade.exitPrice !== null && trade.exitPrice !== undefined ? formatNumber(trade.exitPrice) : '-'}</td>
+                        <td data-label="Stop Loss">{trade.stopLoss !== null && trade.stopLoss !== undefined ? formatNumber(trade.stopLoss) : '-'}</td>
+                        <td data-label="Fees">{formatNumber(trade.fees)}</td>
+                        <td data-label="Gross P&L" className={trade.grossPnl > 0 ? 'pnl-positive' : trade.grossPnl < 0 ? 'pnl-negative' : 'pnl-neutral'}>
                           {formatSigned(trade.grossPnl)}
                         </td>
-                        <td className={trade.netPnl > 0 ? 'pnl-positive' : trade.netPnl < 0 ? 'pnl-negative' : 'pnl-neutral'}>
+                        <td data-label="Net P&L" className={trade.netPnl > 0 ? 'pnl-positive' : trade.netPnl < 0 ? 'pnl-negative' : 'pnl-neutral'}>
                           {formatSigned(trade.netPnl)}
                         </td>
-                        <td>{trade.riskRewardRatio !== null && trade.riskRewardRatio !== undefined ? formatNumber(trade.riskRewardRatio, 4) : '-'}</td>
-                        <td>
+                        <td data-label="R:R">{trade.riskRewardRatio !== null && trade.riskRewardRatio !== undefined ? formatNumber(trade.riskRewardRatio, 4) : '-'}</td>
+                        <td data-label="Actions">
                           <div className="table-actions">
                             <button
                               type="button"

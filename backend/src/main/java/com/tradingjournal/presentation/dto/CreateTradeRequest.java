@@ -27,5 +27,8 @@ public record CreateTradeRequest(
     @Positive(message = "Quantity must be positive")
     BigDecimal quantity,
 
+    @Positive(message = "Stop loss must be positive")
+    BigDecimal stopLoss,
+
     List<UUID> checklistItemIds
 ) {}

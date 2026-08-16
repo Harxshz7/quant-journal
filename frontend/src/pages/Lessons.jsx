@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getLessons, createLesson, updateLesson, deleteLesson } from '../api/lessons';
+import NavBar from '../components/NavBar';
 
 export default function Lessons() {
   const [lessons, setLessons] = useState([]);
@@ -81,9 +81,11 @@ export default function Lessons() {
 
   return (
     <div className="container">
-      <div className="back-link">
-        <Link to="/">&larr; Back to Dashboard</Link>
-      </div>
+      <NavBar active="lessons">
+        <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
+          + New Lesson
+        </button>
+      </NavBar>
 
       <header className="header">
         <div>
@@ -92,9 +94,6 @@ export default function Lessons() {
             Capture insights, patterns, and recurring mistakes
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-          + New Lesson
-        </button>
       </header>
 
       {allTags.length > 0 && (

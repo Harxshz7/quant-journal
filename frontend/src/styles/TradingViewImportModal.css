@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -14,22 +14,22 @@
 }
 
 .import-modal-content {
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   width: 100%;
   max-width: 650px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-elev);
   overflow: hidden;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .import-modal-header {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,13 +39,13 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .close-modal-btn {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -55,8 +55,8 @@
 }
 
 .close-modal-btn:hover {
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  background: var(--surface-2);
 }
 
 .import-modal-body {
@@ -66,18 +66,18 @@
 }
 
 .dropzone {
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 2px dashed var(--border);
   border-radius: 12px;
   padding: 2.5rem 1.5rem;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s, background-color 0.2s;
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--surface-2);
 }
 
 .dropzone:hover, .dropzone.active {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.05);
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.06);
 }
 
 .dropzone-icon {
@@ -88,25 +88,25 @@
 .dropzone p {
   margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .dropzone span {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .selected-file-info {
   margin-top: 1.25rem;
   padding: 0.75rem 1rem;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 0.9rem;
-  color: #38bdf8;
+  color: var(--accent);
 }
 
 .import-actions {
@@ -124,8 +124,8 @@
 }
 
 .summary-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
@@ -138,7 +138,7 @@
 }
 
 .summary-card-value.imported {
-  color: #4ade80;
+  color: var(--success);
 }
 
 .summary-card-value.duplicates {
@@ -147,7 +147,7 @@
 
 .summary-card-label {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -175,7 +175,7 @@
 
 .unmapped-tag {
   background: rgba(251, 191, 36, 0.2);
-  color: #fef08a;
+  color: #b45309;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -185,7 +185,7 @@
 .errors-section-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #f87171;
+  color: var(--danger);
   margin-bottom: 0.5rem;
 }
 
@@ -206,21 +206,21 @@
 .errors-table th, .errors-table td {
   padding: 0.5rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border);
 }
 
 .errors-table th {
-  background: rgba(15, 23, 42, 0.6);
-  color: #f8fafc;
+  background: var(--surface-2);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .errors-table td.row-num {
   font-weight: 600;
-  color: #f87171;
+  color: var(--danger);
   width: 60px;
 }
 
 .errors-table td.reason {
-  color: #fca5a5;
+  color: var(--text-muted);
 }

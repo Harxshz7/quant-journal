@@ -57,6 +57,7 @@ public class TradeService {
                 request.entryPrice(),
                 request.quantity()
         );
+        trade.setStopLoss(request.stopLoss());
 
         Trade saved = tradeRepository.save(trade);
 
@@ -72,7 +73,7 @@ public class TradeService {
 
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
                 .stream().map(TradeScreenshotDTO::fromEntity).toList();
-        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(saved.getId())
                 .stream().map(TradeChecklistItemDTO::fromEntity).toList();
         return TradeDTO.fromEntity(saved, screenshots, checklist);
     }
@@ -120,7 +121,7 @@ public class TradeService {
         statisticsService.recalculate(user);
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
                 .stream().map(TradeScreenshotDTO::fromEntity).toList();
-        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(saved.getId())
                 .stream().map(TradeChecklistItemDTO::fromEntity).toList();
         return TradeDTO.fromEntity(saved, screenshots, checklist);
     }
@@ -148,7 +149,7 @@ public class TradeService {
 
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(trade.getId())
                 .stream().map(TradeScreenshotDTO::fromEntity).toList();
-        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(trade.getId())
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(trade.getId())
                 .stream().map(TradeChecklistItemDTO::fromEntity).toList();
         return TradeDTO.fromEntity(trade, screenshots, checklist);
     }
@@ -172,7 +173,7 @@ public class TradeService {
         statisticsService.recalculate(user);
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
                 .stream().map(TradeScreenshotDTO::fromEntity).toList();
-        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(saved.getId())
                 .stream().map(TradeChecklistItemDTO::fromEntity).toList();
         return TradeDTO.fromEntity(saved, screenshots, checklist);
     }

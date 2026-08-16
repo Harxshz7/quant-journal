@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getJournalEntries, createJournalEntry } from '../api/journal';
-import { useAuth } from '../context/AuthContext';
+import NavBar from '../components/NavBar';
 
 const MOOD_OPTIONS = ['GREAT', 'GOOD', 'NEUTRAL', 'POOR', 'TERRIBLE'];
 
@@ -18,7 +18,6 @@ export default function JournalList() {
   const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
 
   const fetchEntries = async () => {
     try {
@@ -65,37 +64,15 @@ export default function JournalList() {
 
   return (
     <div className="container">
+      <NavBar active="journal">
+        <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>
+          + New Entry
+        </button>
+      </NavBar>
+
       <header className="header">
         <div>
           <h1>Trading Journal</h1>
-          {user && (
-            <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
-              Logged in as <strong>{user.fullName || user.email}</strong>
-            </p>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Dashboard
-          </Link>
-          <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Stats
-          </Link>
-          <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Trades
-          </Link>
-          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Lessons
-          </Link>
-          <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Profile
-          </Link>
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + New Entry
-          </button>
-          <button className="btn btn-secondary" onClick={logout}>
-            Logout
-          </button>
         </div>
       </header>
 

@@ -47,7 +47,7 @@ class JournalEntryServiceTest {
     @Test
     void createJournalEntry_Success() {
         LocalDate date = LocalDate.now();
-        CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Great trading session");
+        CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Great trading session", null, null, null, null, null);
 
         when(journalEntryRepository.findByUserAndEntryDate(user1, date)).thenReturn(Optional.empty());
         when(journalEntryRepository.save(any(JournalEntry.class))).thenAnswer(inv -> {
@@ -67,7 +67,7 @@ class JournalEntryServiceTest {
     @Test
     void createJournalEntry_DuplicateDate_ThrowsConflict() {
         LocalDate date = LocalDate.now();
-        CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Duplicate date");
+        CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Duplicate date", null, null, null, null, null);
         JournalEntry existing = new JournalEntry(user1, date, "Existing");
 
         when(journalEntryRepository.findByUserAndEntryDate(user1, date)).thenReturn(Optional.of(existing));
@@ -81,7 +81,7 @@ class JournalEntryServiceTest {
         JournalEntry entryOfUser2 = new JournalEntry(user2, LocalDate.now(), "User 2 notes");
         entryOfUser2.setId(entryId);
 
-        when(journalEntryRepository.findById(entryId)).thenReturn(Optional.of(entryOfUser2));
+        when(journalEntryRepository.findWithTradesById(entryId)).thenReturn(Optional.of(entryOfUser2));
 
         assertThrows(ResponseStatusException.class, () -> journalEntryService.getJournalEntryById(user1, entryId));
     }
@@ -93,7 +93,7 @@ class JournalEntryServiceTest {
         entryOfUser2.setId(entryId);
 
         when(journalEntryRepository.findById(entryId)).thenReturn(Optional.of(entryOfUser2));
-        UpdateJournalEntryRequest req = new UpdateJournalEntryRequest("Attempted update");
+        UpdateJournalEntryRequest req = new UpdateJournalEntryRequest("Attempted update", null, null, null, null, null);
 
         assertThrows(ResponseStatusException.class, () -> journalEntryService.updateJournalEntry(user1, entryId, req));
     }

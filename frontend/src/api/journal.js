@@ -115,6 +115,15 @@ export async function getScreenshotsForTrade(tradeId) {
 }
 
 /**
+ * Export all of the user's trades as a CSV file (blob).
+ * @returns {Promise<Blob>}
+ */
+export async function exportTradesCsv() {
+  const response = await client.get('/export/csv', { responseType: 'blob' });
+  return response.data;
+}
+
+/**
  * Import trades from a TradingView CSV export
  * @param {File} file - CSV file
  * @param {string} [journalEntryId] - Optional journal entry ID

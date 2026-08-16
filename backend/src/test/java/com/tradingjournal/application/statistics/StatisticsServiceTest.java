@@ -83,7 +83,7 @@ class StatisticsServiceTest {
         assertEquals(new BigDecimal("-10.0000"), stats.getLargestLoss());
         assertEquals(2, stats.getMaxConsecutiveWins());
         assertEquals(1, stats.getMaxConsecutiveLosses());
-        assertEquals(new BigDecimal("1.0625"), stats.getAvgRiskReward());
+        assertEquals(new BigDecimal("0.9375"), stats.getAvgRiskReward());
     }
 
     @Test

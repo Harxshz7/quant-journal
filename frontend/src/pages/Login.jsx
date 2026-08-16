@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -34,6 +35,9 @@ export default function Login() {
 
   return (
     <div className="auth-container">
+      <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 10 }}>
+        <ThemeToggle />
+      </div>
       <div className="auth-card">
         <div className="auth-header">
           <div className="brand-logo">Quant Journal</div>

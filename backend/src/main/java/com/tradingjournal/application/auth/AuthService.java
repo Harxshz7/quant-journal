@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.beans.factory.annotation.Value;
+import com.tradingjournal.presentation.auth.UserSettingsDTO;
+import com.tradingjournal.presentation.auth.UpdateUserSettingsRequest;
 import com.tradingjournal.presentation.auth.WebhookResponseDTO;
 
 import java.time.Instant;
@@ -139,6 +141,24 @@ public class AuthService {
         }
         String fullUrl = buildWebhookUrl(token);
         return new WebhookResponseDTO(fullUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public UserSettingsDTO getSettings(User user) {
+        return new UserSettingsDTO(
+                user.getAccountSize(),
+                user.getDailyLossLimitAmount(),
+                user.getMonthlyGoalPnl()
+        );
+    }
+
+    @Transactional
+    public UserSettingsDTO updateSettings(User user, UpdateUserSettingsRequest request) {
+        user.setAccountSize(request.accountSize());
+        user.setDailyLossLimitAmount(request.dailyLossLimitAmount());
+        user.setMonthlyGoalPnl(request.monthlyGoalPnl());
+        userRepository.save(user);
+        return getSettings(user);
     }
 
     @Transactional

@@ -73,6 +73,24 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/me/settings")
+    public ResponseEntity<UserSettingsDTO> getSettings(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.getSettings(user));
+    }
+
+    @PutMapping("/me/settings")
+    public ResponseEntity<UserSettingsDTO> updateSettings(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UpdateUserSettingsRequest request) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.updateSettings(user, request));
+    }
+
     @GetMapping("/me/webhook")
     public ResponseEntity<WebhookResponseDTO> getWebhookUrl(@AuthenticationPrincipal User user) {
         if (user == null) {

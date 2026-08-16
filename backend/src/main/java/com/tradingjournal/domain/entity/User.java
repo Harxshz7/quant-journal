@@ -25,6 +25,15 @@ public class User {
     @Column(name = "webhook_token", unique = true)
     private String webhookToken;
 
+    @Column(name = "account_size", precision = 19, scale = 4)
+    private java.math.BigDecimal accountSize;
+
+    @Column(name = "daily_loss_limit_amount", precision = 19, scale = 4)
+    private java.math.BigDecimal dailyLossLimitAmount;
+
+    @Column(name = "monthly_goal_pnl", precision = 19, scale = 4)
+    private java.math.BigDecimal monthlyGoalPnl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -106,5 +115,29 @@ public class User {
 
     public void setWebhookToken(String webhookToken) {
         this.webhookToken = webhookToken;
+    }
+
+    public java.math.BigDecimal getAccountSize() {
+        return accountSize;
+    }
+
+    public void setAccountSize(java.math.BigDecimal accountSize) {
+        this.accountSize = accountSize;
+    }
+
+    public java.math.BigDecimal getDailyLossLimitAmount() {
+        return dailyLossLimitAmount;
+    }
+
+    public void setDailyLossLimitAmount(java.math.BigDecimal dailyLossLimitAmount) {
+        this.dailyLossLimitAmount = dailyLossLimitAmount;
+    }
+
+    public java.math.BigDecimal getMonthlyGoalPnl() {
+        return monthlyGoalPnl;
+    }
+
+    public void setMonthlyGoalPnl(java.math.BigDecimal monthlyGoalPnl) {
+        this.monthlyGoalPnl = monthlyGoalPnl;
     }
 }

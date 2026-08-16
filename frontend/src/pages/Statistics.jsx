@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getStatistics } from '../api/journal';
+import NavBar from '../components/NavBar';
 
 const CARDS = [
   { key: 'winRate', label: 'Win Rate', format: 'percent' },
@@ -69,26 +69,14 @@ export default function Statistics() {
 
   return (
     <div className="container">
+      <NavBar active="stats" />
+
       <header className="header">
         <div>
           <h1>Statistics</h1>
           <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
             Cached per-user aggregate performance
           </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Dashboard
-          </Link>
-          <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Journal
-          </Link>
-          <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Trades
-          </Link>
-          <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Profile
-          </Link>
         </div>
       </header>
 

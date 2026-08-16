@@ -63,7 +63,9 @@ class TradeServiceTest {
                 "AAPL",
                 PositionType.LONG,
                 new BigDecimal("150.00"),
-                new BigDecimal("10")
+                new BigDecimal("10"),
+                null,
+                null
         );
 
         when(journalEntryRepository.findById(journalEntryUser1.getId())).thenReturn(Optional.of(journalEntryUser1));
@@ -94,7 +96,9 @@ class TradeServiceTest {
                 "AAPL",
                 PositionType.LONG,
                 new BigDecimal("150.00"),
-                new BigDecimal("10")
+                new BigDecimal("10"),
+                null,
+                null
         );
 
         when(journalEntryRepository.findById(journalEntryUser1.getId())).thenReturn(Optional.of(journalEntryUser1));
@@ -115,7 +119,10 @@ class TradeServiceTest {
                 new BigDecimal("250.00"),
                 new BigDecimal("8"),
                 new BigDecimal("245.00"),
-                "Swing"
+                "Swing",
+                null,
+                null,
+                null
         );
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
@@ -145,6 +152,9 @@ class TradeServiceTest {
                 PositionType.SHORT,
                 new BigDecimal("250.00"),
                 new BigDecimal("8"),
+                null,
+                null,
+                null,
                 null,
                 null
         );

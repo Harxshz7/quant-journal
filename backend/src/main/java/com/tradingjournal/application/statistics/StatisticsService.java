@@ -130,8 +130,8 @@ public class StatisticsService {
         stats.setProfitFactor(profitFactor);
         stats.setAvgWin(avgWin);
         stats.setAvgLoss(avgLoss);
-        stats.setLargestWin(largestWin);
-        stats.setLargestLoss(largestLoss);
+        stats.setLargestWin(scaleIfNotNull(largestWin));
+        stats.setLargestLoss(scaleIfNotNull(largestLoss));
         stats.setMaxConsecutiveWins(maxWinStreak);
         stats.setMaxConsecutiveLosses(maxLossStreak);
         stats.setAvgRiskReward(avgRiskReward);
@@ -207,8 +207,8 @@ public class StatisticsService {
                 profitFactor,
                 avgWin,
                 avgLoss,
-                largestWin,
-                largestLoss,
+                scaleIfNotNull(largestWin),
+                scaleIfNotNull(largestLoss),
                 0,
                 0,
                 avgRiskReward,
@@ -264,5 +264,9 @@ public class StatisticsService {
 
     private BigDecimal scale(BigDecimal value) {
         return value.setScale(4, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal scaleIfNotNull(BigDecimal value) {
+        return value == null ? null : scale(value);
     }
 }

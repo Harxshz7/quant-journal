@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { importTradingViewCsv } from '../api/journal';
+import NavBar from '../components/NavBar';
 import '../styles/ImportWizard.css';
 
 export default function ImportWizard() {
@@ -83,17 +84,14 @@ export default function ImportWizard() {
 
   return (
     <div className="container">
+      <NavBar active="import" />
+
       <header className="header" style={{ marginBottom: '1.5rem' }}>
         <div>
           <h1>📥 TradingView Import Wizard</h1>
           <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
             Follow guided steps to import your order or trade history from TradingView
           </p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-            Back to Trades
-          </Link>
         </div>
       </header>
 

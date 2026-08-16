@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { changePasswordApi, getWebhookUrl, regenerateWebhookUrl } from '../api/auth';
+import { changePasswordApi, getWebhookUrl, regenerateWebhookUrl, getSettings, updateSettings } from '../api/auth';
 import { getChecklistTemplates, createChecklistTemplate, updateChecklistTemplate, deactivateChecklistTemplate } from '../api/checklist';
+import NavBar from '../components/NavBar';
 
 const BUY_SELL_TEMPLATE = `{
   "ticker": "{{ticker}}",
@@ -21,7 +21,7 @@ const CLOSE_TEMPLATE = `{
 }`;
 
 export default function Profile() {
-  const { user, logout, updateProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -48,14 +48,57 @@ export default function Profile() {
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState('');
 
+  const [settings, setSettings] = useState({ accountSize: '', dailyLossLimitAmount: '', monthlyGoalPnl: '' });
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsMsg, setSettingsMsg] = useState('');
+  const [settingsError, setSettingsError] = useState('');
+
   useEffect(() => {
     if (user) {
       setFullName(user.fullName || '');
       setEmail(user.email || '');
       fetchWebhookUrl();
       fetchTemplates();
+      fetchSettings();
     }
   }, [user]);
+
+  const fetchSettings = async () => {
+    try {
+      setSettingsLoading(true);
+      const data = await getSettings();
+      setSettings({
+        accountSize: data.accountSize ?? '',
+        dailyLossLimitAmount: data.dailyLossLimitAmount ?? '',
+        monthlyGoalPnl: data.monthlyGoalPnl ?? '',
+      });
+    } catch (err) {
+      setSettingsError('Failed to load settings');
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    setSettingsMsg('');
+    setSettingsError('');
+    try {
+      setSettingsSaving(true);
+      const toNumberOrNull = (v) => (v === '' || v === null || v === undefined ? null : Number(v));
+      await updateSettings({
+        accountSize: toNumberOrNull(settings.accountSize),
+        dailyLossLimitAmount: toNumberOrNull(settings.dailyLossLimitAmount),
+        monthlyGoalPnl: toNumberOrNull(settings.monthlyGoalPnl),
+      });
+      setSettingsMsg('Trading settings saved.');
+    } catch (err) {
+      setSettingsError(err.response?.data?.message || 'Failed to save settings');
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
 
   const fetchWebhookUrl = async () => {
     try {
@@ -175,9 +218,7 @@ export default function Profile() {
 
   return (
     <div className="container">
-      <div className="back-link">
-        <Link to="/">&larr; Back to Dashboard</Link>
-      </div>
+      <NavBar active="profile" />
 
       <header className="header">
         <div>
@@ -187,9 +228,6 @@ export default function Profile() {
               Manage your account settings
             </p>
           )}
-        </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <button className="btn btn-secondary" onClick={logout}>Logout</button>
         </div>
       </header>
 
@@ -243,6 +281,72 @@ export default function Profile() {
             {passwordLoading ? 'Updating...' : 'Change Password'}
           </button>
         </form>
+      </div>
+
+      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+        <div className="auth-header">
+          <h2>Trading Settings</h2>
+          <p>Account size, daily loss limit, and monthly P&L goal</p>
+        </div>
+        {settingsError && <div className="alert alert-error">{settingsError}</div>}
+        {settingsMsg && (
+          <div className="alert alert-error" style={{ borderColor: 'var(--pnl-positive)', color: 'var(--pnl-positive)' }}>
+            {settingsMsg}
+          </div>
+        )}
+        {settingsLoading ? (
+          <p className="loading">Loading settings...</p>
+        ) : (
+          <form onSubmit={handleSaveSettings}>
+            <div className="form-group">
+              <label htmlFor="accountSize">Account Size</label>
+              <input
+                id="accountSize"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 100000"
+                value={settings.accountSize}
+                onChange={(e) => setSettings({ ...settings, accountSize: e.target.value })}
+              />
+              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+                Used by the position size calculator on the Calculator page.
+              </p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="dailyLossLimitAmount">Daily Loss Limit</label>
+              <input
+                id="dailyLossLimitAmount"
+                type="number"
+                step="any"
+                min="0"
+                placeholder="e.g. 500"
+                value={settings.dailyLossLimitAmount}
+                onChange={(e) => setSettings({ ...settings, dailyLossLimitAmount: e.target.value })}
+              />
+              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+                Shows a warning banner when today's realized P&amp;L hits this loss.
+              </p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="monthlyGoalPnl">Monthly P&amp;L Goal</label>
+              <input
+                id="monthlyGoalPnl"
+                type="number"
+                step="any"
+                placeholder="e.g. 10000"
+                value={settings.monthlyGoalPnl}
+                onChange={(e) => setSettings({ ...settings, monthlyGoalPnl: e.target.value })}
+              />
+              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+                Shows a progress bar toward this goal on the dashboard.
+              </p>
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={settingsSaving}>
+              {settingsSaving ? 'Saving...' : 'Save Trading Settings'}
+            </button>
+          </form>
+        )}
       </div>
 
       <div className="auth-card" style={{ marginBottom: '1.75rem' }}>

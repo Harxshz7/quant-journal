@@ -6,6 +6,9 @@ import {
 } from 'recharts';
 import { getStatistics, getTrades } from '../api/journal';
 import { getEquityCurve } from '../api/analytics';
+import { getRulesStatus } from '../api/rules';
+import NavBar from '../components/NavBar';
+import RulesWidget from '../components/RulesWidget';
 import '../styles/Dashboard.css';
 
 const COLORS = {
@@ -127,6 +130,8 @@ export default function Dashboard() {
   const [recentTrades, setRecentTrades] = useState([]);
   const [tradesLoading, setTradesLoading] = useState(true);
 
+  const [rulesStatus, setRulesStatus] = useState(null);
+
   const applyPreset = useCallback((p) => {
     setPreset(p);
     setCustomActive(false);
@@ -187,21 +192,27 @@ export default function Dashboard() {
     return () => { cancelled = true; };
   }, [fromDate, toDate, preset, customActive]);
 
+  // Fetch rules status (daily loss limit + monthly goal)
+  useEffect(() => {
+    let cancelled = false;
+    getRulesStatus()
+      .then((data) => { if (!cancelled) setRulesStatus(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   const effectiveFrom = customActive ? fromDate || null : (preset === 'All' ? null : fromDate);
   const effectiveTo = customActive ? toDate || null : (preset === 'All' ? null : toDate);
 
   return (
     <div className="container">
+      <NavBar active="dashboard" />
+
       <header className="header">
         <h1>Dashboard</h1>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-          <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Journal</Link>
-          <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Trades</Link>
-          <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Stats</Link>
-          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Lessons</Link>
-          <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Profile</Link>
-        </div>
       </header>
+
+      <RulesWidget status={rulesStatus} />
 
       {/* Date Range Control */}
       <div className="date-range-bar">

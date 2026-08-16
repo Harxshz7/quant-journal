@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getJournalEntry, updateJournalEntry, createTrade, closeTrade } from '../api/journal';
+import { getRulesStatus } from '../api/rules';
 import TradeCardWithScreenshots from '../components/TradeCardWithScreenshots';
+import NavBar from '../components/NavBar';
+import RulesWidget from '../components/RulesWidget';
 
 const MOOD_OPTIONS = ['GREAT', 'GOOD', 'NEUTRAL', 'POOR', 'TERRIBLE'];
 
@@ -27,7 +30,10 @@ export default function JournalDetail() {
   const [positionType, setPositionType] = useState('LONG');
   const [entryPrice, setEntryPrice] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [stopLoss, setStopLoss] = useState('');
   const [addingTrade, setAddingTrade] = useState(false);
+
+  const [rulesStatus, setRulesStatus] = useState(null);
 
   const [exitPrices, setExitPrices] = useState({});
   const [closingTradeId, setClosingTradeId] = useState(null);
@@ -50,7 +56,33 @@ export default function JournalDetail() {
     }
   };
 
-  useEffect(() => { if (id) fetchDetail(); }, [id]);
+  useEffect(() => {
+    if (id) fetchDetail();
+  }, [id]);
+
+  // Prefill the Add Trade form with values from the position size calculator
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('tradePrefill');
+      if (!raw) return;
+      const prefill = JSON.parse(raw);
+      sessionStorage.removeItem('tradePrefill');
+      if (prefill.entryPrice != null) setEntryPrice(String(prefill.entryPrice));
+      if (prefill.quantity != null) setQuantity(String(prefill.quantity));
+      if (prefill.stopLoss != null) setStopLoss(String(prefill.stopLoss));
+    } catch (err) {
+      sessionStorage.removeItem('tradePrefill');
+    }
+  }, []);
+
+  // Rules warnings for the trade-creation form
+  useEffect(() => {
+    let cancelled = false;
+    getRulesStatus()
+      .then((data) => { if (!cancelled) setRulesStatus(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSaveNotes = async (e) => {
     e.preventDefault();
@@ -101,11 +133,13 @@ export default function JournalDetail() {
         positionType,
         entryPrice: parseFloat(entryPrice),
         quantity: parseFloat(quantity),
+        stopLoss: stopLoss === '' ? null : parseFloat(stopLoss),
       });
       setTicker('');
       setPositionType('LONG');
       setEntryPrice('');
       setQuantity('');
+      setStopLoss('');
       await fetchDetail();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to add trade');
@@ -148,9 +182,13 @@ export default function JournalDetail() {
         <Link to="/journal">&larr; Back to Entries</Link>
       </div>
 
+      <NavBar active="journal" />
+
       <header className="header">
         <h1>Journal Entry: {entry.entryDate}</h1>
       </header>
+
+      <RulesWidget status={rulesStatus} />
 
       {/* Mood & Energy Section */}
       <section className="section-card">
@@ -275,6 +313,10 @@ export default function JournalDetail() {
             <div className="form-group">
               <label htmlFor="quantity">Quantity</label>
               <input type="number" step="any" id="quantity" placeholder="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="stopLoss">Stop Loss</label>
+              <input type="number" step="any" id="stopLoss" placeholder="0.00" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} />
             </div>
           </div>
           <button type="submit" className="btn btn-primary" disabled={addingTrade}>

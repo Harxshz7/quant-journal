@@ -40,6 +40,16 @@ export async function changePasswordApi(passwords) {
   await client.put('/auth/me/password', passwords);
 }
 
+export async function getSettings() {
+  const response = await client.get('/auth/me/settings');
+  return response.data;
+}
+
+export async function updateSettings(settings) {
+  const response = await client.put('/auth/me/settings', settings);
+  return response.data;
+}
+
 export async function getWebhookUrl() {
   const response = await client.get('/auth/me/webhook');
   return response.data;

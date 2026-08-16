@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface TradeChecklistItemRepository extends JpaRepository<TradeChecklistItem, UUID> {
-    List<TradeChecklistItem> findByTrade_IdOrderByidAsc(UUID tradeId);
+    List<TradeChecklistItem> findByTrade_IdOrderByIdAsc(UUID tradeId);
 
     @Query("SELECT tci FROM TradeChecklistItem tci WHERE tci.trade.id IN :tradeIds")
     List<TradeChecklistItem> findByTradeIdIn(@Param("tradeIds") List<UUID> tradeIds);

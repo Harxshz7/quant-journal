@@ -5,12 +5,12 @@
 }
 
 .wizard-card {
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-elev);
   padding: 2rem;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .wizard-header {
@@ -19,20 +19,20 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .wizard-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .wizard-header p {
   margin: 0.25rem 0 0 0;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 /* Step Indicator Bar */
@@ -58,9 +58,9 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #0f172a;
-  border: 2px solid #334155;
-  color: #94a3b8;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,7 +85,7 @@
 
 .step-title {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 500;
   text-align: center;
 }
@@ -96,7 +96,7 @@
 }
 
 .step-indicator-item.completed .step-title {
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .wizard-step-content {
@@ -114,18 +114,18 @@
   flex: 1;
   padding: 1rem;
   border-radius: 10px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
 }
 
 .format-btn.active {
-  background: rgba(56, 189, 248, 0.1);
-  border-color: #38bdf8;
-  color: #f8fafc;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: var(--accent);
+  color: var(--text-primary);
 }
 
 .format-btn h4 {
@@ -136,15 +136,15 @@
 .format-btn p {
   margin: 0;
   font-size: 0.825rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 /* Instructions Card */
 .instruction-steps {
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--surface-2);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
 }
 
 .instruction-step {
@@ -174,28 +174,28 @@
 .step-desc h5 {
   margin: 0 0 0.25rem 0;
   font-size: 0.95rem;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .step-desc p {
   margin: 0;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
 /* Generic Diagram Box */
 .generic-diagram {
   margin-top: 1rem;
-  background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
 .diagram-badge {
@@ -216,8 +216,8 @@
 }
 
 .sample-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
@@ -227,12 +227,12 @@
 
 .sample-card h4 {
   margin: 0 0 0.5rem 0;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .sample-card p {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin: 0 0 1rem 0;
 }
 
@@ -245,16 +245,16 @@
 }
 
 .sample-preview-table th {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.06);
   padding: 0.35rem 0.5rem;
-  color: #38bdf8;
+  color: var(--accent);
   text-align: left;
 }
 
 .sample-preview-table td {
   padding: 0.35rem 0.5rem;
-  color: #cbd5e1;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
 }
 
 /* Guidance Message Box */
@@ -272,7 +272,7 @@
 .wizard-footer {
   margin-top: 2rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
