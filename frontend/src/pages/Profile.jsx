@@ -4,6 +4,22 @@ import { useAuth } from '../context/AuthContext';
 import { changePasswordApi, getWebhookUrl, regenerateWebhookUrl } from '../api/auth';
 import { getChecklistTemplates, createChecklistTemplate, updateChecklistTemplate, deactivateChecklistTemplate } from '../api/checklist';
 
+const BUY_SELL_TEMPLATE = `{
+  "ticker": "{{ticker}}",
+  "action": "{{strategy.order.action}}",
+  "quantity": "{{strategy.order.contracts}}",
+  "price": "{{strategy.order.price}}",
+  "strategy": "{{strategy.name}}",
+  "time": "{{time}}"
+}`;
+
+const CLOSE_TEMPLATE = `{
+  "ticker": "{{ticker}}",
+  "action": "close",
+  "price": "{{strategy.order.price}}",
+  "time": "{{time}}"
+}`;
+
 export default function Profile() {
   const { user, logout, updateProfile } = useAuth();
 
@@ -306,13 +322,13 @@ export default function Profile() {
         )}
       </div>
 
-      <div className="auth-card">
+      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
         <div className="auth-header">
           <h2>Webhook & Automation Settings</h2>
-          <p>Personal endpoint for future automated trade logging</p>
+          <p>Personal endpoint for TradingView alert automation</p>
         </div>
-        <div className="alert" style={{ background: 'rgba(56, 189, 248, 0.1)', borderColor: 'rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '0.85rem' }}>
-          <strong>Note:</strong> For future broker/alert automation — receiver is not active yet.
+        <div className="alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: '#4ade80', fontSize: '0.85rem' }}>
+          <strong>Active</strong> — TradingView alerts sent to this URL will automatically create or close trades.
         </div>
         {webhookError && <div className="alert alert-error">{webhookError}</div>}
         <div className="form-group">
@@ -326,6 +342,82 @@ export default function Profile() {
               {regenerating ? '...' : 'Regenerate'}
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>TradingView Setup Instructions</h2>
+          <p>How to connect your TradingView alerts to this journal</p>
+        </div>
+
+        <div style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.7 }}>
+          <ol style={{ paddingLeft: '1.25rem', margin: 0 }}>
+            <li style={{ marginBottom: '0.75rem' }}>
+              <strong style={{ color: 'var(--text)' }}>Open your TradingView chart</strong> and add your indicator or strategy.
+            </li>
+            <li style={{ marginBottom: '0.75rem' }}>
+              <strong style={{ color: 'var(--text)' }}>Create an Alert</strong> — right-click on the chart or use the Alerts panel. Configure your conditions.
+            </li>
+            <li style={{ marginBottom: '0.75rem' }}>
+              <strong style={{ color: 'var(--text)' }}>Under "Webhook URL"</strong>, paste your webhook URL from above.
+            </li>
+            <li style={{ marginBottom: '0.75rem' }}>
+              <strong style={{ color: 'var(--text)' }}>Under "Message"</strong>, paste the JSON template below. Use the copy button for convenience.
+            </li>
+          </ol>
+        </div>
+
+        <div style={{ marginTop: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)' }}>Buy / Sell Alert Template</h3>
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={() => navigator.clipboard.writeText(BUY_SELL_TEMPLATE).then(() => alert('Copied!'))}
+            >
+              Copy
+            </button>
+          </div>
+          <pre style={{
+            background: 'var(--surface)', padding: '0.75rem 1rem', borderRadius: 10,
+            fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text)',
+            overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+          }}>
+            {BUY_SELL_TEMPLATE}
+          </pre>
+          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.4rem' }}>
+            <code>action</code> will be <code>buy</code> or <code>sell</code> based on your strategy order side.
+          </p>
+        </div>
+
+        <div style={{ marginTop: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)' }}>Close Position Alert Template</h3>
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary"
+              onClick={() => navigator.clipboard.writeText(CLOSE_TEMPLATE).then(() => alert('Copied!'))}
+            >
+              Copy
+            </button>
+          </div>
+          <pre style={{
+            background: 'var(--surface)', padding: '0.75rem 1rem', borderRadius: 10,
+            fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text)',
+            overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+          }}>
+            {CLOSE_TEMPLATE}
+          </pre>
+          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.4rem' }}>
+            Use this for exit signals. It will close your most recent open trade matching the ticker.
+          </p>
+        </div>
+
+        <div style={{ marginTop: '1.25rem', padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(255,255,255,0.03)', fontSize: '0.85rem', color: 'var(--muted)' }}>
+          <strong style={{ color: 'var(--text)' }}>How it works:</strong> When TradingView fires an alert, it sends the JSON payload to your webhook URL. The server creates a trade entry automatically (buy/sell) or closes an existing open trade (close). A journal entry is created for today if one doesn't exist yet.
         </div>
       </div>
     </div>

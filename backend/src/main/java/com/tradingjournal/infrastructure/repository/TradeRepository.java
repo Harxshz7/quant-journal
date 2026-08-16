@@ -61,4 +61,16 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
      */
     @Query("SELECT t FROM Trade t JOIN FETCH t.journalEntry WHERE t.id IN :ids")
     List<Trade> findWithJournalEntryByIds(@Param("ids") Collection<UUID> ids);
+
+    @Query("""
+            SELECT t FROM Trade t
+            JOIN FETCH t.journalEntry je
+            JOIN FETCH je.user u
+            WHERE u = :user
+              AND t.deleted = false
+              AND t.exitPrice IS NULL
+              AND UPPER(t.ticker) = UPPER(:ticker)
+            ORDER BY je.entryDate DESC, t.createdAt DESC
+            """)
+    List<Trade> findOpenByTicker(@Param("user") User user, @Param("ticker") String ticker);
 }
