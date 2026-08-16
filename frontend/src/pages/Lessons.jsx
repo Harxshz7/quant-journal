@@ -1,0 +1,271 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getLessons, createLesson, updateLesson, deleteLesson } from '../api/lessons';
+
+export default function Lessons() {
+  const [lessons, setLessons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [tags, setTags] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const [filterTag, setFilterTag] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editTags, setEditTags] = useState('');
+
+  const fetchLessons = async () => {
+    try {
+      setLoading(true);
+      const data = await getLessons(filterTag || undefined);
+      setLessons(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load lessons');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchLessons(); }, [filterTag]);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) return;
+    try {
+      setSubmitting(true);
+      const payload = { title: title.trim(), content: content.trim() };
+      if (tags.trim()) payload.tags = tags.split(',').map(t => t.trim()).filter(Boolean);
+      await createLesson(payload);
+      setTitle('');
+      setContent('');
+      setTags('');
+      setShowForm(false);
+      await fetchLessons();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create lesson');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdate = async (id) => {
+    if (!editTitle.trim() || !editContent.trim()) return;
+    try {
+      const payload = { title: editTitle.trim(), content: editContent.trim() };
+      if (editTags.trim()) payload.tags = editTags.split(',').map(t => t.trim()).filter(Boolean);
+      else payload.tags = [];
+      await updateLesson(id, payload);
+      setEditingId(null);
+      await fetchLessons();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update lesson');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this lesson?')) return;
+    try {
+      await deleteLesson(id);
+      await fetchLessons();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete lesson');
+    }
+  };
+
+  const allTags = [...new Set(lessons.flatMap(l => l.tags || []))].sort();
+
+  return (
+    <div className="container">
+      <div className="back-link">
+        <Link to="/">&larr; Back to Dashboard</Link>
+      </div>
+
+      <header className="header">
+        <div>
+          <h1>Lessons Learned</h1>
+          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+            Capture insights, patterns, and recurring mistakes
+          </p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+          + New Lesson
+        </button>
+      </header>
+
+      {allTags.length > 0 && (
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+          <button
+            className={`btn btn-sm ${!filterTag ? 'is-selected' : ''}`}
+            onClick={() => setFilterTag('')}
+            style={{ fontSize: '0.78rem' }}
+          >
+            All
+          </button>
+          {allTags.map(tag => (
+            <button
+              key={tag}
+              className={`btn btn-sm ${filterTag === tag ? 'is-selected' : ''}`}
+              onClick={() => setFilterTag(filterTag === tag ? '' : tag)}
+              style={{ fontSize: '0.78rem' }}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {error && <div className="error-banner">{error}</div>}
+
+      {loading ? (
+        <p className="loading">Loading lessons...</p>
+      ) : lessons.length === 0 ? (
+        <div className="empty-state">
+          <p>No lessons recorded yet.</p>
+          <button className="btn btn-secondary" onClick={() => setShowForm(true)}>
+            Record your first lesson
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {lessons.map((lesson) => (
+            <div
+              key={lesson.id}
+              className="section-card"
+              style={{ position: 'relative' }}
+            >
+              {editingId === lesson.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    style={{ width: '100%', marginBottom: '0.5rem', fontWeight: 600, fontSize: '1rem' }}
+                  />
+                  <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    rows={4}
+                    style={{ width: '100%', marginBottom: '0.5rem' }}
+                  />
+                  <input
+                    type="text"
+                    value={editTags}
+                    onChange={(e) => setEditTags(e.target.value)}
+                    placeholder="tags, comma, separated"
+                    style={{ width: '100%', marginBottom: '0.75rem', fontSize: '0.85rem' }}
+                  />
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="btn btn-primary btn-sm" onClick={() => handleUpdate(lesson.id)}>Save</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setEditingId(null)}>Cancel</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)' }}>{lesson.title}</h3>
+                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                      <button
+                        className="btn btn-sm btn-secondary"
+                        onClick={() => {
+                          setEditingId(lesson.id);
+                          setEditTitle(lesson.title);
+                          setEditContent(lesson.content);
+                          setEditTags((lesson.tags || []).join(', '));
+                        }}
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-secondary"
+                        onClick={() => handleDelete(lesson.id)}
+                        style={{ fontSize: '0.75rem', color: 'var(--pnl-negative)' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                    {lesson.content}
+                  </p>
+                  {lesson.tags && lesson.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                      {lesson.tags.map(tag => (
+                        <span
+                          key={tag}
+                          style={{
+                            fontSize: '0.72rem', padding: '0.15rem 0.45rem',
+                            borderRadius: 6, background: 'rgba(255,255,255,0.06)',
+                            color: 'var(--muted)', cursor: 'pointer',
+                          }}
+                          onClick={() => setFilterTag(filterTag === tag ? '' : tag)}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showForm && (
+        <div className="modal-backdrop" onClick={() => setShowForm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>New Lesson</h2>
+            <form onSubmit={handleCreate}>
+              <div className="form-group">
+                <label htmlFor="lesson-title">Title</label>
+                <input
+                  id="lesson-title"
+                  type="text"
+                  placeholder="e.g. Always wait for confirmation candle"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lesson-content">What you learned</label>
+                <textarea
+                  id="lesson-content"
+                  rows="5"
+                  placeholder="Describe the lesson, when it applies, and how to avoid the mistake..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lesson-tags">Tags (comma-separated)</label>
+                <input
+                  id="lesson-tags"
+                  type="text"
+                  placeholder="e.g. entry, psychology, risk"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? 'Saving...' : 'Save Lesson'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

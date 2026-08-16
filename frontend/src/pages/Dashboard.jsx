@@ -198,6 +198,7 @@ export default function Dashboard() {
           <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Journal</Link>
           <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Trades</Link>
           <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Stats</Link>
+          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Lessons</Link>
           <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>Profile</Link>
         </div>
       </header>

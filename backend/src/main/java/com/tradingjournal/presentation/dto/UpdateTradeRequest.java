@@ -1,11 +1,11 @@
 package com.tradingjournal.presentation.dto;
 
 import com.tradingjournal.domain.entity.PositionType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import com.tradingjournal.domain.entity.MistakeTag;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 public record UpdateTradeRequest(
     @NotBlank(message = "Ticker is required")
@@ -25,5 +25,12 @@ public record UpdateTradeRequest(
     @Positive(message = "Stop loss must be positive")
     BigDecimal stopLoss,
 
-    String strategy
+    String strategy,
+
+    String postTradeReflection,
+
+    Set<MistakeTag> mistakeTags,
+
+    @Min(1) @Max(5)
+    Integer setupQuality
 ) {}

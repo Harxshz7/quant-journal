@@ -1,6 +1,7 @@
 package com.tradingjournal.presentation.dto;
 
 import com.tradingjournal.domain.entity.JournalEntry;
+import com.tradingjournal.domain.entity.Mood;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,24 +16,33 @@ public record JournalEntryDTO(
     String notes,
     List<TradeDTO> trades,
     Instant createdAt,
-    Instant updatedAt
+    Instant updatedAt,
+    Mood mood,
+    Integer energy,
+    String marketBias,
+    String dailyGoal,
+    Integer dayRating
 ) {
     public static JournalEntryDTO fromEntity(JournalEntry entry) {
-        return fromEntity(entry, Collections.emptyMap());
+        return fromEntity(entry, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    /**
-     * Maps an entry to a DTO, attaching screenshots for each trade.
-     * Callers must pass a pre-fetched map of tradeId -> screenshots (batched query)
-     * to avoid an N+1 repository call per trade.
-     */
     public static JournalEntryDTO fromEntity(JournalEntry entry, Map<UUID, List<TradeScreenshotDTO>> screenshotsByTradeId) {
+        return fromEntity(entry, screenshotsByTradeId, Collections.emptyMap());
+    }
+
+    public static JournalEntryDTO fromEntity(
+            JournalEntry entry,
+            Map<UUID, List<TradeScreenshotDTO>> screenshotsByTradeId,
+            Map<UUID, List<TradeChecklistItemDTO>> checklistByTradeId) {
         Map<UUID, List<TradeScreenshotDTO>> screenshots = screenshotsByTradeId != null ? screenshotsByTradeId : Collections.emptyMap();
+        Map<UUID, List<TradeChecklistItemDTO>> checklists = checklistByTradeId != null ? checklistByTradeId : Collections.emptyMap();
 
         List<TradeDTO> tradeDTOs = entry.getTrades() != null ?
             entry.getTrades().stream().map(trade -> {
                 List<TradeScreenshotDTO> tradeScreenshots = screenshots.getOrDefault(trade.getId(), Collections.emptyList());
-                return TradeDTO.fromEntity(trade, tradeScreenshots);
+                List<TradeChecklistItemDTO> tradeChecklist = checklists.getOrDefault(trade.getId(), Collections.emptyList());
+                return TradeDTO.fromEntity(trade, tradeScreenshots, tradeChecklist);
             }).toList() : Collections.emptyList();
 
         return new JournalEntryDTO(
@@ -41,7 +51,12 @@ public record JournalEntryDTO(
             entry.getNotes(),
             tradeDTOs,
             entry.getCreatedAt(),
-            entry.getUpdatedAt()
+            entry.getUpdatedAt(),
+            entry.getMood(),
+            entry.getEnergy(),
+            entry.getMarketBias(),
+            entry.getDailyGoal(),
+            entry.getDayRating()
         );
     }
 }

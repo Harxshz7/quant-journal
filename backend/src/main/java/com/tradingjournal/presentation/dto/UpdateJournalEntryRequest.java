@@ -1,8 +1,21 @@
 package com.tradingjournal.presentation.dto;
 
-import jakarta.validation.constraints.NotNull;
+import com.tradingjournal.domain.entity.Mood;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 public record UpdateJournalEntryRequest(
-    @NotNull(message = "Notes cannot be null")
-    String notes
+    String notes,
+
+    Mood mood,
+
+    @Min(1) @Max(5)
+    Integer energy,
+
+    String marketBias,
+
+    String dailyGoal,
+
+    @Min(1) @Max(5)
+    Integer dayRating
 ) {}

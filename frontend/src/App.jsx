@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Trades from './pages/Trades';
 import Statistics from './pages/Statistics';
 import ImportWizard from './pages/ImportWizard';
+import Lessons from './pages/Lessons';
 
 export default function App() {
   return (
@@ -64,6 +65,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Statistics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/lessons"
+            element={
+              <ProtectedRoute>
+                <Lessons />
               </ProtectedRoute>
             }
           />

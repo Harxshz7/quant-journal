@@ -5,6 +5,7 @@ import com.tradingjournal.domain.entity.PositionType;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.TradeSource;
 import com.tradingjournal.domain.entity.TradeOutcomeFilter;
+import com.tradingjournal.domain.entity.MistakeTag;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public record TradeDTO(
@@ -38,12 +40,20 @@ public record TradeDTO(
         boolean deleted,
         Instant createdAt,
         Instant updatedAt,
-        List<TradeScreenshotDTO> screenshots) {
+        List<TradeScreenshotDTO> screenshots,
+        List<TradeChecklistItemDTO> checklistItems,
+        String postTradeReflection,
+        Set<MistakeTag> mistakeTags,
+        Integer setupQuality) {
     public static TradeDTO fromEntity(Trade trade) {
-        return fromEntity(trade, Collections.emptyList());
+        return fromEntity(trade, Collections.emptyList(), Collections.emptyList());
     }
 
     public static TradeDTO fromEntity(Trade trade, List<TradeScreenshotDTO> screenshots) {
+        return fromEntity(trade, screenshots, Collections.emptyList());
+    }
+
+    public static TradeDTO fromEntity(Trade trade, List<TradeScreenshotDTO> screenshots, List<TradeChecklistItemDTO> checklistItems) {
         BigDecimal exitPrice = trade.getExitPrice();
         String status = exitPrice == null ? "OPEN" : "CLOSED";
 
@@ -84,6 +94,10 @@ public record TradeDTO(
                 trade.isDeleted(),
                 trade.getCreatedAt(),
                 trade.getUpdatedAt(),
-                screenshots != null ? screenshots : Collections.emptyList());
+                screenshots != null ? screenshots : Collections.emptyList(),
+                checklistItems != null ? checklistItems : Collections.emptyList(),
+                trade.getPostTradeReflection(),
+                trade.getMistakeTags() != null ? trade.getMistakeTags() : Collections.emptySet(),
+                trade.getSetupQuality());
     }
 }

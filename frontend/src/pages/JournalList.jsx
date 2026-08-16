@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getJournalEntries, createJournalEntry } from '../api/journal';
 import { useAuth } from '../context/AuthContext';
 
+const MOOD_OPTIONS = ['GREAT', 'GOOD', 'NEUTRAL', 'POOR', 'TERRIBLE'];
+
 export default function JournalList() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,6 +13,8 @@ export default function JournalList() {
   const [showModal, setShowModal] = useState(false);
   const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
+  const [mood, setMood] = useState('');
+  const [energy, setEnergy] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
@@ -20,7 +24,6 @@ export default function JournalList() {
     try {
       setLoading(true);
       const data = await getJournalEntries();
-      // Ensure sorted newest first by entryDate
       const sorted = Array.isArray(data)
         ? data.sort((a, b) => new Date(b.entryDate) - new Date(a.entryDate))
         : [];
@@ -32,19 +35,21 @@ export default function JournalList() {
     }
   };
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
+  useEffect(() => { fetchEntries(); }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!entryDate) return;
     try {
       setSubmitting(true);
-      const created = await createJournalEntry({ entryDate, notes });
+      const payload = { entryDate, notes };
+      if (mood) payload.mood = mood;
+      if (energy) payload.energy = parseInt(energy);
+      const created = await createJournalEntry(payload);
       setShowModal(false);
       setNotes('');
-      // Navigate directly to detail view of new entry
+      setMood('');
+      setEnergy('');
       const newId = created.journalEntryId || created.id;
       if (newId) {
         navigate(`/journal/${newId}`);
@@ -78,6 +83,9 @@ export default function JournalList() {
           </Link>
           <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Trades
+          </Link>
+          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Lessons
           </Link>
           <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Profile
@@ -121,6 +129,25 @@ export default function JournalList() {
                 <p className="entry-notes-preview">
                   {entry.notes ? entry.notes : <em>No notes provided.</em>}
                 </p>
+                {(entry.mood || entry.energy || entry.dayRating) && (
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                    {entry.mood && (
+                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
+                        {entry.mood}
+                      </span>
+                    )}
+                    {entry.energy && (
+                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
+                        Energy {entry.energy}
+                      </span>
+                    )}
+                    {entry.dayRating && (
+                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
+                        Rating {entry.dayRating}/5
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -141,6 +168,38 @@ export default function JournalList() {
                   onChange={(e) => setEntryDate(e.target.value)}
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label>Pre-Market Mood</label>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  {MOOD_OPTIONS.map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`btn btn-sm ${mood === m ? 'is-selected' : ''}`}
+                      onClick={() => setMood(mood === m ? '' : m)}
+                      style={{ fontSize: '0.78rem' }}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Pre-Market Energy (1-5)</label>
+                <div style={{ display: 'flex', gap: '0.3rem' }}>
+                  {[1,2,3,4,5].map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`btn btn-sm ${energy == n ? 'is-selected' : ''}`}
+                      onClick={() => setEnergy(energy == n ? '' : n)}
+                      style={{ width: 36, height: 36, fontSize: '0.85rem' }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="notes">Notes</label>

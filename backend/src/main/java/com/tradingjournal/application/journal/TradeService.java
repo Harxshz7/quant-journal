@@ -1,18 +1,9 @@
 package com.tradingjournal.application.journal;
 
-import com.tradingjournal.domain.entity.JournalEntry;
-import com.tradingjournal.domain.entity.PositionType;
-import com.tradingjournal.domain.entity.Trade;
-import com.tradingjournal.domain.entity.TradeOutcomeFilter;
-import com.tradingjournal.domain.entity.TradeStatusFilter;
+import com.tradingjournal.domain.entity.*;
 import com.tradingjournal.application.statistics.StatisticsService;
-import com.tradingjournal.domain.entity.User;
-import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
-import com.tradingjournal.infrastructure.repository.TradeRepository;
-import com.tradingjournal.presentation.dto.CloseTradeRequest;
-import com.tradingjournal.presentation.dto.CreateTradeRequest;
-import com.tradingjournal.presentation.dto.TradeDTO;
-import com.tradingjournal.presentation.dto.UpdateTradeRequest;
+import com.tradingjournal.infrastructure.repository.*;
+import com.tradingjournal.presentation.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,18 +27,24 @@ public class TradeService {
     private final TradeRepository tradeRepository;
     private final JournalEntryRepository journalEntryRepository;
     private final StatisticsService statisticsService;
-    private final com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository;
+    private final TradeScreenshotRepository tradeScreenshotRepository;
+    private final ChecklistItemTemplateRepository checklistTemplateRepository;
+    private final TradeChecklistItemRepository tradeChecklistItemRepository;
 
     public TradeService(
             TradeRepository tradeRepository,
             JournalEntryRepository journalEntryRepository,
             StatisticsService statisticsService,
-            com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository
+            TradeScreenshotRepository tradeScreenshotRepository,
+            ChecklistItemTemplateRepository checklistTemplateRepository,
+            TradeChecklistItemRepository tradeChecklistItemRepository
     ) {
         this.tradeRepository = tradeRepository;
         this.journalEntryRepository = journalEntryRepository;
         this.statisticsService = statisticsService;
         this.tradeScreenshotRepository = tradeScreenshotRepository;
+        this.checklistTemplateRepository = checklistTemplateRepository;
+        this.tradeChecklistItemRepository = tradeChecklistItemRepository;
     }
 
     public TradeDTO createTrade(User user, CreateTradeRequest request) {
@@ -62,7 +59,22 @@ public class TradeService {
         );
 
         Trade saved = tradeRepository.save(trade);
-        return TradeDTO.fromEntity(saved);
+
+        // Snapshot checklist items from templates
+        if (request.checklistItemIds() != null && !request.checklistItemIds().isEmpty()) {
+            List<ChecklistItemTemplate> templates = checklistTemplateRepository.findAllById(request.checklistItemIds());
+            for (ChecklistItemTemplate template : templates) {
+                if (!template.getUser().getId().equals(user.getId()) || !template.isActive()) continue;
+                TradeChecklistItem item = new TradeChecklistItem(saved, template.getText());
+                tradeChecklistItemRepository.save(item);
+            }
+        }
+
+        var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
+                .stream().map(TradeScreenshotDTO::fromEntity).toList();
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+                .stream().map(TradeChecklistItemDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(saved, screenshots, checklist);
     }
 
     public TradeDTO updateTrade(User user, UUID tradeId, UpdateTradeRequest request) {
@@ -72,22 +84,73 @@ public class TradeService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trade not found");
         }
 
-        if (trade.getExitPrice() != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Closed trades cannot be edited");
-        }
+        boolean isClosed = trade.getExitPrice() != null;
 
-        trade.setTicker(request.ticker());
-        trade.setPositionType(request.positionType());
-        trade.setEntryPrice(request.entryPrice());
-        trade.setQuantity(request.quantity());
-        trade.setStopLoss(request.stopLoss());
-        trade.setStrategy(normalizeStrategy(request.strategy()));
+        if (isClosed) {
+            // Closed trades: only allow reflection fields to be edited
+            boolean onlyReflectionFields =
+                    request.postTradeReflection() != null ||
+                    request.mistakeTags() != null ||
+                    request.setupQuality() != null;
+            boolean hasOtherChanges =
+                    !request.ticker().equals(trade.getTicker()) ||
+                    request.positionType() != trade.getPositionType() ||
+                    request.entryPrice().compareTo(trade.getEntryPrice()) != 0 ||
+                    request.quantity().compareTo(trade.getQuantity()) != 0 ||
+                    (request.stopLoss() != null ? request.stopLoss().compareTo(trade.getStopLoss() != null ? trade.getStopLoss() : BigDecimal.ZERO) != 0 : trade.getStopLoss() != null) ||
+                    (request.strategy() != null ? !request.strategy().equals(trade.getStrategy()) : trade.getStrategy() != null);
+
+            if (hasOtherChanges) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Closed trades cannot be edited");
+            }
+
+            // Apply only reflection fields
+            applyReflectionFields(trade, request);
+        } else {
+            trade.setTicker(request.ticker());
+            trade.setPositionType(request.positionType());
+            trade.setEntryPrice(request.entryPrice());
+            trade.setQuantity(request.quantity());
+            trade.setStopLoss(request.stopLoss());
+            trade.setStrategy(normalizeStrategy(request.strategy()));
+            applyReflectionFields(trade, request);
+        }
 
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
-                .stream().map(com.tradingjournal.presentation.dto.TradeScreenshotDTO::fromEntity).toList();
-        return TradeDTO.fromEntity(saved, screenshots);
+                .stream().map(TradeScreenshotDTO::fromEntity).toList();
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+                .stream().map(TradeChecklistItemDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(saved, screenshots, checklist);
+    }
+
+    private void applyReflectionFields(Trade trade, UpdateTradeRequest request) {
+        if (request.postTradeReflection() != null) trade.setPostTradeReflection(request.postTradeReflection());
+        if (request.mistakeTags() != null) trade.setMistakeTags(request.mistakeTags());
+        if (request.setupQuality() != null) {
+            if (request.setupQuality() < 1 || request.setupQuality() > 5) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Setup quality must be between 1 and 5");
+            }
+            trade.setSetupQuality(request.setupQuality());
+        }
+    }
+
+    public TradeDTO toggleChecklistItem(User user, UUID tradeId, UUID itemId, boolean checked) {
+        Trade trade = findOwnedTradeOrThrow(user, tradeId);
+        TradeChecklistItem item = tradeChecklistItemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist item not found"));
+        if (!item.getTrade().getId().equals(trade.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist item not found");
+        }
+        item.setChecked(checked);
+        tradeChecklistItemRepository.save(item);
+
+        var screenshots = tradeScreenshotRepository.findByTrade_TradeId(trade.getId())
+                .stream().map(TradeScreenshotDTO::fromEntity).toList();
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(trade.getId())
+                .stream().map(TradeChecklistItemDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(trade, screenshots, checklist);
     }
 
     public TradeDTO closeTrade(User user, UUID tradeId, CloseTradeRequest request) {
@@ -108,8 +171,10 @@ public class TradeService {
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
         var screenshots = tradeScreenshotRepository.findByTrade_TradeId(saved.getId())
-                .stream().map(com.tradingjournal.presentation.dto.TradeScreenshotDTO::fromEntity).toList();
-        return TradeDTO.fromEntity(saved, screenshots);
+                .stream().map(TradeScreenshotDTO::fromEntity).toList();
+        var checklist = tradeChecklistItemRepository.findByTrade_IdOrderByidAsc(saved.getId())
+                .stream().map(TradeChecklistItemDTO::fromEntity).toList();
+        return TradeDTO.fromEntity(saved, screenshots, checklist);
     }
 
     public void deleteTrade(User user, UUID tradeId) {
@@ -142,7 +207,6 @@ public class TradeService {
 
         Page<Trade> page = tradeRepository.findAll(spec, pageable);
 
-        // Batch-initialize journalEntry for the page rows to avoid an N+1 lazy load per trade
         if (!page.getContent().isEmpty()) {
             List<UUID> tradeIds = page.getContent().stream().map(Trade::getId).toList();
             tradeRepository.findWithJournalEntryByIds(tradeIds);
@@ -177,44 +241,34 @@ public class TradeService {
 
     private Specification<Trade> ownedBy(User user) {
         return (root, query, cb) -> {
-            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
-            jakarta.persistence.criteria.Join<JournalEntry, User> owner = journalEntry.join("user");
+            var journalEntry = root.join("journalEntry");
+            var owner = journalEntry.join("user");
             return cb.equal(owner.get("id"), user.getId());
         };
     }
 
     private Specification<Trade> notDeletedIfNeeded(boolean includeArchived) {
-        if (includeArchived) {
-            return (root, query, cb) -> cb.conjunction();
-        }
+        if (includeArchived) return (root, query, cb) -> cb.conjunction();
         return (root, query, cb) -> cb.isFalse(root.get("deleted"));
     }
 
     private Specification<Trade> tickerContains(String ticker) {
         return (root, query, cb) -> {
-            if (ticker == null || ticker.isBlank()) {
-                return cb.conjunction();
-            }
-            String pattern = "%" + ticker.trim().toLowerCase() + "%";
-            return cb.like(cb.lower(root.get("ticker")), pattern);
+            if (ticker == null || ticker.isBlank()) return cb.conjunction();
+            return cb.like(cb.lower(root.get("ticker")), "%" + ticker.trim().toLowerCase() + "%");
         };
     }
 
     private Specification<Trade> strategyContains(String strategy) {
         return (root, query, cb) -> {
-            if (strategy == null || strategy.isBlank()) {
-                return cb.conjunction();
-            }
-            String pattern = "%" + strategy.trim().toLowerCase() + "%";
-            return cb.like(cb.lower(root.get("strategy")), pattern);
+            if (strategy == null || strategy.isBlank()) return cb.conjunction();
+            return cb.like(cb.lower(root.get("strategy")), "%" + strategy.trim().toLowerCase() + "%");
         };
     }
 
     private Specification<Trade> statusIs(TradeStatusFilter status) {
         return (root, query, cb) -> {
-            if (status == null) {
-                return cb.conjunction();
-            }
+            if (status == null) return cb.conjunction();
             return status == TradeStatusFilter.OPEN
                     ? cb.isNull(root.<BigDecimal>get("exitPrice"))
                     : cb.isNotNull(root.<BigDecimal>get("exitPrice"));
@@ -223,13 +277,9 @@ public class TradeService {
 
     private Specification<Trade> outcomeIs(TradeOutcomeFilter outcome) {
         return (root, query, cb) -> {
-            if (outcome == null) {
-                return cb.conjunction();
-            }
-
+            if (outcome == null) return cb.conjunction();
             var grossPnl = grossPnlExpression(root, cb);
             var netPnl = cb.diff(grossPnl, coalesceFees(root, cb));
-
             return switch (outcome) {
                 case WIN -> cb.greaterThan(netPnl, ZERO);
                 case LOSS -> cb.lessThan(netPnl, ZERO);
@@ -240,36 +290,29 @@ public class TradeService {
 
     private Specification<Trade> entryDateGte(LocalDate fromDate) {
         return (root, query, cb) -> {
-            if (fromDate == null) {
-                return cb.conjunction();
-            }
-            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
+            if (fromDate == null) return cb.conjunction();
+            var journalEntry = root.join("journalEntry");
             return cb.greaterThanOrEqualTo(journalEntry.get("entryDate"), fromDate);
         };
     }
 
     private Specification<Trade> entryDateLte(LocalDate toDate) {
         return (root, query, cb) -> {
-            if (toDate == null) {
-                return cb.conjunction();
-            }
-            jakarta.persistence.criteria.Join<Trade, JournalEntry> journalEntry = root.join("journalEntry");
+            if (toDate == null) return cb.conjunction();
+            var journalEntry = root.join("journalEntry");
             return cb.lessThanOrEqualTo(journalEntry.get("entryDate"), toDate);
         };
     }
 
     private jakarta.persistence.criteria.Expression<BigDecimal> grossPnlExpression(
             jakarta.persistence.criteria.Root<Trade> root,
-            jakarta.persistence.criteria.CriteriaBuilder cb
-    ) {
+            jakarta.persistence.criteria.CriteriaBuilder cb) {
         var positionType = root.<PositionType>get("positionType");
         var entryPrice = root.<BigDecimal>get("entryPrice");
         var exitPrice = root.<BigDecimal>get("exitPrice");
         var quantity = root.<BigDecimal>get("quantity");
-
         var longGross = cb.prod(cb.diff(exitPrice, entryPrice), quantity);
         var shortGross = cb.prod(cb.diff(entryPrice, exitPrice), quantity);
-
         return cb.<BigDecimal>selectCase()
                 .when(cb.equal(positionType, PositionType.LONG), longGross)
                 .otherwise(shortGross);
@@ -277,18 +320,14 @@ public class TradeService {
 
     private jakarta.persistence.criteria.Expression<BigDecimal> coalesceFees(
             jakarta.persistence.criteria.Root<Trade> root,
-            jakarta.persistence.criteria.CriteriaBuilder cb
-    ) {
+            jakarta.persistence.criteria.CriteriaBuilder cb) {
         return cb.<BigDecimal>coalesce()
                 .value(root.<BigDecimal>get("fees"))
                 .value(ZERO);
     }
 
     private String normalizeStrategy(String strategy) {
-        if (strategy == null) {
-            return null;
-        }
-
+        if (strategy == null) return null;
         String trimmed = strategy.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }

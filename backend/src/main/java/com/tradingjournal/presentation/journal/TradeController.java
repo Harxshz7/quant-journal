@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -68,6 +69,18 @@ public class TradeController {
         return ResponseEntity.ok(updated);
     }
 
+    @PatchMapping("/{tradeId}/checklist/{itemId}")
+    public ResponseEntity<TradeDTO> toggleChecklistItem(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID tradeId,
+            @PathVariable UUID itemId,
+            @RequestBody Map<String, Boolean> body
+    ) {
+        boolean checked = body.getOrDefault("checked", false);
+        TradeDTO updated = tradeService.toggleChecklistItem(user, tradeId, itemId, checked);
+        return ResponseEntity.ok(updated);
+    }
+
     @PutMapping("/{id}/close")
     public ResponseEntity<TradeDTO> closeTrade(
             @AuthenticationPrincipal User user,
@@ -107,15 +120,7 @@ public class TradeController {
         int safeSize = Math.max(size, 1);
         Pageable pageable = PageRequest.of(safePage, safeSize, parseSort(sort));
         Page<TradeDTO> trades = tradeService.getTrades(
-                user,
-                ticker,
-                strategy,
-                status,
-                outcome,
-                fromDate,
-                toDate,
-                includeArchived,
-                pageable
+                user, ticker, strategy, status, outcome, fromDate, toDate, includeArchived, pageable
         );
         return ResponseEntity.ok(trades);
     }
@@ -124,13 +129,11 @@ public class TradeController {
         if (sort == null || sort.isBlank()) {
             return Sort.by(Sort.Direction.DESC, "journalEntry.entryDate");
         }
-
         String[] parts = sort.split(",", 2);
         String property = mapSortProperty(parts[0].trim());
         Sort.Direction direction = parts.length > 1
                 ? Sort.Direction.fromString(parts[1].trim())
                 : Sort.Direction.ASC;
-
         return Sort.by(direction, property);
     }
 

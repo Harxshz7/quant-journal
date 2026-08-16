@@ -267,6 +267,9 @@ export default function Trades() {
           <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Stats
           </Link>
+          <Link to="/lessons" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Lessons
+          </Link>
           <Link to="/profile" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Profile
           </Link>

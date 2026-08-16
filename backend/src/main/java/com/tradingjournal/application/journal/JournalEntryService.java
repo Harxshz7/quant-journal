@@ -3,19 +3,15 @@ package com.tradingjournal.application.journal;
 import com.tradingjournal.domain.entity.JournalEntry;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
-import com.tradingjournal.presentation.dto.CreateJournalEntryRequest;
-import com.tradingjournal.presentation.dto.JournalEntryDTO;
-import com.tradingjournal.presentation.dto.TradeScreenshotDTO;
-import com.tradingjournal.presentation.dto.UpdateJournalEntryRequest;
+import com.tradingjournal.infrastructure.repository.TradeChecklistItemRepository;
+import com.tradingjournal.infrastructure.repository.TradeScreenshotRepository;
+import com.tradingjournal.presentation.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,14 +19,17 @@ import java.util.stream.Collectors;
 public class JournalEntryService {
 
     private final JournalEntryRepository journalEntryRepository;
-    private final com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository;
+    private final TradeScreenshotRepository tradeScreenshotRepository;
+    private final TradeChecklistItemRepository tradeChecklistItemRepository;
 
     public JournalEntryService(
             JournalEntryRepository journalEntryRepository,
-            com.tradingjournal.infrastructure.repository.TradeScreenshotRepository tradeScreenshotRepository
+            TradeScreenshotRepository tradeScreenshotRepository,
+            TradeChecklistItemRepository tradeChecklistItemRepository
     ) {
         this.journalEntryRepository = journalEntryRepository;
         this.tradeScreenshotRepository = tradeScreenshotRepository;
+        this.tradeChecklistItemRepository = tradeChecklistItemRepository;
     }
 
     public JournalEntryDTO createJournalEntry(User user, CreateJournalEntryRequest request) {
@@ -40,6 +39,11 @@ public class JournalEntryService {
         }
 
         JournalEntry entry = new JournalEntry(user, request.entryDate(), request.notes());
+        entry.setMood(request.mood());
+        entry.setEnergy(request.energy());
+        entry.setMarketBias(request.marketBias());
+        entry.setDailyGoal(request.dailyGoal());
+        entry.setDayRating(request.dayRating());
         JournalEntry saved = journalEntryRepository.save(entry);
         return JournalEntryDTO.fromEntity(saved);
     }
@@ -61,7 +65,6 @@ public class JournalEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
-        // Batch-load screenshots for all of the entry's trades in a single query
         List<UUID> tradeIds = entry.getTrades().stream()
                 .map(trade -> trade.getId())
                 .toList();
@@ -74,7 +77,15 @@ public class JournalEntryService {
                                 Collectors.mapping(TradeScreenshotDTO::fromEntity, Collectors.toList())
                         ));
 
-        return JournalEntryDTO.fromEntity(entry, screenshotsByTradeId);
+        Map<UUID, List<TradeChecklistItemDTO>> checklistByTradeId = tradeIds.isEmpty()
+                ? Map.of()
+                : tradeChecklistItemRepository.findByTradeIdIn(tradeIds).stream()
+                        .collect(Collectors.groupingBy(
+                                item -> item.getTrade().getId(),
+                                Collectors.mapping(TradeChecklistItemDTO::fromEntity, Collectors.toList())
+                        ));
+
+        return JournalEntryDTO.fromEntity(entry, screenshotsByTradeId, checklistByTradeId);
     }
 
     public JournalEntryDTO updateJournalEntry(User user, UUID id, UpdateJournalEntryRequest request) {
@@ -85,7 +96,13 @@ public class JournalEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
-        entry.setNotes(request.notes());
+        if (request.notes() != null) entry.setNotes(request.notes());
+        if (request.mood() != null) entry.setMood(request.mood());
+        if (request.energy() != null) entry.setEnergy(request.energy());
+        if (request.marketBias() != null) entry.setMarketBias(request.marketBias());
+        if (request.dailyGoal() != null) entry.setDailyGoal(request.dailyGoal());
+        if (request.dayRating() != null) entry.setDayRating(request.dayRating());
+
         JournalEntry updated = journalEntryRepository.save(entry);
         return JournalEntryDTO.fromEntity(updated);
     }
