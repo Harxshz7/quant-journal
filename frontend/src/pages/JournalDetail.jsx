@@ -116,7 +116,7 @@ export default function JournalDetail() {
     return (
       <div className="container">
         <div className="error-banner">{error || 'Journal entry not found'}</div>
-        <Link to="/" className="btn btn-secondary back-btn">
+        <Link to="/journal" className="btn btn-secondary back-btn">
           &larr; Back to Entries
         </Link>
       </div>
@@ -126,7 +126,7 @@ export default function JournalDetail() {
   return (
     <div className="container">
       <div className="back-link">
-        <Link to="/">&larr; Back to Entries</Link>
+        <Link to="/journal">&larr; Back to Entries</Link>
       </div>
 
       <header className="header">

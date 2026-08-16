@@ -90,7 +90,7 @@ class StatisticsServiceTest {
     void getStatistics_WithoutRow_ReturnsDefaultDto() {
         when(statisticsRepository.findByUser(user)).thenReturn(Optional.empty());
 
-        StatisticsDTO dto = statisticsService.getStatistics(user);
+        StatisticsDTO dto = statisticsService.getStatistics(user, null, null);
 
         assertEquals(0, dto.totalTrades());
         assertEquals(BigDecimal.ZERO, dto.winRate());

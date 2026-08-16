@@ -131,7 +131,7 @@ export default function Profile() {
   return (
     <div className="container">
       <div className="back-link">
-        <Link to="/">&larr; Back to Entries</Link>
+        <Link to="/">&larr; Back to Dashboard</Link>
       </div>
 
       <header className="header">

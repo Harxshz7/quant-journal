@@ -55,8 +55,11 @@ export async function getTrades(filters = {}) {
   return response.data;
 }
 
-export async function getStatistics() {
-  const response = await client.get('/statistics');
+export async function getStatistics(fromDate, toDate) {
+  const params = {};
+  if (fromDate) params.fromDate = fromDate;
+  if (toDate) params.toDate = toDate;
+  const response = await client.get('/statistics', { params });
   return response.data;
 }
 

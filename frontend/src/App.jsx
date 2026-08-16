@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import JournalList from './pages/JournalList';
 import JournalDetail from './pages/JournalDetail';
 import Profile from './pages/Profile';
@@ -20,6 +21,14 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route
             path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/journal"
             element={
               <ProtectedRoute>
                 <JournalList />

@@ -259,6 +259,9 @@ export default function Trades() {
             📥 Import TradingView
           </Link>
           <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Dashboard
+          </Link>
+          <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Journal
           </Link>
           <Link to="/stats" className="btn btn-secondary" style={{ textDecoration: 'none' }}>

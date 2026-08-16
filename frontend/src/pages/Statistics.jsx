@@ -78,6 +78,9 @@ export default function Statistics() {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
           <Link to="/" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+            Dashboard
+          </Link>
+          <Link to="/journal" className="btn btn-secondary" style={{ textDecoration: 'none' }}>
             Journal
           </Link>
           <Link to="/trades" className="btn btn-secondary" style={{ textDecoration: 'none' }}>

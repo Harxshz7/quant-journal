@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +33,24 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
             ORDER BY t.exitDate ASC
             """)
     List<Trade> findClosedActiveTradesForStatistics(@Param("user") User user);
+
+    @Query("""
+            SELECT t
+            FROM Trade t
+            JOIN FETCH t.journalEntry je
+            JOIN FETCH je.user u
+            WHERE u = :user
+              AND t.deleted = false
+              AND t.exitDate IS NOT NULL
+              AND (:fromDate IS NULL OR t.exitDate >= :fromDate)
+              AND (:toDate IS NULL OR t.exitDate <= :toDate)
+            ORDER BY t.exitDate ASC
+            """)
+    List<Trade> findClosedTradesInRange(
+            @Param("user") User user,
+            @Param("fromDate") Instant fromDate,
+            @Param("toDate") Instant toDate
+    );
 
     @Query("SELECT COUNT(t) > 0 FROM Trade t WHERE t.journalEntry.user = :user AND t.externalId = :externalId")
     boolean existsByJournalEntry_UserAndExternalId(@Param("user") User user, @Param("externalId") String externalId);
