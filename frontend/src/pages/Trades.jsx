@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Download, Upload } from 'lucide-react';
 import { closeTrade, deleteTrade, getTrades, updateTrade, exportTradesCsv } from '../api/journal';
 import TradingViewImportModal from '../components/TradingViewImportModal';
 import NavBar from '../components/NavBar';
@@ -270,7 +271,7 @@ export default function Trades() {
     <div className="container">
       <NavBar active="trades">
         <Link to="/import" className="btn btn-primary btn-sm no-underline">
-           Import TradingView
+          <Upload size={16} className="inline mr-1" /> Import TradingView
         </Link>
         <button
           type="button"
@@ -278,7 +279,7 @@ export default function Trades() {
           onClick={handleExportCsv}
           disabled={exporting}
         >
-          {exporting ? 'Exporting...' : ' Export CSV'}
+          {exporting ? 'Exporting...' : <><Download size={16} className="inline mr-1" /> Export CSV</>}
         </button>
       </NavBar>
 

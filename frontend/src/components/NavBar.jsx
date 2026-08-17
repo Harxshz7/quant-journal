@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAccounts } from '../context/AccountContext';
 import ThemeToggle from './ThemeToggle';
@@ -73,7 +74,7 @@ export default function NavBar({ active, children }) {
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
         >
-          {open ? '' : ''}
+          {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
     </header>
