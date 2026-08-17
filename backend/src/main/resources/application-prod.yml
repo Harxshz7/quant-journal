@@ -12,7 +12,7 @@ spring:
     show-sql: false
 
 jwt:
-  # Required in production — no default on purpose (fail fast if missing)
+  # Required in production  no default on purpose (fail fast if missing)
   secret: ${JWT_SECRET}
 
 app:

@@ -50,7 +50,7 @@ public class AnalyticsService {
         return tradeRepository.findClosedTradesInRange(user, account, from, to);
     }
 
-    // ── Equity Curve ──────────────────────────────────────────────
+    //  Equity Curve 
 
     public List<EquityPointDTO> equityCurve(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -66,7 +66,7 @@ public class AnalyticsService {
         return points;
     }
 
-    // ── Drawdown ──────────────────────────────────────────────────
+    //  Drawdown 
 
     public DrawdownDTO drawdown(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -112,7 +112,7 @@ public class AnalyticsService {
         );
     }
 
-    // ── By Strategy ───────────────────────────────────────────────
+    //  By Strategy 
 
     public List<BreakdownEntryDTO> byStrategy(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -127,7 +127,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── By Ticker ─────────────────────────────────────────────────
+    //  By Ticker 
 
     public List<BreakdownEntryDTO> byTicker(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -142,7 +142,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── By Day of Week ────────────────────────────────────────────
+    //  By Day of Week 
 
     public List<TimeBreakdownDTO> byDayOfWeek(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -158,7 +158,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── By Hour ───────────────────────────────────────────────────
+    //  By Hour 
 
     public List<TimeBreakdownDTO> byHour(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -175,7 +175,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── Monthly ───────────────────────────────────────────────────
+    //  Monthly 
 
     public List<TimeBreakdownDTO> monthly(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -191,7 +191,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── Weekly ────────────────────────────────────────────────────
+    //  Weekly 
 
     public List<TimeBreakdownDTO> weekly(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
         List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
@@ -213,7 +213,7 @@ public class AnalyticsService {
                 .toList();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
+    //  Helpers 
 
     private BreakdownEntryDTO buildBreakdown(String group, List<Trade> trades) {
         int total = 0;

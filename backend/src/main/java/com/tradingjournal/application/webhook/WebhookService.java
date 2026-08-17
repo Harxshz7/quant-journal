@@ -50,7 +50,7 @@ public class WebhookService {
             HttpServletRequest request
     ) {
         String ip = request.getRemoteAddr();
-        log.info("Webhook received — user={}, ip={}, ticker={}, action={}, price={}, quantity={}, strategy={}, time={}",
+        log.info("Webhook received  user={}, ip={}, ticker={}, action={}, price={}, quantity={}, strategy={}, time={}",
                 user.getEmail(), ip,
                 payload.ticker(), payload.action(), payload.price(),
                 payload.quantity(), payload.strategy(), payload.time());
@@ -95,7 +95,7 @@ public class WebhookService {
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
 
-        log.info("Webhook trade created — tradeId={}, ticker={}, action={}, price={}, quantity={}",
+        log.info("Webhook trade created  tradeId={}, ticker={}, action={}, price={}, quantity={}",
                 saved.getId(), ticker, action, price, quantity);
 
         return Map.of(
@@ -109,10 +109,10 @@ public class WebhookService {
         List<Trade> openTrades = tradeRepository.findOpenByTicker(user, ticker);
 
         if (openTrades.isEmpty()) {
-            log.warn("Webhook close — no open trade found for ticker={}", ticker);
+            log.warn("Webhook close  no open trade found for ticker={}", ticker);
             return Map.of(
                     "status", "no_match",
-                    "message", "No open trade found for " + ticker + " — alert ignored"
+                    "message", "No open trade found for " + ticker + "  alert ignored"
             );
         }
 
@@ -124,7 +124,7 @@ public class WebhookService {
         Trade saved = tradeRepository.save(trade);
         statisticsService.recalculate(user);
 
-        log.info("Webhook trade closed — tradeId={}, ticker={}, exitPrice={}",
+        log.info("Webhook trade closed  tradeId={}, ticker={}, exitPrice={}",
                 saved.getId(), ticker, price);
 
         return Map.of(

@@ -78,11 +78,11 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
           </div>
           <div className="trade-prices">
             <span>Entry: ${trade.entryPrice}</span>
-            <span className="separator">•</span>
+            <span className="separator"></span>
             <span>Qty: {trade.quantity}</span>
             {isClosed && (
               <>
-                <span className="separator">•</span>
+                <span className="separator"></span>
                 <span>Exit: ${trade.exitPrice}</span>
               </>
             )}
@@ -106,7 +106,7 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
             type="button"
             title={expanded ? 'Collapse' : 'Expand'}
           >
-            {expanded ? '▼' : ''}
+            {expanded ? '' : ''}
           </button>
         </div>
       </div>

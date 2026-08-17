@@ -19,7 +19,7 @@
   --shadow-elev: -6px -6px 14px var(--shadow-light), 8px 8px 20px var(--shadow-dark);
   --shadow-inset: inset -5px -5px 12px var(--shadow-light), inset 6px 6px 14px var(--shadow-dark);
 
-  /* Back-compat aliases — existing components reference these */
+  /* Back-compat aliases  existing components reference these */
   --text: var(--text-primary);
   --muted: var(--text-muted);
   --pnl-positive: var(--success);
@@ -1081,7 +1081,7 @@ textarea:focus {
 }
 
 /* ========================================
-   User Badge (pill — kept for reuse)
+   User Badge (pill  kept for reuse)
    ======================================== */
 .user-badge {
   display: inline-flex;

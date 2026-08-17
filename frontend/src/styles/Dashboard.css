@@ -5,7 +5,7 @@
   margin-bottom: 1.75rem;
 }
 
-/* ── Date Range Bar ─────────────────────────────── */
+/*  Date Range Bar  */
 
 .date-range-bar {
   display: flex;
@@ -57,7 +57,7 @@
   min-width: 130px;
 }
 
-/* ── Chart Cards ────────────────────────────────── */
+/*  Chart Cards  */
 
 .chart-card {
   padding: 1.5rem;
@@ -93,7 +93,7 @@
   font-size: 0.9rem;
 }
 
-/* ── Recent Trades ──────────────────────────────── */
+/*  Recent Trades  */
 
 .recent-trades-list {
   display: flex;
@@ -148,7 +148,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Responsive ─────────────────────────────────── */
+/*  Responsive  */
 
 @media (max-width: 960px) {
   .dashboard-grid {

@@ -378,11 +378,11 @@ export default function Profile() {
         <form onSubmit={handlePasswordSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="currentPassword">Current Password</label>
-            <input id="currentPassword" type="password" placeholder="••••••••" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+            <input id="currentPassword" type="password" placeholder="" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="newPassword">New Password</label>
-            <input id="newPassword" type="password" placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
+            <input id="newPassword" type="password" placeholder="" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
           </div>
           <button type="submit" className="btn btn-primary" disabled={passwordLoading}>
             {passwordLoading ? 'Updating...' : 'Change Password'}
@@ -517,7 +517,7 @@ export default function Profile() {
         ) : shareStatus.shareEnabled ? (
           <>
             <div className="alert profile-success-alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: 'var(--pnl-positive)', fontSize: '0.85rem' }}>
-              <strong>Enabled</strong> — anyone with this link can view your performance snapshot.
+              <strong>Enabled</strong>  anyone with this link can view your performance snapshot.
             </div>
             <div className="form-group">
               <label htmlFor="shareUrl">Public Link</label>
@@ -624,7 +624,7 @@ export default function Profile() {
           <p>Personal endpoint for TradingView alert automation</p>
         </div>
         <div className="alert profile-success-alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: 'var(--pnl-positive)', fontSize: '0.85rem' }}>
-          <strong>Active</strong> — TradingView alerts sent to this URL will automatically create or close trades.
+          <strong>Active</strong>  TradingView alerts sent to this URL will automatically create or close trades.
         </div>
         {webhookError && <div className="alert alert-error">{webhookError}</div>}
         <div className="form-group">
@@ -653,7 +653,7 @@ export default function Profile() {
               <strong>Open your TradingView chart</strong> and add your indicator or strategy.
             </li>
             <li>
-              <strong>Create an Alert</strong> — right-click on the chart or use the Alerts panel. Configure your conditions.
+              <strong>Create an Alert</strong>  right-click on the chart or use the Alerts panel. Configure your conditions.
             </li>
             <li>
               <strong>Under "Webhook URL"</strong>, paste your webhook URL from above.

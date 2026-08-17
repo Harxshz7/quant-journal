@@ -94,7 +94,7 @@ export default function Calculator() {
         <div>
           <h1>Position Size Calculator</h1>
           <p className="muted section-subtitle">
-            Risk-based position sizing — pure math, no trade is created
+            Risk-based position sizing  pure math, no trade is created
           </p>
         </div>
       </header>
@@ -167,7 +167,7 @@ export default function Calculator() {
         </div>
 
         <p className="calc-formula">
-          Risk amount = account size × risk % · Position size = risk amount ÷ |entry − stop| · Position value = size × entry
+          Risk amount = account size × risk % · Position size = risk amount ÷ |entry  stop| · Position value = size × entry
         </p>
 
         <div className="calc-results-grid">
@@ -194,7 +194,7 @@ export default function Calculator() {
             onClick={useValues}
             disabled={!canUseValues}
           >
-            Use these values →
+            Use these values 
           </button>
           <p className="muted calc-hint">
             Opens the journal so you can create a trade with the calculated quantity, entry, and stop loss prefilled.

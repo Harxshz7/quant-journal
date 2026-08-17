@@ -84,7 +84,7 @@ function StatCard({ label, value, color, tooltip }) {
     <article className="stat-card">
       <div className="stat-label">
         {label}
-        {tooltip && <span className="stat-tooltip" title={tooltip} aria-label={tooltip}>ⓘ</span>}
+        {tooltip && <span className="stat-tooltip" title={tooltip} aria-label={tooltip}></span>}
       </div>
       <div className="stat-value" style={color ? { color } : undefined}>{value}</div>
     </article>
@@ -296,7 +296,7 @@ export default function Dashboard() {
             <StatCard
               label="Expectancy"
               value={formatMoney(stats?.expectancy)}
-              tooltip="Average P&L per trade, weighted by win rate: p × avgWin + (1 − p) × avgLoss."
+              tooltip="Average P&L per trade, weighted by win rate: p × avgWin + (1  p) × avgLoss."
             />
             <StatCard
               label="Risk of Ruin"

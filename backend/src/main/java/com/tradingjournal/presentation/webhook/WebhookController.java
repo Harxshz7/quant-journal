@@ -35,7 +35,7 @@ public class WebhookController {
     ) {
         Optional<User> userOpt = userRepository.findByWebhookToken(token);
         if (userOpt.isEmpty()) {
-            log.warn("Webhook received with invalid token — ip={}, token={}", request.getRemoteAddr(), token);
+            log.warn("Webhook received with invalid token  ip={}, token={}", request.getRemoteAddr(), token);
             return ResponseEntity.status(404).body(Map.of(
                     "status", "error",
                     "message", "Invalid webhook token"

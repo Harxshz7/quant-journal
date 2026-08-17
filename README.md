@@ -1,4 +1,4 @@
-# Trading Journal Application — Master Technical Specification & Developer Guide
+# Trading Journal Application  Master Technical Specification & Developer Guide
 
 A production-ready, full-stack Trading Journal platform built with Java 21, Spring Boot 3, React 18, and PostgreSQL. Designed using Clean Architecture principles to record trades, analyze risk/reward dynamics, visualize performance, and maintain trading reflections with media upload capabilities.
 
@@ -47,28 +47,28 @@ The Trading Journal Application enables quantitative and discretionary traders t
 The backend enforces strict **Clean Architecture** boundaries. High-level modules do not depend on low-level infrastructure modules; both depend on abstractions.
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│           Presentation Layer (REST Controllers)           │
-│           - Request Validation & Response Serialization   │
-└─────────────────────────────┬─────────────────────────────┘
-                              │ (Depends On)
-                              ▼
-┌───────────────────────────────────────────────────────────┐
-│            Application Layer (Services & DTOs)            │
-│            - Transaction Logic & DTO Mapping              │
-└─────────────────────────────┬─────────────────────────────┘
-                              │ (Depends On)
-                              ▼
-┌───────────────────────────────────────────────────────────┐
-│               Domain Layer (Entities & Rules)             │
-│               - Domain Models & Business Logic            │
-└─────────────────────────────┬─────────────────────────────┘
-                              │ (Depends On)
-                              ▼
-┌───────────────────────────────────────────────────────────┐
-│           Infrastructure Layer (Repositories & DB)        │
-│           - Database Access, Spring Data JPA, Storage     │
-└───────────────────────────────────────────────────────────┘
+
+           Presentation Layer (REST Controllers)           
+           - Request Validation & Response Serialization   
+
+                               (Depends On)
+                              
+
+            Application Layer (Services & DTOs)            
+            - Transaction Logic & DTO Mapping              
+
+                               (Depends On)
+                              
+
+               Domain Layer (Entities & Rules)             
+               - Domain Models & Business Logic            
+
+                               (Depends On)
+                              
+
+           Infrastructure Layer (Repositories & DB)        
+           - Database Access, Spring Data JPA, Storage     
+
 ```
 
 ### Architectural Principles
@@ -82,31 +82,31 @@ The backend enforces strict **Clean Architecture** boundaries. High-level module
 
 ```
 quant-journal/
-├── run.bat                        # Windows execution helper script
-├── README.md                      # Unified Master Documentation
-├── backend/                       # Spring Boot Application Root
-│   ├── pom.xml
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/tradingjournal/
-│       │   │   ├── presentation/   # REST Controllers, API Request/Response DTOs
-│       │   │   ├── application/    # Service Implementation, Mappers, Business Logic
-│       │   │   ├── domain/         # JPA Entities, Enums, Domain Exceptions
-│       │   │   ├── infrastructure/ # JPA Repositories, Security Interceptors, Storage
-│       │   │   └── common/         # Global Exception Handlers, Audit Loggers
-│       │   └── resources/
-│       │       ├── application.yml
-│       │       ├── application-dev.yml
-│       │       └── application-prod.yml
-│       └── test/                   # JUnit 5 & Mockito test suite
-└── frontend/                      # React SPA Application Root
-    ├── package.json
-    └── src/
-        ├── api/                    # Axios API integration endpoints
-        ├── components/             # Reusable UI widgets & navigation elements
-        ├── hooks/                  # Custom React state management hooks
-        ├── pages/                  # Top-level routes (Dashboard, TradeHistory, Auth)
-        └── utils/                  # Formatting & calculation utilities
+ run.bat                        # Windows execution helper script
+ README.md                      # Unified Master Documentation
+ backend/                       # Spring Boot Application Root
+    pom.xml
+    src/
+        main/
+           java/com/tradingjournal/
+              presentation/   # REST Controllers, API Request/Response DTOs
+              application/    # Service Implementation, Mappers, Business Logic
+              domain/         # JPA Entities, Enums, Domain Exceptions
+              infrastructure/ # JPA Repositories, Security Interceptors, Storage
+              common/         # Global Exception Handlers, Audit Loggers
+           resources/
+               application.yml
+               application-dev.yml
+               application-prod.yml
+        test/                   # JUnit 5 & Mockito test suite
+ frontend/                      # React SPA Application Root
+     package.json
+     src/
+         api/                    # Axios API integration endpoints
+         components/             # Reusable UI widgets & navigation elements
+         hooks/                  # Custom React state management hooks
+         pages/                  # Top-level routes (Dashboard, TradeHistory, Auth)
+         utils/                  # Formatting & calculation utilities
 ```
 
 ---
@@ -116,14 +116,14 @@ quant-journal/
 ### Entity-Relationship Architecture
 
 ```
-┌──────────────┐          1:M          ┌──────────────┐          1:M          ┌───────────────────┐
-│    Users     ├──────────────────────►│    Trades    ├──────────────────────►│ Trade_Screenshots │
-└──────┬───────┘                       └──────┬───────┘                       └───────────────────┘
-       │ 1:1                                  │ 1:M
-       ▼                                      ▼
-┌──────────────┐                       ┌──────────────┐
-│  Trade_Stats │                       │JournalEntries│
-└──────────────┘                       └──────────────┘
+          1:M                    1:M          
+    Users         Trades     Trade_Screenshots 
+                                              
+        1:1                                   1:M
+                                             
+                       
+  Trade_Stats                        JournalEntries
+                       
 ```
 
 ### DDL Specification (PostgreSQL)
@@ -333,13 +333,13 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 
 | Phase | Timeline | Key Modules & Deliverables |
 | :--- | :--- | :--- |
-| **Phase 1: Foundation** | Weeks 1–4 | Spring Boot setup, local PostgreSQL, Flyway schema, JWT security core |
-| **Phase 2: User Management** | Weeks 5–7 | User registration, authentication endpoints, token refresh logic, user isolation |
-| **Phase 3: Trade Operations** | Weeks 8–11 | Trade CRUD operations, P&L & Risk/Reward calculation algorithms, pagination |
-| **Phase 4: Analytics** | Weeks 12–15 | `TradeStatistics` caching engine, dashboard metrics, time-series performance charts |
+| **Phase 1: Foundation** | Weeks 14 | Spring Boot setup, local PostgreSQL, Flyway schema, JWT security core |
+| **Phase 2: User Management** | Weeks 57 | User registration, authentication endpoints, token refresh logic, user isolation |
+| **Phase 3: Trade Operations** | Weeks 811 | Trade CRUD operations, P&L & Risk/Reward calculation algorithms, pagination |
+| **Phase 4: Analytics** | Weeks 1215 | `TradeStatistics` caching engine, dashboard metrics, time-series performance charts |
 | **Phase 5: File Storage** | Week 16 | Screenshot upload service, local/S3 storage manager, mime-type validation |
-| **Phase 6: QA & Testing** | Weeks 17–18 | Unit test suite (80%+ target coverage), integration tests, load tests |
-| **Phase 7: Deployment** | Weeks 19–20 | Production configuration hardening, CI/CD pipeline |
+| **Phase 6: QA & Testing** | Weeks 1718 | Unit test suite (80%+ target coverage), integration tests, load tests |
+| **Phase 7: Deployment** | Weeks 1920 | Production configuration hardening, CI/CD pipeline |
 
 ---
 
@@ -375,10 +375,10 @@ CREATE INDEX idx_screenshots_trade ON trade_screenshots(trade_id);
 
 | Variable | Required | Default | Used by |
 | :--- | :--- | :--- | :--- |
-| `JWT_SECRET` | **prod** (no default) / optional in dev | dev-only value in `application-dev.yml` | JWT signing key — must be a long random string in production |
-| `SPRING_DATASOURCE_URL` | prod | — | JDBC URL (PostgreSQL) |
-| `SPRING_DATASOURCE_USERNAME` | prod | — | DB user |
-| `SPRING_DATASOURCE_PASSWORD` | prod | — | DB password |
+| `JWT_SECRET` | **prod** (no default) / optional in dev | dev-only value in `application-dev.yml` | JWT signing key  must be a long random string in production |
+| `SPRING_DATASOURCE_URL` | prod |  | JDBC URL (PostgreSQL) |
+| `SPRING_DATASOURCE_USERNAME` | prod |  | DB user |
+| `SPRING_DATASOURCE_PASSWORD` | prod |  | DB password |
 | `SPRING_DATASOURCE_DRIVER` | prod | `org.postgresql.Driver` | JDBC driver class |
 | `APP_CORS_ALLOWED_ORIGINS` | prod | `http://localhost:3000` | Comma-separated allowed CORS origins |
 | `APP_BASE_URL` | no | `http://localhost:8080` | Base URL used to build webhook URLs |
@@ -412,7 +412,7 @@ Password: Demo@1234
 ```
 
 **Access Points:**
-- Frontend: `http://localhost:3000` → Login with demo credentials
+- Frontend: `http://localhost:3000`  Login with demo credentials
 - Backend API: `http://localhost:8080/api/v1`
 - H2 Database Console: `http://localhost:8080/h2-console` (Use SA / blank password)
 - Swagger UI: `http://localhost:8080/swagger-ui.html`

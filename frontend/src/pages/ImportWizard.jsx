@@ -444,7 +444,7 @@ export default function ImportWizard() {
                 onClick={() => setCurrentStep((prev) => prev - 1)}
                 disabled={isUploading}
               >
-                ← Back
+                 Back
               </button>
             )}
           </div>
@@ -456,7 +456,7 @@ export default function ImportWizard() {
                 className="btn btn-primary"
                 onClick={() => setCurrentStep(2)}
               >
-                Next: Download Samples →
+                Next: Download Samples 
               </button>
             )}
 
@@ -466,7 +466,7 @@ export default function ImportWizard() {
                 className="btn btn-primary"
                 onClick={() => setCurrentStep(3)}
               >
-                Next: Upload CSV →
+                Next: Upload CSV 
               </button>
             )}
 
@@ -487,7 +487,7 @@ export default function ImportWizard() {
                 className="btn btn-primary"
                 onClick={() => navigate('/trades')}
               >
-                View Imported Trades →
+                View Imported Trades 
               </button>
             )}
           </div>
