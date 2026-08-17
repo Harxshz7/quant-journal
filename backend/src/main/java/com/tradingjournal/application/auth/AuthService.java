@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.tradingjournal.presentation.auth.UserSettingsDTO;
 import com.tradingjournal.presentation.auth.UpdateUserSettingsRequest;
 import com.tradingjournal.presentation.auth.WebhookResponseDTO;
+import com.tradingjournal.presentation.auth.ShareStatusDTO;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -168,6 +169,28 @@ public class AuthService {
         userRepository.save(user);
         String fullUrl = buildWebhookUrl(newToken);
         return new WebhookResponseDTO(fullUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public ShareStatusDTO getShareStatus(User user) {
+        return new ShareStatusDTO(user.getShareToken(), user.isShareEnabled());
+    }
+
+    @Transactional
+    public ShareStatusDTO enableShare(User user) {
+        if (user.getShareToken() == null || user.getShareToken().isBlank()) {
+            user.setShareToken(UUID.randomUUID().toString());
+        }
+        user.setShareEnabled(true);
+        userRepository.save(user);
+        return new ShareStatusDTO(user.getShareToken(), user.isShareEnabled());
+    }
+
+    @Transactional
+    public ShareStatusDTO disableShare(User user) {
+        user.setShareEnabled(false);
+        userRepository.save(user);
+        return new ShareStatusDTO(user.getShareToken(), user.isShareEnabled());
     }
 
     private String buildWebhookUrl(String token) {

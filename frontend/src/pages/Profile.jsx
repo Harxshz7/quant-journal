@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { changePasswordApi, getWebhookUrl, regenerateWebhookUrl, getSettings, updateSettings } from '../api/auth';
+import { useAccounts } from '../context/AccountContext';
+import {
+  changePasswordApi, getWebhookUrl, regenerateWebhookUrl, getSettings, updateSettings,
+  getShareStatus, enableShare, disableShare,
+} from '../api/auth';
+import {
+  createAccount, updateAccount, setDefaultAccount, deleteAccount,
+} from '../api/accounts';
 import { getChecklistTemplates, createChecklistTemplate, updateChecklistTemplate, deactivateChecklistTemplate } from '../api/checklist';
 import NavBar from '../components/NavBar';
 
@@ -22,6 +29,7 @@ const CLOSE_TEMPLATE = `{
 
 export default function Profile() {
   const { user, updateProfile } = useAuth();
+  const { accounts, refreshAccounts, setActiveAccount, activeAccountId } = useAccounts();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -40,6 +48,16 @@ export default function Profile() {
   const [webhookLoading, setWebhookLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+
+  const [shareStatus, setShareStatus] = useState({ shareToken: null, shareEnabled: false });
+  const [shareLoading, setShareLoading] = useState(true);
+  const [shareToggling, setShareToggling] = useState(false);
+  const [shareError, setShareError] = useState('');
+  const [shareCopySuccess, setShareCopySuccess] = useState(false);
+
+  const [newAccountName, setNewAccountName] = useState('');
+  const [accountBusy, setAccountBusy] = useState(false);
+  const [accountError, setAccountError] = useState('');
 
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -61,8 +79,97 @@ export default function Profile() {
       fetchWebhookUrl();
       fetchTemplates();
       fetchSettings();
+      fetchShareStatus();
     }
   }, [user]);
+
+  const fetchShareStatus = async () => {
+    try {
+      setShareLoading(true);
+      setShareError('');
+      const res = await getShareStatus();
+      setShareStatus({ shareToken: res.shareToken || null, shareEnabled: res.shareEnabled });
+    } catch (err) {
+      setShareError(err.response?.data?.message || 'Failed to load share status.');
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleToggleShare = async () => {
+    setShareError('');
+    setShareToggling(true);
+    try {
+      if (shareStatus.shareEnabled) {
+        const res = await disableShare();
+        setShareStatus({ shareToken: res.shareToken || null, shareEnabled: res.shareEnabled });
+      } else {
+        const res = await enableShare();
+        setShareStatus({ shareToken: res.shareToken || null, shareEnabled: res.shareEnabled });
+      }
+    } catch (err) {
+      setShareError(err.response?.data?.message || 'Failed to update share link.');
+    } finally {
+      setShareToggling(false);
+    }
+  };
+
+  const handleCopyShareLink = () => {
+    const link = `${window.location.origin}/share/${shareStatus.shareToken}`;
+    navigator.clipboard.writeText(link)
+      .then(() => { setShareCopySuccess(true); setTimeout(() => setShareCopySuccess(false), 2000); })
+      .catch(() => { setShareError('Could not copy link.'); });
+  };
+
+  const handleAddAccount = async (e) => {
+    e.preventDefault();
+    if (!newAccountName.trim()) return;
+    setAccountError('');
+    setAccountBusy(true);
+    try {
+      await createAccount(newAccountName.trim());
+      setNewAccountName('');
+      await refreshAccounts();
+    } catch (err) {
+      setAccountError(err.response?.data?.message || 'Failed to create account.');
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
+  const handleRenameAccount = async (account) => {
+    const name = window.prompt('Rename account', account.name);
+    if (!name || !name.trim() || name.trim() === account.name) return;
+    setAccountError('');
+    try {
+      await updateAccount(account.id, name.trim());
+      await refreshAccounts();
+    } catch (err) {
+      setAccountError(err.response?.data?.message || 'Failed to rename account.');
+    }
+  };
+
+  const handleSetDefaultAccount = async (account) => {
+    setAccountError('');
+    try {
+      await setDefaultAccount(account.id);
+      await refreshAccounts();
+    } catch (err) {
+      setAccountError(err.response?.data?.message || 'Failed to set default account.');
+    }
+  };
+
+  const handleDeleteAccount = async (account) => {
+    if (!window.confirm(`Delete account "${account.name}"? Its journal entries will be moved to your default account.`)) return;
+    setAccountError('');
+    try {
+      await deleteAccount(account.id);
+      if (activeAccountId === account.id) setActiveAccount(null);
+      await refreshAccounts();
+    } catch (err) {
+      setAccountError(err.response?.data?.message || 'Failed to delete account.');
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -347,6 +454,103 @@ export default function Profile() {
             </button>
           </form>
         )}
+      </div>
+
+      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+        <div className="auth-header">
+          <h2>Trading Accounts</h2>
+          <p>Create separate accounts to track multiple portfolios or strategies</p>
+        </div>
+        {accountError && <div className="alert alert-error">{accountError}</div>}
+        <div className="alert" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'rgba(99, 102, 241, 0.3)', color: 'var(--text)', fontSize: '0.85rem' }}>
+          Use the account switcher in the top navigation to filter the journal, trades, stats, and analytics by account.
+        </div>
+        <form onSubmit={handleAddAccount} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+          <input
+            type="text"
+            placeholder="e.g. Futures account"
+            value={newAccountName}
+            onChange={(e) => setNewAccountName(e.target.value)}
+            style={{ flex: 1 }}
+          />
+          <button type="submit" className="btn btn-primary btn-sm" disabled={accountBusy || !newAccountName.trim()}>
+            {accountBusy ? '...' : 'Add Account'}
+          </button>
+        </form>
+        {accounts.length === 0 ? (
+          <p className="muted" style={{ fontSize: '0.9rem' }}>No accounts yet. Add one above.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {accounts.map((account) => (
+              <div
+                key={account.id}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.6rem 0.75rem', borderRadius: 10,
+                  background: 'var(--surface)',
+                  boxShadow: 'var(--shadow-elev)',
+                }}
+              >
+                <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--text)' }}>
+                  {account.name}
+                  {account.isDefault && <span className="badge badge-default" style={{ marginLeft: '0.5rem' }}>default</span>}
+                </span>
+                <button className="btn btn-sm btn-secondary" onClick={() => handleRenameAccount(account)}>Rename</button>
+                {!account.isDefault && (
+                  <button className="btn btn-sm btn-secondary" onClick={() => handleSetDefaultAccount(account)}>Set Default</button>
+                )}
+                <button
+                  className="btn btn-sm btn-secondary"
+                  style={{ color: 'var(--pnl-negative)' }}
+                  onClick={() => handleDeleteAccount(account)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+        <div className="auth-header">
+          <h2>Shareable Performance Link</h2>
+          <p>Publish a read-only snapshot of your win rate, profit factor, equity curve, and monthly breakdown</p>
+        </div>
+        {shareError && <div className="alert alert-error">{shareError}</div>}
+        {shareLoading ? (
+          <p className="loading">Loading share status...</p>
+        ) : shareStatus.shareEnabled ? (
+          <>
+            <div className="alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: '#4ade80', fontSize: '0.85rem' }}>
+              <strong>Enabled</strong> — anyone with this link can view your performance snapshot.
+            </div>
+            <div className="form-group">
+              <label htmlFor="shareUrl">Public Link</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input id="shareUrl" type="text" readOnly value={`${window.location.origin}/share/${shareStatus.shareToken}`} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <button type="button" className="btn btn-secondary" onClick={handleCopyShareLink}>
+                  {shareCopySuccess ? 'Copied!' : 'Copy'}
+                </button>
+                <a className="btn btn-secondary" style={{ textDecoration: 'none' }} href={`/share/${shareStatus.shareToken}`} target="_blank" rel="noreferrer">
+                  Open
+                </a>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="muted" style={{ fontSize: '0.9rem' }}>
+            Your performance is not shared. Enable it to generate a public link. Note: trades, notes, and account size are never exposed.
+          </p>
+        )}
+        <button
+          type="button"
+          className={`btn ${shareStatus.shareEnabled ? 'btn-secondary' : 'btn-primary'}`}
+          onClick={handleToggleShare}
+          disabled={shareToggling || shareLoading}
+        >
+          {shareToggling ? '...' : (shareStatus.shareEnabled ? 'Disable Sharing' : 'Enable Sharing')}
+        </button>
       </div>
 
       <div className="auth-card" style={{ marginBottom: '1.75rem' }}>

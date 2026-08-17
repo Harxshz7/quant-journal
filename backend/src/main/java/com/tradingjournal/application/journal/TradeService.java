@@ -188,6 +188,7 @@ public class TradeService {
     @Transactional(readOnly = true)
     public Page<TradeDTO> getTrades(
             User user,
+            UUID accountId,
             String ticker,
             String strategy,
             TradeStatusFilter status,
@@ -198,6 +199,7 @@ public class TradeService {
             Pageable pageable
     ) {
         Specification<Trade> spec = Specification.where(ownedBy(user))
+                .and(accountIs(accountId))
                 .and(notDeletedIfNeeded(includeArchived))
                 .and(tickerContains(ticker))
                 .and(strategyContains(strategy))
@@ -245,6 +247,14 @@ public class TradeService {
             var journalEntry = root.join("journalEntry");
             var owner = journalEntry.join("user");
             return cb.equal(owner.get("id"), user.getId());
+        };
+    }
+
+    private Specification<Trade> accountIs(UUID accountId) {
+        return (root, query, cb) -> {
+            if (accountId == null) return cb.conjunction();
+            var journalEntry = root.join("journalEntry");
+            return cb.equal(journalEntry.get("account").get("id"), accountId);
         };
     }
 

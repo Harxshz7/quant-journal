@@ -79,10 +79,13 @@ function CustomTooltip({ active, payload, label }) {
   );
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color, tooltip }) {
   return (
     <article className="stat-card">
-      <div className="stat-label">{label}</div>
+      <div className="stat-label">
+        {label}
+        {tooltip && <span className="stat-tooltip" title={tooltip} aria-label={tooltip}>ⓘ</span>}
+      </div>
       <div className="stat-value" style={color ? { color } : undefined}>{value}</div>
     </article>
   );
@@ -104,6 +107,15 @@ function formatMoney(v) {
 function formatPct(v) {
   if (v === null || v === undefined) return '-';
   return `${Number(v).toFixed(2)}%`;
+}
+
+function formatRiskOfRuin(v) {
+  if (v === null || v === undefined) return '-';
+  const n = Number(v);
+  const pct = n * 100;
+  if (pct === 0) return '0%';
+  if (pct < 0.01) return '< 0.01%';
+  return `${pct.toFixed(2)}%`;
 }
 
 function pnlColorClass(v) {
@@ -261,6 +273,8 @@ export default function Dashboard() {
             <div className="stat-card"><SectionLoader /></div>
             <div className="stat-card"><SectionLoader /></div>
             <div className="stat-card"><SectionLoader /></div>
+            <div className="stat-card"><SectionLoader /></div>
+            <div className="stat-card"><SectionLoader /></div>
           </>
         ) : (
           <>
@@ -270,6 +284,16 @@ export default function Dashboard() {
               value={stats?.profitFactor != null ? Number(stats.profitFactor).toFixed(2) : '-'}
             />
             <StatCard label="Avg R:R" value={stats?.avgRiskReward != null ? Number(stats.avgRiskReward).toFixed(2) : '-'} />
+            <StatCard
+              label="Expectancy"
+              value={formatMoney(stats?.expectancy)}
+              tooltip="Average P&L per trade, weighted by win rate: p × avgWin + (1 − p) × avgLoss."
+            />
+            <StatCard
+              label="Risk of Ruin"
+              value={formatRiskOfRuin(stats?.riskOfRuin)}
+              tooltip="Probability of eventually losing your account when risking 1% per trade (fixed-fractional model)."
+            />
           </>
         )}
       </div>

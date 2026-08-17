@@ -27,17 +27,19 @@ public class JournalEntryController {
     @PostMapping
     public ResponseEntity<JournalEntryDTO> createJournalEntry(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @Valid @RequestBody CreateJournalEntryRequest request
     ) {
-        JournalEntryDTO created = journalEntryService.createJournalEntry(user, request);
+        JournalEntryDTO created = journalEntryService.createJournalEntry(user, accountId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
     public ResponseEntity<List<JournalEntryDTO>> getUserJournalEntries(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId
     ) {
-        List<JournalEntryDTO> entries = journalEntryService.getUserJournalEntries(user);
+        List<JournalEntryDTO> entries = journalEntryService.getUserJournalEntries(user, accountId);
         return ResponseEntity.ok(entries);
     }
 

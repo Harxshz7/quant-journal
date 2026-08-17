@@ -14,6 +14,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <mockito.version>5.23.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -107,6 +108,28 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Force a Byte Buddy that understands JDK 26 (class file major version 70).
+             The Spring Boot BOM pins byte-buddy to 1.14.19, which Mockito cannot
+             use on JDK 26 — explicit versions here override the BOM. -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.18.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.18.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -154,6 +177,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- JDK 26 (class file major 70) is only supported by Byte Buddy behind its
+                 experimental flag; without this, Mockito cannot mock classes on JDK > 23. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>

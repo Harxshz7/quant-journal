@@ -1,5 +1,6 @@
 package com.tradingjournal.application.journal;
 
+import com.tradingjournal.application.account.AccountService;
 import com.tradingjournal.domain.entity.JournalEntry;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
@@ -29,6 +30,9 @@ class JournalEntryServiceTest {
     @Mock
     private JournalEntryRepository journalEntryRepository;
 
+    @Mock
+    private AccountService accountService;
+
     @InjectMocks
     private JournalEntryService journalEntryService;
 
@@ -49,6 +53,7 @@ class JournalEntryServiceTest {
         LocalDate date = LocalDate.now();
         CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Great trading session", null, null, null, null, null);
 
+        when(accountService.getDefaultAccount(user1)).thenReturn(null);
         when(journalEntryRepository.findByUserAndEntryDate(user1, date)).thenReturn(Optional.empty());
         when(journalEntryRepository.save(any(JournalEntry.class))).thenAnswer(inv -> {
             JournalEntry e = inv.getArgument(0);
@@ -56,7 +61,7 @@ class JournalEntryServiceTest {
             return e;
         });
 
-        JournalEntryDTO dto = journalEntryService.createJournalEntry(user1, req);
+        JournalEntryDTO dto = journalEntryService.createJournalEntry(user1, null, req);
 
         assertNotNull(dto);
         assertEquals(date, dto.entryDate());
@@ -70,9 +75,10 @@ class JournalEntryServiceTest {
         CreateJournalEntryRequest req = new CreateJournalEntryRequest(date, "Duplicate date", null, null, null, null, null);
         JournalEntry existing = new JournalEntry(user1, date, "Existing");
 
+        when(accountService.getDefaultAccount(user1)).thenReturn(null);
         when(journalEntryRepository.findByUserAndEntryDate(user1, date)).thenReturn(Optional.of(existing));
 
-        assertThrows(ResponseStatusException.class, () -> journalEntryService.createJournalEntry(user1, req));
+        assertThrows(ResponseStatusException.class, () -> journalEntryService.createJournalEntry(user1, null, req));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.tradingjournal.application.webhook;
 
+import com.tradingjournal.application.account.AccountService;
 import com.tradingjournal.application.statistics.StatisticsService;
 import com.tradingjournal.domain.entity.*;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
@@ -34,15 +35,18 @@ public class WebhookService {
     private final TradeRepository tradeRepository;
     private final JournalEntryRepository journalEntryRepository;
     private final StatisticsService statisticsService;
+    private final AccountService accountService;
 
     public WebhookService(
             TradeRepository tradeRepository,
             JournalEntryRepository journalEntryRepository,
-            StatisticsService statisticsService
+            StatisticsService statisticsService,
+            AccountService accountService
     ) {
         this.tradeRepository = tradeRepository;
         this.journalEntryRepository = journalEntryRepository;
         this.statisticsService = statisticsService;
+        this.accountService = accountService;
     }
 
     public Map<String, Object> processTradingViewAlert(
@@ -136,11 +140,15 @@ public class WebhookService {
     }
 
     private JournalEntry findOrCreateJournalEntry(User user, LocalDate date) {
-        Optional<JournalEntry> existing = journalEntryRepository.findByUserAndEntryDate(user, date);
+        Account defaultAccount = accountService.getDefaultAccount(user);
+        Optional<JournalEntry> existing = defaultAccount != null
+                ? journalEntryRepository.findByUserAndAccountAndEntryDate(user, defaultAccount, date)
+                : journalEntryRepository.findByUserAndEntryDate(user, date);
         if (existing.isPresent()) {
             return existing.get();
         }
         JournalEntry newEntry = new JournalEntry(user, date, "Auto-created via TradingView webhook");
+        newEntry.setAccount(defaultAccount);
         return journalEntryRepository.save(newEntry);
     }
 }

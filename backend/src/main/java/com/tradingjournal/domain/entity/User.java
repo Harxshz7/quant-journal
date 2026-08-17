@@ -25,6 +25,12 @@ public class User {
     @Column(name = "webhook_token", unique = true)
     private String webhookToken;
 
+    @Column(name = "share_token", unique = true)
+    private String shareToken;
+
+    @Column(name = "share_enabled", nullable = false)
+    private boolean shareEnabled;
+
     @Column(name = "account_size", precision = 19, scale = 4)
     private java.math.BigDecimal accountSize;
 
@@ -115,6 +121,22 @@ public class User {
 
     public void setWebhookToken(String webhookToken) {
         this.webhookToken = webhookToken;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
+    }
+
+    public boolean isShareEnabled() {
+        return shareEnabled;
+    }
+
+    public void setShareEnabled(boolean shareEnabled) {
+        this.shareEnabled = shareEnabled;
     }
 
     public java.math.BigDecimal getAccountSize() {

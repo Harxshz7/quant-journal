@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/rules")
@@ -20,7 +23,10 @@ public class RulesController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<RulesStatusDTO> status(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(rulesService.status(user));
+    public ResponseEntity<RulesStatusDTO> status(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId
+    ) {
+        return ResponseEntity.ok(rulesService.status(user, accountId));
     }
 }

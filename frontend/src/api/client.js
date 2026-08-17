@@ -51,11 +51,18 @@ export async function refreshAccessToken() {
   return refreshPromise;
 }
 
+const ACCOUNT_SCOPED_PREFIXES = ['/journal', '/trades', '/statistics', '/analytics', '/rules'];
+
 client.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    const url = config.url || '';
+    const activeAccountId = localStorage.getItem('activeAccountId');
+    if (activeAccountId && ACCOUNT_SCOPED_PREFIXES.some((p) => url.startsWith(p))) {
+      config.params = { ...(config.params || {}), accountId: activeAccountId };
     }
     return config;
   },

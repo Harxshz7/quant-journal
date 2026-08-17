@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/analytics")
@@ -30,64 +31,72 @@ public class AnalyticsController {
     @GetMapping("/equity-curve")
     public ResponseEntity<List<EquityPointDTO>> equityCurve(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.equityCurve(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.equityCurve(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/drawdown")
     public ResponseEntity<DrawdownDTO> drawdown(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.drawdown(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.drawdown(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/by-strategy")
     public ResponseEntity<List<BreakdownEntryDTO>> byStrategy(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.byStrategy(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.byStrategy(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/by-ticker")
     public ResponseEntity<List<BreakdownEntryDTO>> byTicker(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate) {
-        return ResponseEntity.ok(analyticsService.byTicker(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.byTicker(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/by-day-of-week")
     public ResponseEntity<List<TimeBreakdownDTO>> byDayOfWeek(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.byDayOfWeek(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.byDayOfWeek(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/by-hour")
     public ResponseEntity<List<TimeBreakdownDTO>> byHour(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.byHour(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.byHour(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/monthly")
     public ResponseEntity<List<TimeBreakdownDTO>> monthly(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.monthly(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.monthly(user, accountId, fromDate, toDate));
     }
 
     @GetMapping("/weekly")
     public ResponseEntity<List<TimeBreakdownDTO>> weekly(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(analyticsService.weekly(user, fromDate, toDate));
+        return ResponseEntity.ok(analyticsService.weekly(user, accountId, fromDate, toDate));
     }
 }

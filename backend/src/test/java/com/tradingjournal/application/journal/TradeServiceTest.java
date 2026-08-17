@@ -2,8 +2,11 @@ package com.tradingjournal.application.journal;
 
 import com.tradingjournal.application.statistics.StatisticsService;
 import com.tradingjournal.domain.entity.*;
+import com.tradingjournal.infrastructure.repository.ChecklistItemTemplateRepository;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
+import com.tradingjournal.infrastructure.repository.TradeChecklistItemRepository;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
+import com.tradingjournal.infrastructure.repository.TradeScreenshotRepository;
 import com.tradingjournal.presentation.dto.CloseTradeRequest;
 import com.tradingjournal.presentation.dto.CreateTradeRequest;
 import com.tradingjournal.presentation.dto.TradeDTO;
@@ -18,6 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +41,15 @@ class TradeServiceTest {
 
     @Mock
     private StatisticsService statisticsService;
+
+    @Mock
+    private TradeScreenshotRepository tradeScreenshotRepository;
+
+    @Mock
+    private ChecklistItemTemplateRepository checklistTemplateRepository;
+
+    @Mock
+    private TradeChecklistItemRepository tradeChecklistItemRepository;
 
     @InjectMocks
     private TradeService tradeService;
@@ -74,6 +88,8 @@ class TradeServiceTest {
             t.setId(UUID.randomUUID());
             return t;
         });
+        when(tradeScreenshotRepository.findByTrade_TradeId(any())).thenReturn(Collections.emptyList());
+        when(tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(any())).thenReturn(Collections.emptyList());
 
         TradeDTO dto = tradeService.createTrade(user1, req);
 
@@ -127,6 +143,8 @@ class TradeServiceTest {
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
         when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tradeScreenshotRepository.findByTrade_TradeId(any())).thenReturn(Collections.emptyList());
+        when(tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(any())).thenReturn(Collections.emptyList());
 
         TradeDTO dto = tradeService.updateTrade(user1, tradeId, req);
 
@@ -172,6 +190,8 @@ class TradeServiceTest {
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
         when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tradeScreenshotRepository.findByTrade_TradeId(any())).thenReturn(Collections.emptyList());
+        when(tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(any())).thenReturn(Collections.emptyList());
 
         TradeDTO dto = tradeService.closeTrade(user1, tradeId, req);
 
@@ -179,7 +199,7 @@ class TradeServiceTest {
         assertEquals("CLOSED", dto.status());
         assertEquals(new BigDecimal("170.00"), dto.exitPrice());
         assertNotNull(dto.exitDate());
-        assertEquals(new BigDecimal("200.00"), dto.realizedPnl());
+        assertEquals(new BigDecimal("196.00"), dto.realizedPnl());
         verify(statisticsService).recalculate(user1);
     }
 
@@ -193,6 +213,8 @@ class TradeServiceTest {
 
         when(tradeRepository.findById(tradeId)).thenReturn(Optional.of(trade));
         when(tradeRepository.save(any(Trade.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tradeScreenshotRepository.findByTrade_TradeId(any())).thenReturn(Collections.emptyList());
+        when(tradeChecklistItemRepository.findByTrade_IdOrderByIdAsc(any())).thenReturn(Collections.emptyList());
 
         TradeDTO dto = tradeService.closeTrade(user1, tradeId, req);
 

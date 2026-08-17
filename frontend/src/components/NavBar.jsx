@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useAccounts } from '../context/AccountContext';
 import ThemeToggle from './ThemeToggle';
 
 const NAV_LINKS = [
@@ -22,6 +23,11 @@ const NAV_LINKS = [
 export default function NavBar({ active, children }) {
   const [open, setOpen] = useState(false);
   const { logout } = useAuth();
+  const { accounts, activeAccountId, setActiveAccount } = useAccounts();
+
+  const handleAccountChange = (e) => {
+    setActiveAccount(e.target.value || null);
+  };
 
   return (
     <header className="navbar">
@@ -45,6 +51,17 @@ export default function NavBar({ active, children }) {
       </nav>
 
       <div className="navbar-actions">
+        <select
+          className="account-switcher"
+          value={activeAccountId || ''}
+          onChange={handleAccountChange}
+          aria-label="Select trading account"
+        >
+          <option value="">All accounts</option>
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}{a.isDefault ? ' (default)' : ''}</option>
+          ))}
+        </select>
         <ThemeToggle />
         <button type="button" className="btn btn-secondary btn-sm" onClick={logout}>
           Logout

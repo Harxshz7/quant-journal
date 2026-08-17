@@ -60,6 +60,21 @@ export async function regenerateWebhookUrl() {
   return response.data;
 }
 
+export async function getShareStatus() {
+  const response = await client.get('/auth/me/share');
+  return response.data;
+}
+
+export async function enableShare() {
+  const response = await client.post('/auth/me/share/enable');
+  return response.data;
+}
+
+export async function disableShare() {
+  const response = await client.post('/auth/me/share/disable');
+  return response.data;
+}
+
 export { storeAuthTokens, clearAuthStorage };
 
 export default client;

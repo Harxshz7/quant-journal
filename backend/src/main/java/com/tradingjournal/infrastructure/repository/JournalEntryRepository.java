@@ -1,5 +1,6 @@
 package com.tradingjournal.infrastructure.repository;
 
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.JournalEntry;
 import com.tradingjournal.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,12 +29,13 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
             LEFT JOIN FETCH je.trades t
             LEFT JOIN FETCH t.journalEntry
             WHERE je.user = :user
+              AND (:account IS NULL OR je.account = :account)
             ORDER BY je.entryDate DESC
             """)
-    List<JournalEntry> findByUserWithTrades(@Param("user") User user);
+    List<JournalEntry> findByUserWithTrades(@Param("user") User user, @Param("account") Account account);
 
     /**
-     * Same as {@link #findByUserWithTrades(User)} but for a single entry.
+     * Same as {@link #findByUserWithTrades(User, Account)} but for a single entry.
      */
     @Query("""
             SELECT DISTINCT je
@@ -45,4 +47,6 @@ public interface JournalEntryRepository extends JpaRepository<JournalEntry, UUID
     Optional<JournalEntry> findWithTradesById(@Param("id") UUID id);
 
     Optional<JournalEntry> findByUserAndEntryDate(User user, LocalDate entryDate);
+
+    Optional<JournalEntry> findByUserAndAccountAndEntryDate(User user, Account account, LocalDate entryDate);
 }

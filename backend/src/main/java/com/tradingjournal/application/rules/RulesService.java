@@ -1,6 +1,8 @@
 package com.tradingjournal.application.rules;
 
+import com.tradingjournal.application.account.AccountService;
 import com.tradingjournal.application.analytics.PnlCalculator;
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,20 +26,23 @@ public class RulesService {
     private static final BigDecimal HUNDRED = new BigDecimal("100");
 
     private final TradeRepository tradeRepository;
+    private final AccountService accountService;
 
     @Value("${app.timezone:Asia/Kolkata}")
     private String appTimezone;
 
-    public RulesService(TradeRepository tradeRepository) {
+    public RulesService(TradeRepository tradeRepository, AccountService accountService) {
         this.tradeRepository = tradeRepository;
+        this.accountService = accountService;
     }
 
-    public RulesStatusDTO status(User user) {
+    public RulesStatusDTO status(User user, UUID accountId) {
         ZoneId zone = ZoneId.of(appTimezone);
+        Account account = accountId != null ? accountService.resolveOwnedAccount(user, accountId) : null;
 
         Instant dayStart = java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant();
         Instant dayEnd = java.time.LocalDate.now(zone).plusDays(1).atStartOfDay(zone).toInstant();
-        BigDecimal dailyPnl = sumNetPnl(tradeRepository.findClosedTradesInRange(user, dayStart, dayEnd));
+        BigDecimal dailyPnl = sumNetPnl(tradeRepository.findClosedTradesInRange(user, account, dayStart, dayEnd));
 
         Instant monthStart = java.time.LocalDate.now(zone)
                 .with(TemporalAdjusters.firstDayOfMonth())
@@ -44,7 +50,7 @@ public class RulesService {
         Instant monthEnd = java.time.LocalDate.now(zone)
                 .with(TemporalAdjusters.firstDayOfNextMonth())
                 .atStartOfDay(zone).toInstant();
-        BigDecimal monthlyPnl = sumNetPnl(tradeRepository.findClosedTradesInRange(user, monthStart, monthEnd));
+        BigDecimal monthlyPnl = sumNetPnl(tradeRepository.findClosedTradesInRange(user, account, monthStart, monthEnd));
 
         BigDecimal dailyLossLimit = user.getDailyLossLimitAmount();
         boolean dailyLimitHit = dailyLossLimit != null

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/statistics")
@@ -26,8 +27,9 @@ public class StatisticsController {
     @GetMapping
     public ResponseEntity<StatisticsDTO> getStatistics(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return ResponseEntity.ok(statisticsService.getStatistics(user, fromDate, toDate));
+        return ResponseEntity.ok(statisticsService.getStatistics(user, accountId, fromDate, toDate));
     }
 }

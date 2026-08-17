@@ -1,5 +1,7 @@
 package com.tradingjournal.application.analytics;
 
+import com.tradingjournal.application.account.AccountService;
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.TradeRepository;
@@ -27,28 +29,31 @@ public class AnalyticsService {
     private static final BigDecimal HUNDRED = new BigDecimal("100");
 
     private final TradeRepository tradeRepository;
+    private final AccountService accountService;
 
     @Value("${app.timezone:Asia/Kolkata}")
     private String appTimezone;
 
-    public AnalyticsService(TradeRepository tradeRepository) {
+    public AnalyticsService(TradeRepository tradeRepository, AccountService accountService) {
         this.tradeRepository = tradeRepository;
+        this.accountService = accountService;
     }
 
     private ZoneId zone() {
         return ZoneId.of(appTimezone);
     }
 
-    private List<Trade> closedTrades(User user, LocalDate fromDate, LocalDate toDate) {
+    private List<Trade> closedTrades(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        Account account = accountId != null ? accountService.resolveOwnedAccount(user, accountId) : null;
         Instant from = fromDate != null ? fromDate.atStartOfDay(ZoneId.of("UTC")).toInstant() : null;
         Instant to = toDate != null ? toDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant() : null;
-        return tradeRepository.findClosedTradesInRange(user, from, to);
+        return tradeRepository.findClosedTradesInRange(user, account, from, to);
     }
 
     // ── Equity Curve ──────────────────────────────────────────────
 
-    public List<EquityPointDTO> equityCurve(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<EquityPointDTO> equityCurve(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         List<EquityPointDTO> points = new ArrayList<>();
         BigDecimal cumulative = BigDecimal.ZERO;
 
@@ -63,8 +68,8 @@ public class AnalyticsService {
 
     // ── Drawdown ──────────────────────────────────────────────────
 
-    public DrawdownDTO drawdown(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public DrawdownDTO drawdown(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
 
         BigDecimal equity = BigDecimal.ZERO;
         BigDecimal highestEquity = BigDecimal.ZERO;
@@ -109,8 +114,8 @@ public class AnalyticsService {
 
     // ── By Strategy ───────────────────────────────────────────────
 
-    public List<BreakdownEntryDTO> byStrategy(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<BreakdownEntryDTO> byStrategy(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         Map<String, List<Trade>> grouped = trades.stream()
                 .collect(Collectors.groupingBy(
                         t -> t.getStrategy() != null ? t.getStrategy() : "Unspecified",
@@ -124,8 +129,8 @@ public class AnalyticsService {
 
     // ── By Ticker ─────────────────────────────────────────────────
 
-    public List<BreakdownEntryDTO> byTicker(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<BreakdownEntryDTO> byTicker(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         Map<String, List<Trade>> grouped = trades.stream()
                 .collect(Collectors.groupingBy(
                         Trade::getTicker,
@@ -139,8 +144,8 @@ public class AnalyticsService {
 
     // ── By Day of Week ────────────────────────────────────────────
 
-    public List<TimeBreakdownDTO> byDayOfWeek(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<TimeBreakdownDTO> byDayOfWeek(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         Map<DayOfWeek, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
@@ -155,8 +160,8 @@ public class AnalyticsService {
 
     // ── By Hour ───────────────────────────────────────────────────
 
-    public List<TimeBreakdownDTO> byHour(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<TimeBreakdownDTO> byHour(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         Map<Integer, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
@@ -172,8 +177,8 @@ public class AnalyticsService {
 
     // ── Monthly ───────────────────────────────────────────────────
 
-    public List<TimeBreakdownDTO> monthly(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<TimeBreakdownDTO> monthly(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         Map<String, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
@@ -188,8 +193,8 @@ public class AnalyticsService {
 
     // ── Weekly ────────────────────────────────────────────────────
 
-    public List<TimeBreakdownDTO> weekly(User user, LocalDate fromDate, LocalDate toDate) {
-        List<Trade> trades = closedTrades(user, fromDate, toDate);
+    public List<TimeBreakdownDTO> weekly(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        List<Trade> trades = closedTrades(user, accountId, fromDate, toDate);
         WeekFields wf = WeekFields.ISO;
         Map<String, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)

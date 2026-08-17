@@ -11,7 +11,7 @@ import java.util.UUID;
 @Table(
     name = "journal_entries",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_entry_date", columnNames = {"user_id", "entry_date"})
+        @UniqueConstraint(name = "uk_user_account_entry_date", columnNames = {"user_id", "account_id", "entry_date"})
     }
 )
 public class JournalEntry {
@@ -53,6 +53,10 @@ public class JournalEntry {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account account;
+
     @OneToMany(mappedBy = "journalEntry", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Trade> trades = new ArrayList<>();
 
@@ -90,6 +94,8 @@ public class JournalEntry {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public Account getAccount() { return account; }
+    public void setAccount(Account account) { this.account = account; }
     public List<Trade> getTrades() { return trades; }
     public void setTrades(List<Trade> trades) { this.trades = trades; }
     public Mood getMood() { return mood; }

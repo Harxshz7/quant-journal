@@ -1,6 +1,8 @@
 package com.tradingjournal.application.statistics;
 
+import com.tradingjournal.application.account.AccountService;
 import com.tradingjournal.application.analytics.PnlCalculator;
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.TradeStatistics;
 import com.tradingjournal.domain.entity.User;
@@ -11,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -23,30 +27,40 @@ public class StatisticsService {
 
     private static final BigDecimal HUNDRED = new BigDecimal("100");
 
+    /** Default fraction of the account risked per trade when no risk setting exists. */
+    private static final BigDecimal DEFAULT_RISK_PER_TRADE = new BigDecimal("0.01");
+
     private final TradeRepository tradeRepository;
     private final TradeStatisticsRepository statisticsRepository;
+    private final AccountService accountService;
 
-    public StatisticsService(TradeRepository tradeRepository, TradeStatisticsRepository statisticsRepository) {
+    public StatisticsService(
+            TradeRepository tradeRepository,
+            TradeStatisticsRepository statisticsRepository,
+            AccountService accountService
+    ) {
         this.tradeRepository = tradeRepository;
         this.statisticsRepository = statisticsRepository;
+        this.accountService = accountService;
     }
 
     public TradeStatistics recalculate(User user) {
-        List<Trade> trades = tradeRepository.findClosedActiveTradesForStatistics(user);
+        List<Trade> trades = tradeRepository.findClosedActiveTradesForStatistics(user, null);
         return computeAndSave(user, trades);
     }
 
     @Transactional(readOnly = true)
-    public StatisticsDTO getStatistics(User user, LocalDate fromDate, LocalDate toDate) {
-        if (fromDate == null && toDate == null) {
+    public StatisticsDTO getStatistics(User user, UUID accountId, LocalDate fromDate, LocalDate toDate) {
+        if (fromDate == null && toDate == null && accountId == null) {
             return statisticsRepository.findByUser(user)
                     .map(this::toDto)
                     .orElseGet(this::defaultStatistics);
         }
+        Account account = accountId != null ? accountService.resolveOwnedAccount(user, accountId) : null;
         Instant from = fromDate != null ? fromDate.atStartOfDay(ZoneId.of("UTC")).toInstant() : null;
         Instant to = toDate != null ? toDate.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant() : null;
-        List<Trade> trades = tradeRepository.findClosedTradesInRange(user, from, to);
-        return computeFromTrades(trades);
+        List<Trade> trades = tradeRepository.findClosedTradesInRange(user, account, from, to);
+        return computeFromTrades(user, trades);
     }
 
     private TradeStatistics computeAndSave(User user, List<Trade> trades) {
@@ -120,6 +134,9 @@ public class StatisticsService {
                 ? scale(sumRiskReward.divide(BigDecimal.valueOf(riskRewardCount), 4, RoundingMode.HALF_UP))
                 : null;
 
+        BigDecimal expectancy = expectancy(winRate, avgWin, avgLoss);
+        BigDecimal riskOfRuin = riskOfRuin(winRate, avgWin, avgLoss);
+
         TradeStatistics stats = statisticsRepository.findByUser(user).orElseGet(TradeStatistics::new);
         stats.setUser(user);
         stats.setTotalTrades(totalTrades);
@@ -135,11 +152,13 @@ public class StatisticsService {
         stats.setMaxConsecutiveWins(maxWinStreak);
         stats.setMaxConsecutiveLosses(maxLossStreak);
         stats.setAvgRiskReward(avgRiskReward);
+        stats.setExpectancy(expectancy);
+        stats.setRiskOfRuin(riskOfRuin);
 
         return statisticsRepository.save(stats);
     }
 
-    private StatisticsDTO computeFromTrades(List<Trade> trades) {
+    private StatisticsDTO computeFromTrades(User user, List<Trade> trades) {
         int totalTrades = trades.size();
         int winCount = 0;
         int lossCount = 0;
@@ -212,6 +231,8 @@ public class StatisticsService {
                 0,
                 0,
                 avgRiskReward,
+                expectancy(winRate, avgWin, avgLoss),
+                riskOfRuin(winRate, avgWin, avgLoss),
                 null
         );
     }
@@ -232,6 +253,8 @@ public class StatisticsService {
                 stats.getMaxConsecutiveWins(),
                 stats.getMaxConsecutiveLosses(),
                 stats.getAvgRiskReward(),
+                stats.getExpectancy(),
+                stats.getRiskOfRuin(),
                 stats.getUpdatedAt()
         );
     }
@@ -252,8 +275,52 @@ public class StatisticsService {
                 0,
                 0,
                 null,
+                null,
+                null,
                 null
         );
+    }
+
+    /**
+     * Expectancy (average net P&L per trade) = winRate*avgWin - lossRate*|avgLoss|.
+     * avgLoss is stored as a negative value, so (1-p)*avgLoss already subtracts it.
+     */
+    private BigDecimal expectancy(BigDecimal winRate, BigDecimal avgWin, BigDecimal avgLoss) {
+        if (winRate == null || avgWin == null || avgLoss == null) return null;
+        BigDecimal p = winRate.divide(HUNDRED, 8, RoundingMode.HALF_UP);
+        return p.multiply(avgWin).add(BigDecimal.ONE.subtract(p).multiply(avgLoss))
+                .setScale(4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Risk of ruin under a fixed-fractional model (Ralph Vince formulation):
+     *   edge = p*R - (1-p),  R = avgWin/|avgLoss|,  units = 1/f (f = fraction risked, default 1%)
+     *   RoR  = ((1-edge)/(1+edge))^units, or 1 (certain ruin) when there is no edge.
+     * An edge >= 1 (average profit per trade >= the amount risked) drives ruin to 0.
+     */
+    private BigDecimal riskOfRuin(BigDecimal winRate, BigDecimal avgWin, BigDecimal avgLoss) {
+        if (winRate == null || avgWin == null || avgLoss == null || avgLoss.compareTo(BigDecimal.ZERO) == 0) return null;
+
+        BigDecimal p = winRate.divide(HUNDRED, 8, RoundingMode.HALF_UP);
+        BigDecimal lossAmount = avgLoss.abs();
+        BigDecimal rr = avgWin.divide(lossAmount, 8, RoundingMode.HALF_UP);
+        BigDecimal edge = p.multiply(rr).subtract(BigDecimal.ONE.subtract(p));
+
+        if (edge.compareTo(BigDecimal.ZERO) <= 0) {
+            return new BigDecimal("1.00000000");
+        }
+        if (edge.compareTo(BigDecimal.ONE) >= 0) {
+            return new BigDecimal("0.00000000");
+        }
+
+        BigDecimal units = BigDecimal.ONE.divide(DEFAULT_RISK_PER_TRADE, 4, RoundingMode.HALF_UP);
+        BigDecimal base = BigDecimal.ONE.subtract(edge).divide(BigDecimal.ONE.add(edge), 12, RoundingMode.HALF_UP);
+        if (base.compareTo(BigDecimal.ZERO) <= 0) {
+            return new BigDecimal("0.00000000");
+        }
+        BigDecimal logBase = new BigDecimal(Math.log(base.doubleValue()), MathContext.DECIMAL64);
+        BigDecimal result = new BigDecimal(Math.exp(logBase.multiply(units).doubleValue()), MathContext.DECIMAL64);
+        return result.setScale(8, RoundingMode.HALF_UP);
     }
 
     private BigDecimal percent(BigDecimal numerator, BigDecimal denominator) {

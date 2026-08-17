@@ -1,5 +1,6 @@
 package com.tradingjournal.infrastructure.repository;
 
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.Trade;
 import com.tradingjournal.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,11 +29,15 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
             JOIN FETCH t.journalEntry je
             JOIN FETCH je.user u
             WHERE u = :user
+              AND (:account IS NULL OR je.account = :account)
               AND t.deleted = false
               AND t.exitDate IS NOT NULL
             ORDER BY t.exitDate ASC
             """)
-    List<Trade> findClosedActiveTradesForStatistics(@Param("user") User user);
+    List<Trade> findClosedActiveTradesForStatistics(
+            @Param("user") User user,
+            @Param("account") Account account
+    );
 
     @Query("""
             SELECT t
@@ -40,6 +45,7 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
             JOIN FETCH t.journalEntry je
             JOIN FETCH je.user u
             WHERE u = :user
+              AND (:account IS NULL OR je.account = :account)
               AND t.deleted = false
               AND t.exitDate IS NOT NULL
               AND (:fromDate IS NULL OR t.exitDate >= :fromDate)
@@ -48,6 +54,7 @@ public interface TradeRepository extends JpaRepository<Trade, UUID>, JpaSpecific
             """)
     List<Trade> findClosedTradesInRange(
             @Param("user") User user,
+            @Param("account") Account account,
             @Param("fromDate") Instant fromDate,
             @Param("toDate") Instant toDate
     );

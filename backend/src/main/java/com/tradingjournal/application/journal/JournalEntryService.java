@@ -1,5 +1,7 @@
 package com.tradingjournal.application.journal;
 
+import com.tradingjournal.application.account.AccountService;
+import com.tradingjournal.domain.entity.Account;
 import com.tradingjournal.domain.entity.JournalEntry;
 import com.tradingjournal.domain.entity.User;
 import com.tradingjournal.infrastructure.repository.JournalEntryRepository;
@@ -21,24 +23,34 @@ public class JournalEntryService {
     private final JournalEntryRepository journalEntryRepository;
     private final TradeScreenshotRepository tradeScreenshotRepository;
     private final TradeChecklistItemRepository tradeChecklistItemRepository;
+    private final AccountService accountService;
 
     public JournalEntryService(
             JournalEntryRepository journalEntryRepository,
             TradeScreenshotRepository tradeScreenshotRepository,
-            TradeChecklistItemRepository tradeChecklistItemRepository
+            TradeChecklistItemRepository tradeChecklistItemRepository,
+            AccountService accountService
     ) {
         this.journalEntryRepository = journalEntryRepository;
         this.tradeScreenshotRepository = tradeScreenshotRepository;
         this.tradeChecklistItemRepository = tradeChecklistItemRepository;
+        this.accountService = accountService;
     }
 
-    public JournalEntryDTO createJournalEntry(User user, CreateJournalEntryRequest request) {
-        Optional<JournalEntry> existing = journalEntryRepository.findByUserAndEntryDate(user, request.entryDate());
+    public JournalEntryDTO createJournalEntry(User user, UUID accountId, CreateJournalEntryRequest request) {
+        Account account = accountId != null
+                ? accountService.resolveOwnedAccount(user, accountId)
+                : accountService.getDefaultAccount(user);
+
+        Optional<JournalEntry> existing = account != null
+                ? journalEntryRepository.findByUserAndAccountAndEntryDate(user, account, request.entryDate())
+                : journalEntryRepository.findByUserAndEntryDate(user, request.entryDate());
         if (existing.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Journal entry already exists for date: " + request.entryDate());
         }
 
         JournalEntry entry = new JournalEntry(user, request.entryDate(), request.notes());
+        entry.setAccount(account);
         entry.setMood(request.mood());
         entry.setEnergy(request.energy());
         entry.setMarketBias(request.marketBias());
@@ -49,8 +61,11 @@ public class JournalEntryService {
     }
 
     @Transactional(readOnly = true)
-    public List<JournalEntryDTO> getUserJournalEntries(User user) {
-        return journalEntryRepository.findByUserWithTrades(user)
+    public List<JournalEntryDTO> getUserJournalEntries(User user, UUID accountId) {
+        Account account = accountId != null
+                ? accountService.resolveOwnedAccount(user, accountId)
+                : null;
+        return journalEntryRepository.findByUserWithTrades(user, account)
                 .stream()
                 .map(JournalEntryDTO::fromEntity)
                 .toList();

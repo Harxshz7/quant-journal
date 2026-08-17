@@ -108,4 +108,28 @@ public class AuthController {
         WebhookResponseDTO response = authService.regenerateWebhookUrl(user);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/me/share")
+    public ResponseEntity<ShareStatusDTO> getShareStatus(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.getShareStatus(user));
+    }
+
+    @PostMapping("/me/share/enable")
+    public ResponseEntity<ShareStatusDTO> enableShare(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.enableShare(user));
+    }
+
+    @PostMapping("/me/share/disable")
+    public ResponseEntity<ShareStatusDTO> disableShare(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.disableShare(user));
+    }
 }

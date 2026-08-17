@@ -103,6 +103,7 @@ public class TradeController {
     @GetMapping
     public ResponseEntity<Page<TradeDTO>> getTrades(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) UUID accountId,
             @RequestParam(required = false) String ticker,
             @RequestParam(required = false) String strategy,
             @RequestParam(required = false) TradeStatusFilter status,
@@ -120,7 +121,7 @@ public class TradeController {
         int safeSize = Math.max(size, 1);
         Pageable pageable = PageRequest.of(safePage, safeSize, parseSort(sort));
         Page<TradeDTO> trades = tradeService.getTrades(
-                user, ticker, strategy, status, outcome, fromDate, toDate, includeArchived, pageable
+                user, accountId, ticker, strategy, status, outcome, fromDate, toDate, includeArchived, pageable
         );
         return ResponseEntity.ok(trades);
     }

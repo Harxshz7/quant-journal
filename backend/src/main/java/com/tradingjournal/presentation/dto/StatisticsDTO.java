@@ -19,6 +19,8 @@ public record StatisticsDTO(
         int maxConsecutiveWins,
         int maxConsecutiveLosses,
         BigDecimal avgRiskReward,
+        BigDecimal expectancy,
+        BigDecimal riskOfRuin,
         Instant updatedAt
 ) {
 }

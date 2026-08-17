@@ -61,6 +61,12 @@ public class TradeStatistics {
     @Column(name = "avg_risk_reward", precision = 10, scale = 4)
     private BigDecimal avgRiskReward;
 
+    @Column(name = "expectancy", precision = 19, scale = 4)
+    private BigDecimal expectancy;
+
+    @Column(name = "risk_of_ruin", precision = 12, scale = 8)
+    private BigDecimal riskOfRuin;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -191,6 +197,22 @@ public class TradeStatistics {
 
     public void setAvgRiskReward(BigDecimal avgRiskReward) {
         this.avgRiskReward = avgRiskReward;
+    }
+
+    public BigDecimal getExpectancy() {
+        return expectancy;
+    }
+
+    public void setExpectancy(BigDecimal expectancy) {
+        this.expectancy = expectancy;
+    }
+
+    public BigDecimal getRiskOfRuin() {
+        return riskOfRuin;
+    }
+
+    public void setRiskOfRuin(BigDecimal riskOfRuin) {
+        this.riskOfRuin = riskOfRuin;
     }
 
     public Instant getUpdatedAt() {

@@ -450,6 +450,15 @@ textarea:focus {
   letter-spacing: 0;
 }
 
+.stat-tooltip {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  cursor: help;
+  vertical-align: 1px;
+}
+
 /* Badges */
 .badge {
   display: inline-block;
@@ -465,6 +474,37 @@ textarea:focus {
 
 .badge-long { color: var(--pnl-positive); }
 .badge-short { color: var(--pnl-negative); }
+
+.badge-default {
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.18);
+  box-shadow: none;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.data-table td {
+  color: var(--text);
+}
 
 .success-badge {
   font-size: 0.875rem;
@@ -832,6 +872,18 @@ body, .btn, input, select, textarea, .stat-card, .section-card, .entry-card,
   align-items: center;
   gap: 0.5rem;
   margin-left: auto;
+}
+
+.account-switcher {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.82rem;
+  min-height: 40px;
+  max-width: 180px;
+  cursor: pointer;
 }
 
 .navbar-actions .btn {
