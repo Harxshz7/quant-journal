@@ -73,7 +73,7 @@ export default function NavBar({ active, children }) {
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
         >
-          {open ? '✕' : '☰'}
+          {open ? '' : ''}
         </button>
       </div>
     </header>

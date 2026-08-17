@@ -78,7 +78,7 @@ export default function TradingViewImportModal({ isOpen, onClose, onImportSucces
     <div className="import-modal-overlay">
       <div className="import-modal-content">
         <div className="import-modal-header">
-          <h3>📥 Import TradingView CSV</h3>
+          <h3> Import TradingView CSV</h3>
           <button className="close-modal-btn" onClick={handleClose} type="button">
             &times;
           </button>
@@ -95,7 +95,7 @@ export default function TradingViewImportModal({ isOpen, onClose, onImportSucces
                 onDragOver={handleDragOver}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="dropzone-icon">📄</div>
+                <div className="dropzone-icon"></div>
                 <p>Click or drag & drop TradingView CSV file here</p>
                 <span>Supports Order History & Account History exports</span>
                 <input
@@ -109,7 +109,7 @@ export default function TradingViewImportModal({ isOpen, onClose, onImportSucces
 
               {selectedFile && (
                 <div className="selected-file-info">
-                  <span>📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+                  <span> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</span>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => setSelectedFile(null)}
@@ -130,7 +130,7 @@ export default function TradingViewImportModal({ isOpen, onClose, onImportSucces
                   disabled={!selectedFile || isUploading}
                   type="button"
                 >
-                  {isUploading ? '⏳ Importing...' : 'Import CSV'}
+                  {isUploading ? ' Importing...' : 'Import CSV'}
                 </button>
               </div>
             </>

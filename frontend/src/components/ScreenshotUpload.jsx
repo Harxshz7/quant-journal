@@ -76,7 +76,7 @@ export default function ScreenshotUpload({ tradeId, onUploadSuccess, onUploadErr
         type="button"
         title="Upload a screenshot (JPEG, PNG, or WebP, max 10MB)"
       >
-        {isUploading ? '⏳ Uploading...' : '📸 Add Screenshot'}
+        {isUploading ? ' Uploading...' : ' Add Screenshot'}
       </button>
 
       <input

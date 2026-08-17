@@ -28,7 +28,7 @@ export default function RulesWidget({ status }) {
     <>
       {dailyLimitHit && (
         <div className="rule-banner" role="alert">
-          ⚠️ Daily loss limit reached — consider stepping away
+          ️ Daily loss limit reached — consider stepping away
         </div>
       )}
 

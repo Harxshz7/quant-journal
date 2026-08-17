@@ -118,7 +118,7 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
           <div key={screenshot.id} className="gallery-item">
             <div className="thumbnail-container">
               {loading[screenshot.id] ? (
-                <div className="thumbnail-loading">⏳ Loading...</div>
+                <div className="thumbnail-loading"> Loading...</div>
               ) : thumbnails[screenshot.id] ? (
                 <img
                   src={thumbnails[screenshot.id]}
@@ -127,7 +127,7 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
                   title={screenshot.originalFileName}
                 />
               ) : (
-                <div className="thumbnail-error">❌ Failed to load</div>
+                <div className="thumbnail-error"> Failed to load</div>
               )}
 
               <button
@@ -137,7 +137,7 @@ export default function ScreenshotGallery({ screenshots = [], onDeleteSuccess, o
                 type="button"
                 title="Delete screenshot"
               >
-                {deletingId === screenshot.id ? '⏳' : '✕'}
+                {deletingId === screenshot.id ? '' : ''}
               </button>
             </div>
 

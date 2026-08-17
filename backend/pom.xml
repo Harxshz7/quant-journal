@@ -118,19 +118,18 @@
             <scope>test</scope>
         </dependency>
         <!-- Force a Byte Buddy that understands JDK 26 (class file major version 70).
-             The Spring Boot BOM pins byte-buddy to 1.14.19, which Mockito cannot
-             use on JDK 26 — explicit versions here override the BOM. -->
+             byte-buddy must be on the RUNTIME classpath so Hibernate can use it for
+             bytecode enhancement at startup. The BOM pins 1.14.x which lacks Java 26
+             support, so we override to 1.18.11 here. -->
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
             <version>1.18.11</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
             <version>1.18.11</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

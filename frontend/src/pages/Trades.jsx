@@ -270,7 +270,7 @@ export default function Trades() {
     <div className="container">
       <NavBar active="trades">
         <Link to="/import" className="btn btn-primary btn-sm no-underline">
-          📥 Import TradingView
+           Import TradingView
         </Link>
         <button
           type="button"
@@ -278,7 +278,7 @@ export default function Trades() {
           onClick={handleExportCsv}
           disabled={exporting}
         >
-          {exporting ? 'Exporting...' : '⬇ Export CSV'}
+          {exporting ? 'Exporting...' : ' Export CSV'}
         </button>
       </NavBar>
 

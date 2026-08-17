@@ -98,7 +98,7 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
             title="Open symbol chart on TradingView in new tab"
             style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
           >
-            🔗 TradingView
+             TradingView
           </button>
           <button
             className={`expand-btn ${expanded ? 'expanded' : ''}`}
@@ -106,7 +106,7 @@ export default function TradeCardWithScreenshots({ trade, onTradeUpdate }) {
             type="button"
             title={expanded ? 'Collapse' : 'Expand'}
           >
-            {expanded ? '▼' : '▶'}
+            {expanded ? '▼' : ''}
           </button>
         </div>
       </div>

@@ -88,7 +88,7 @@ export default function ImportWizard() {
 
       <header className="header">
         <div>
-          <h1>📥 TradingView Import Wizard</h1>
+          <h1> TradingView Import Wizard</h1>
           <p className="muted section-subtitle">
             Follow guided steps to import your order or trade history from TradingView
           </p>
@@ -102,21 +102,21 @@ export default function ImportWizard() {
             className={`step-indicator-item ${currentStep === 1 ? 'active' : currentStep > 1 ? 'completed' : ''}`}
             onClick={() => currentStep > 1 && setCurrentStep(1)}
           >
-            <div className="step-circle">{currentStep > 1 ? '✓' : '1'}</div>
+            <div className="step-circle">{currentStep > 1 ? '' : '1'}</div>
             <div className="step-title">1. Export Guide</div>
           </div>
           <div
             className={`step-indicator-item ${currentStep === 2 ? 'active' : currentStep > 2 ? 'completed' : ''}`}
             onClick={() => currentStep > 2 && setCurrentStep(2)}
           >
-            <div className="step-circle">{currentStep > 2 ? '✓' : '2'}</div>
+            <div className="step-circle">{currentStep > 2 ? '' : '2'}</div>
             <div className="step-title">2. Download Samples</div>
           </div>
           <div
             className={`step-indicator-item ${currentStep === 3 ? 'active' : currentStep > 3 ? 'completed' : ''}`}
             onClick={() => currentStep > 3 && setCurrentStep(3)}
           >
-            <div className="step-circle">{currentStep > 3 ? '✓' : '3'}</div>
+            <div className="step-circle">{currentStep > 3 ? '' : '3'}</div>
             <div className="step-title">3. Upload CSV</div>
           </div>
           <div className={`step-indicator-item ${currentStep === 4 ? 'active' : ''}`}>
@@ -137,7 +137,7 @@ export default function ImportWizard() {
                   className="btn btn-secondary btn-sm"
                   onClick={() => setCurrentStep(3)}
                 >
-                  ⚡ Skip to Upload
+                   Skip to Upload
                 </button>
               </div>
 
@@ -187,7 +187,7 @@ export default function ImportWizard() {
                       <div className="step-num">3</div>
                       <div className="step-desc">
                         <h5>Export to CSV</h5>
-                        <p>Click the export icon (📥) at the top right of the table grid and choose <strong>Export Data to CSV</strong>.</p>
+                        <p>Click the export icon () at the top right of the table grid and choose <strong>Export Data to CSV</strong>.</p>
                       </div>
                     </div>
                   </>
@@ -217,7 +217,7 @@ export default function ImportWizard() {
                       <div className="step-num">3</div>
                       <div className="step-desc">
                         <h5>Export to CSV</h5>
-                        <p>Click the table export icon (📥) and select <strong>Export to CSV</strong>.</p>
+                        <p>Click the table export icon () and select <strong>Export to CSV</strong>.</p>
                       </div>
                     </div>
                   </>
@@ -236,7 +236,7 @@ export default function ImportWizard() {
                   className="btn btn-secondary btn-sm"
                   onClick={() => setCurrentStep(3)}
                 >
-                  ⚡ Skip to Upload
+                   Skip to Upload
                 </button>
               </div>
               <p className="muted wizard-mb">
@@ -278,7 +278,7 @@ export default function ImportWizard() {
                     download="tradingview-order-history-sample.csv"
                     className="btn btn-secondary btn-sm download-link"
                   >
-                    📥 Download Order History Sample (.csv)
+                     Download Order History Sample (.csv)
                   </a>
                 </div>
 
@@ -316,7 +316,7 @@ export default function ImportWizard() {
                     download="tradingview-account-history-sample.csv"
                     className="btn btn-secondary btn-sm download-link"
                   >
-                    📥 Download Account History Sample (.csv)
+                     Download Account History Sample (.csv)
                   </a>
                 </div>
               </div>
@@ -336,7 +336,7 @@ export default function ImportWizard() {
                 onDragOver={handleDragOver}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="dropzone-icon">📄</div>
+                <div className="dropzone-icon"></div>
                 <p>Click or drag & drop your TradingView CSV file here</p>
                 <span>Supports .csv files up to 10MB</span>
                 <input
@@ -350,7 +350,7 @@ export default function ImportWizard() {
 
               {selectedFile && (
                 <div className="selected-file-info">
-                  <span>📄 {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+                  <span> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)</span>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => setSelectedFile(null)}
@@ -417,7 +417,7 @@ export default function ImportWizard() {
                                 <div>{err.reason}</div>
                                 {guidance && (
                                   <div className="guidance-box">
-                                    💡 <strong>Guidance:</strong> {guidance}
+                                     <strong>Guidance:</strong> {guidance}
                                   </div>
                                 )}
                               </td>
@@ -476,7 +476,7 @@ export default function ImportWizard() {
                 onClick={handleUpload}
                 disabled={!selectedFile || isUploading}
               >
-                {isUploading ? '⏳ Importing...' : 'Upload & Process CSV'}
+                {isUploading ? ' Importing...' : 'Upload & Process CSV'}
               </button>
             )}
 

@@ -32,20 +32,20 @@ if defined JAVA_VERSION_STR (
 )
 if "%JAVA_MAJOR%"=="1" set "JAVA_MAJOR="
 if not defined JAVA_MAJOR (
-    echo  [ERROR] Could not determine Java version. Install JDK 21 (LTS).
+    echo  [ERROR] Could not determine Java version. Install JDK 21 LTS.
     pause
     exit /b 1
 )
 if %JAVA_MAJOR% LSS 21 (
     echo  [ERROR] Java 21 or newer is required, but Java %JAVA_MAJOR% was found.
-    echo          Install JDK 21 (LTS) and ensure it is first in PATH.
+    echo          Install JDK 21 LTS and ensure it is first in PATH.
     pause
     exit /b 1
 )
 echo  [OK] Java %JAVA_MAJOR% detected.
 if %JAVA_MAJOR% GTR 23 (
     echo  [WARNING] Java %JAVA_MAJOR% is newer than the tested Java 21. The build may fail
-    echo           (JaCoCo/Mockito instrumentation). Install JDK 21 for the best experience.
+    echo           JaCoCo/Mockito instrumentation. Install JDK 21 for the best experience.
 )
 
 set "MVN_CMD=mvn"

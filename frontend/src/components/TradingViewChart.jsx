@@ -71,7 +71,7 @@ export default function TradingViewChart({ symbol, theme = 'dark', height = 500 
     <div className="tradingview-chart-container">
       <div className="tradingview-chart-header">
         <span className="tradingview-chart-title">
-          📈 TradingView Advanced Chart ({mappedSymbol})
+           TradingView Advanced Chart ({mappedSymbol})
         </span>
         <span>Interactive Chart</span>
       </div>
