@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +76,7 @@ public class JournalEntryService {
         JournalEntry entry = journalEntryRepository.findWithTradesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found"));
 
-        if (!Objects.requireNonNull(entry.getUser(), "Journal entry must have an owner").getId().equals(user.getId())) {
+        if (!entry.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
@@ -89,7 +88,7 @@ public class JournalEntryService {
                 ? Map.of()
                 : tradeScreenshotRepository.findByTradeIdIn(tradeIds).stream()
                         .collect(Collectors.groupingBy(
-                                screenshot -> Objects.requireNonNull(screenshot.getTrade()).getId(),
+                                screenshot -> screenshot.getTrade().getId(),
                                 Collectors.mapping(TradeScreenshotDTO::fromEntity, Collectors.toList())
                         ));
 
@@ -97,7 +96,7 @@ public class JournalEntryService {
                 ? Map.of()
                 : tradeChecklistItemRepository.findByTradeIdIn(tradeIds).stream()
                         .collect(Collectors.groupingBy(
-                                item -> Objects.requireNonNull(item.getTrade()).getId(),
+                                item -> item.getTrade().getId(),
                                 Collectors.mapping(TradeChecklistItemDTO::fromEntity, Collectors.toList())
                         ));
 
@@ -108,7 +107,7 @@ public class JournalEntryService {
         JournalEntry entry = journalEntryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found"));
 
-        if (!Objects.requireNonNull(entry.getUser(), "Journal entry must have an owner").getId().equals(user.getId())) {
+        if (!entry.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 

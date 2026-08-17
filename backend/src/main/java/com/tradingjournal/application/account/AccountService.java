@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -111,7 +110,7 @@ public class AccountService {
     private Account findOwnedAccountOrThrow(User user, UUID id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
-        if (!Objects.requireNonNull(account.getUser(), "Account must have an owner").getId().equals(user.getId())) {
+        if (!account.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
         }
         return account;

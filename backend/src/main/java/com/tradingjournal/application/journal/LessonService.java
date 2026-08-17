@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -46,7 +45,7 @@ public class LessonService {
         if (request.sourceTradeId() != null) {
             Trade trade = tradeRepository.findById(request.sourceTradeId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Source trade not found"));
-            if (!Objects.requireNonNull(Objects.requireNonNull(trade.getJournalEntry(), "Trade must have a journal entry").getUser(), "Journal entry must have an owner").getId().equals(user.getId())) {
+            if (!trade.getJournalEntry().getUser().getId().equals(user.getId())) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Source trade not found");
             }
             lesson.setSourceTrade(trade);
@@ -71,7 +70,7 @@ public class LessonService {
     private LessonLearned findOwnedOrThrow(User user, UUID id) {
         LessonLearned lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found"));
-        if (!Objects.requireNonNull(lesson.getUser(), "Lesson must have an owner").getId().equals(user.getId())) {
+        if (!lesson.getUser().getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lesson not found");
         }
         return lesson;
