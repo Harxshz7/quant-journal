@@ -107,21 +107,15 @@ export default function JournalList() {
                   {entry.notes ? entry.notes : <em>No notes provided.</em>}
                 </p>
                 {(entry.mood || entry.energy || entry.dayRating) && (
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  <div className="entry-meta-row">
                     {entry.mood && (
-                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
-                        {entry.mood}
-                      </span>
+                      <span className="tag-chip">{entry.mood}</span>
                     )}
                     {entry.energy && (
-                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
-                        Energy {entry.energy}
-                      </span>
+                      <span className="tag-chip">Energy {entry.energy}</span>
                     )}
                     {entry.dayRating && (
-                      <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: 6, background: 'rgba(255,255,255,0.06)', color: 'var(--muted)' }}>
-                        Rating {entry.dayRating}/5
-                      </span>
+                      <span className="tag-chip">Rating {entry.dayRating}/5</span>
                     )}
                   </div>
                 )}
@@ -148,14 +142,13 @@ export default function JournalList() {
               </div>
               <div className="form-group">
                 <label>Pre-Market Mood</label>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <div className="mood-btn-row">
                   {MOOD_OPTIONS.map(m => (
                     <button
                       key={m}
                       type="button"
-                      className={`btn btn-sm ${mood === m ? 'is-selected' : ''}`}
+                      className={`btn btn-sm mood-btn ${mood === m ? 'is-selected' : ''}`}
                       onClick={() => setMood(mood === m ? '' : m)}
-                      style={{ fontSize: '0.78rem' }}
                     >
                       {m}
                     </button>
@@ -164,14 +157,13 @@ export default function JournalList() {
               </div>
               <div className="form-group">
                 <label>Pre-Market Energy (1-5)</label>
-                <div style={{ display: 'flex', gap: '0.3rem' }}>
+                <div className="energy-btn-row">
                   {[1,2,3,4,5].map(n => (
                     <button
                       key={n}
                       type="button"
-                      className={`btn btn-sm ${energy == n ? 'is-selected' : ''}`}
+                      className={`btn btn-sm energy-btn ${energy == n ? 'is-selected' : ''}`}
                       onClick={() => setEnergy(energy == n ? '' : n)}
-                      style={{ width: 36, height: 36, fontSize: '0.85rem' }}
                     >
                       {n}
                     </button>

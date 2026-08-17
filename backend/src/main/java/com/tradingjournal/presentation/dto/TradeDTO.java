@@ -8,7 +8,6 @@ import com.tradingjournal.domain.entity.TradeOutcomeFilter;
 import com.tradingjournal.domain.entity.MistakeTag;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;

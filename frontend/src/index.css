@@ -481,6 +481,345 @@ textarea:focus {
   box-shadow: none;
 }
 
+/* Utility classes for repeated inline patterns */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.tag-chip:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mood-btn-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mood-btn {
+  font-size: 0.78rem;
+}
+
+.energy-btn-row {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.energy-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 0.85rem;
+}
+
+.btn-icon-row {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.btn-icon-row .btn {
+  font-size: 0.75rem;
+}
+
+.entry-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.lesson-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.lesson-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.lesson-content {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.lesson-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.lesson-edit-input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.lesson-edit-textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-edit-tags {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.btn-danger-text {
+  color: var(--pnl-negative) !important;
+  font-size: 0.75rem;
+}
+
+.wizard-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.wizard-step-header h3 {
+  margin: 0;
+}
+
+.wizard-mb {
+  margin-bottom: 1.5rem;
+}
+
+.wizard-step-title {
+  margin: 0 0 1rem 0;
+}
+
+.download-link {
+  text-decoration: none;
+  text-align: center;
+}
+
+.calc-save-btn {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.calc-save-msg {
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.calc-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.calc-results-grid .calc-result-card {
+  margin-bottom: 0;
+}
+
+.calc-danger {
+  color: var(--danger);
+}
+
+.calc-actions {
+  margin-top: 1.25rem;
+}
+
+.calc-hint {
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+.profile-subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.profile-card {
+  margin-bottom: 1.75rem;
+}
+
+.profile-success-alert {
+  border-color: var(--pnl-positive);
+  color: var(--pnl-positive);
+}
+
+.profile-form-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.profile-form-row input {
+  flex: 1;
+}
+
+.profile-hint {
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.profile-empty {
+  font-size: 0.9rem;
+}
+
+.profile-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-account-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow-elev);
+}
+
+.profile-account-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.profile-account-default {
+  margin-left: 0.5rem;
+}
+
+.profile-share-url {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.profile-share-link {
+  text-decoration: none;
+}
+
+.profile-instructions {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.profile-instructions ol {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.profile-instructions li {
+  margin-bottom: 0.75rem;
+}
+
+.profile-instructions strong {
+  color: var(--text);
+}
+
+.profile-template-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.profile-template-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.profile-template-pre {
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--text);
+  overflow: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.profile-template-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
+
+.profile-how-it-works {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.profile-how-it-works strong {
+  color: var(--text);
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.profile-form-row input {
+  flex: 1;
+}
+
+.section-subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.daily-state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trades-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tag-filter-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;

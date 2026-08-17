@@ -331,21 +331,21 @@ export default function Profile() {
         <div>
           <h1>Profile</h1>
           {user && (
-            <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+            <p className="muted profile-subtitle">
               Manage your account settings
             </p>
           )}
         </div>
       </header>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Account Details</h2>
           <p>Update your name and email address</p>
         </div>
         {profileError && <div className="alert alert-error">{profileError}</div>}
         {profileSuccess && (
-          <div className="alert alert-error" style={{ borderColor: 'var(--pnl-positive)', color: 'var(--pnl-positive)' }}>
+          <div className="alert alert-error profile-success-alert">
             {profileSuccess}
           </div>
         )}
@@ -364,14 +364,14 @@ export default function Profile() {
         </form>
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Change Password</h2>
           <p>Update your account password</p>
         </div>
         {passwordError && <div className="alert alert-error">{passwordError}</div>}
         {passwordSuccess && (
-          <div className="alert alert-error" style={{ borderColor: 'var(--pnl-positive)', color: 'var(--pnl-positive)' }}>
+          <div className="alert alert-error profile-success-alert">
             {passwordSuccess}
           </div>
         )}
@@ -390,14 +390,14 @@ export default function Profile() {
         </form>
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Trading Settings</h2>
           <p>Account size, daily loss limit, and monthly P&L goal</p>
         </div>
         {settingsError && <div className="alert alert-error">{settingsError}</div>}
         {settingsMsg && (
-          <div className="alert alert-error" style={{ borderColor: 'var(--pnl-positive)', color: 'var(--pnl-positive)' }}>
+          <div className="alert alert-error profile-success-alert">
             {settingsMsg}
           </div>
         )}
@@ -416,7 +416,7 @@ export default function Profile() {
                 value={settings.accountSize}
                 onChange={(e) => setSettings({ ...settings, accountSize: e.target.value })}
               />
-              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+              <p className="muted profile-hint">
                 Used by the position size calculator on the Calculator page.
               </p>
             </div>
@@ -431,7 +431,7 @@ export default function Profile() {
                 value={settings.dailyLossLimitAmount}
                 onChange={(e) => setSettings({ ...settings, dailyLossLimitAmount: e.target.value })}
               />
-              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+              <p className="muted profile-hint">
                 Shows a warning banner when today's realized P&amp;L hits this loss.
               </p>
             </div>
@@ -445,7 +445,7 @@ export default function Profile() {
                 value={settings.monthlyGoalPnl}
                 onChange={(e) => setSettings({ ...settings, monthlyGoalPnl: e.target.value })}
               />
-              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+              <p className="muted profile-hint">
                 Shows a progress bar toward this goal on the dashboard.
               </p>
             </div>
@@ -456,7 +456,7 @@ export default function Profile() {
         )}
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Trading Accounts</h2>
           <p>Create separate accounts to track multiple portfolios or strategies</p>
@@ -465,43 +465,37 @@ export default function Profile() {
         <div className="alert" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'rgba(99, 102, 241, 0.3)', color: 'var(--text)', fontSize: '0.85rem' }}>
           Use the account switcher in the top navigation to filter the journal, trades, stats, and analytics by account.
         </div>
-        <form onSubmit={handleAddAccount} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <form onSubmit={handleAddAccount} className="profile-form-row">
           <input
             type="text"
             placeholder="e.g. Futures account"
             value={newAccountName}
             onChange={(e) => setNewAccountName(e.target.value)}
-            style={{ flex: 1 }}
+            className="flex-1"
           />
           <button type="submit" className="btn btn-primary btn-sm" disabled={accountBusy || !newAccountName.trim()}>
             {accountBusy ? '...' : 'Add Account'}
           </button>
         </form>
         {accounts.length === 0 ? (
-          <p className="muted" style={{ fontSize: '0.9rem' }}>No accounts yet. Add one above.</p>
+          <p className="muted profile-empty">No accounts yet. Add one above.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div className="profile-accounts-list">
             {accounts.map((account) => (
               <div
                 key={account.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.6rem 0.75rem', borderRadius: 10,
-                  background: 'var(--surface)',
-                  boxShadow: 'var(--shadow-elev)',
-                }}
+                className="profile-account-row"
               >
-                <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--text)' }}>
+                <span className="profile-account-name">
                   {account.name}
-                  {account.isDefault && <span className="badge badge-default" style={{ marginLeft: '0.5rem' }}>default</span>}
+                  {account.isDefault && <span className="badge badge-default profile-account-default">default</span>}
                 </span>
                 <button className="btn btn-sm btn-secondary" onClick={() => handleRenameAccount(account)}>Rename</button>
                 {!account.isDefault && (
                   <button className="btn btn-sm btn-secondary" onClick={() => handleSetDefaultAccount(account)}>Set Default</button>
                 )}
                 <button
-                  className="btn btn-sm btn-secondary"
-                  style={{ color: 'var(--pnl-negative)' }}
+                  className="btn btn-sm btn-secondary btn-danger-text"
                   onClick={() => handleDeleteAccount(account)}
                 >
                   Delete
@@ -512,7 +506,7 @@ export default function Profile() {
         )}
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Shareable Performance Link</h2>
           <p>Publish a read-only snapshot of your win rate, profit factor, equity curve, and monthly breakdown</p>
@@ -522,24 +516,24 @@ export default function Profile() {
           <p className="loading">Loading share status...</p>
         ) : shareStatus.shareEnabled ? (
           <>
-            <div className="alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: '#4ade80', fontSize: '0.85rem' }}>
+            <div className="alert profile-success-alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: 'var(--pnl-positive)', fontSize: '0.85rem' }}>
               <strong>Enabled</strong> — anyone with this link can view your performance snapshot.
             </div>
             <div className="form-group">
               <label htmlFor="shareUrl">Public Link</label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input id="shareUrl" type="text" readOnly value={`${window.location.origin}/share/${shareStatus.shareToken}`} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }} />
+              <div className="profile-form-row">
+                <input id="shareUrl" type="text" readOnly value={`${window.location.origin}/share/${shareStatus.shareToken}`} className="profile-share-url" />
                 <button type="button" className="btn btn-secondary" onClick={handleCopyShareLink}>
                   {shareCopySuccess ? 'Copied!' : 'Copy'}
                 </button>
-                <a className="btn btn-secondary" style={{ textDecoration: 'none' }} href={`/share/${shareStatus.shareToken}`} target="_blank" rel="noreferrer">
+                <a className="btn btn-secondary profile-share-link" href={`/share/${shareStatus.shareToken}`} target="_blank" rel="noreferrer">
                   Open
                 </a>
               </div>
             </div>
           </>
         ) : (
-          <p className="muted" style={{ fontSize: '0.9rem' }}>
+          <p className="muted profile-empty">
             Your performance is not shared. Enable it to generate a public link. Note: trades, notes, and account size are never exposed.
           </p>
         )}
@@ -553,19 +547,19 @@ export default function Profile() {
         </button>
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Trade Checklist Templates</h2>
           <p>Reusable pre-trade checklist items. Add, edit, or deactivate items.</p>
         </div>
 
-        <form onSubmit={handleAddTemplate} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <form onSubmit={handleAddTemplate} className="profile-form-row">
           <input
             type="text"
             placeholder="e.g. Confirmed trend?"
             value={newTemplateText}
             onChange={(e) => setNewTemplateText(e.target.value)}
-            style={{ flex: 1 }}
+            className="flex-1"
           />
           <button type="submit" className="btn btn-primary btn-sm" disabled={addingTemplate || !newTemplateText.trim()}>
             {addingTemplate ? '...' : 'Add'}
@@ -575,19 +569,14 @@ export default function Profile() {
         {templatesLoading ? (
           <p className="loading">Loading templates...</p>
         ) : templates.length === 0 ? (
-          <p className="muted" style={{ fontSize: '0.9rem' }}>No checklist templates yet. Add one above.</p>
+          <p className="muted profile-empty">No checklist templates yet. Add one above.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div className="profile-accounts-list">
             {templates.map((t) => (
               <div
                 key={t.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.6rem 0.75rem', borderRadius: 10,
-                  background: t.active ? 'var(--surface)' : 'rgba(255,255,255,0.02)',
-                  boxShadow: t.active ? 'var(--shadow-elev)' : 'none',
-                  opacity: t.active ? 1 : 0.5,
-                }}
+                className="profile-account-row"
+                style={{ opacity: t.active ? 1 : 0.5 }}
               >
                 {editingId === t.id ? (
                   <>
@@ -596,7 +585,7 @@ export default function Profile() {
                       value={editingText}
                       onChange={(e) => setEditingText(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') handleUpdateTemplate(t.id); if (e.key === 'Escape') { setEditingId(null); setEditingText(''); } }}
-                      style={{ flex: 1, padding: '0.3rem 0.5rem', fontSize: '0.85rem' }}
+                      className="flex-1"
                       autoFocus
                     />
                     <button className="btn btn-sm btn-primary" onClick={() => handleUpdateTemplate(t.id)}>Save</button>
@@ -615,8 +604,7 @@ export default function Profile() {
                     </button>
                     {t.active && (
                       <button
-                        className="btn btn-sm btn-secondary"
-                        style={{ color: 'var(--pnl-negative)' }}
+                        className="btn btn-sm btn-secondary btn-danger-text"
                         onClick={() => handleDeactivateTemplate(t.id)}
                       >
                         Deactivate
@@ -630,19 +618,19 @@ export default function Profile() {
         )}
       </div>
 
-      <div className="auth-card" style={{ marginBottom: '1.75rem' }}>
+      <div className="auth-card profile-card">
         <div className="auth-header">
           <h2>Webhook & Automation Settings</h2>
           <p>Personal endpoint for TradingView alert automation</p>
         </div>
-        <div className="alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: '#4ade80', fontSize: '0.85rem' }}>
+        <div className="alert profile-success-alert" style={{ background: 'rgba(74, 222, 128, 0.1)', borderColor: 'rgba(74, 222, 128, 0.3)', color: 'var(--pnl-positive)', fontSize: '0.85rem' }}>
           <strong>Active</strong> — TradingView alerts sent to this URL will automatically create or close trades.
         </div>
         {webhookError && <div className="alert alert-error">{webhookError}</div>}
         <div className="form-group">
           <label htmlFor="webhookUrl">Webhook URL</label>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input id="webhookUrl" type="text" readOnly value={webhookLoading ? 'Loading...' : webhookUrl} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }} />
+          <div className="profile-form-row">
+            <input id="webhookUrl" type="text" readOnly value={webhookLoading ? 'Loading...' : webhookUrl} className="profile-share-url" />
             <button type="button" className="btn btn-secondary" onClick={handleCopyWebhook} disabled={!webhookUrl || webhookLoading}>
               {copySuccess ? 'Copied!' : 'Copy'}
             </button>
@@ -659,26 +647,25 @@ export default function Profile() {
           <p>How to connect your TradingView alerts to this journal</p>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.7 }}>
-          <ol style={{ paddingLeft: '1.25rem', margin: 0 }}>
-            <li style={{ marginBottom: '0.75rem' }}>
-              <strong style={{ color: 'var(--text)' }}>Open your TradingView chart</strong> and add your indicator or strategy.
+        <div className="profile-instructions">
+          <ol>
+            <li>
+              <strong>Open your TradingView chart</strong> and add your indicator or strategy.
             </li>
-            <li style={{ marginBottom: '0.75rem' }}>
-              <strong style={{ color: 'var(--text)' }}>Create an Alert</strong> — right-click on the chart or use the Alerts panel. Configure your conditions.
+            <li>
+              <strong>Create an Alert</strong> — right-click on the chart or use the Alerts panel. Configure your conditions.
             </li>
-            <li style={{ marginBottom: '0.75rem' }}>
-              <strong style={{ color: 'var(--text)' }}>Under "Webhook URL"</strong>, paste your webhook URL from above.
+            <li>
+              <strong>Under "Webhook URL"</strong>, paste your webhook URL from above.
             </li>
-            <li style={{ marginBottom: '0.75rem' }}>
-              <strong style={{ color: 'var(--text)' }}>Under "Message"</strong>, paste the JSON template below. Use the copy button for convenience.
+            <li>
+              <strong>Under "Message"</strong>, paste the JSON template below. Use the copy button for convenience.
             </li>
           </ol>
         </div>
 
-        <div style={{ marginTop: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)' }}>Buy / Sell Alert Template</h3>
+        <div className="profile-template-header">
+            <h3>Buy / Sell Alert Template</h3>
             <button
               type="button"
               className="btn btn-sm btn-secondary"
@@ -687,22 +674,15 @@ export default function Profile() {
               Copy
             </button>
           </div>
-          <pre style={{
-            background: 'var(--surface)', padding: '0.75rem 1rem', borderRadius: 10,
-            fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text)',
-            overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
-          }}>
+          <pre className="profile-template-pre">
             {BUY_SELL_TEMPLATE}
           </pre>
-          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.4rem' }}>
+          <p className="profile-template-note">
             <code>action</code> will be <code>buy</code> or <code>sell</code> based on your strategy order side.
           </p>
-        </div>
 
-        <div style={{ marginTop: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)' }}>Close Position Alert Template</h3>
+        <div className="profile-template-header">
+            <h3>Close Position Alert Template</h3>
             <button
               type="button"
               className="btn btn-sm btn-secondary"
@@ -711,21 +691,15 @@ export default function Profile() {
               Copy
             </button>
           </div>
-          <pre style={{
-            background: 'var(--surface)', padding: '0.75rem 1rem', borderRadius: 10,
-            fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text)',
-            overflow: 'auto', margin: 0, whiteSpace: 'pre-wrap',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
-          }}>
+          <pre className="profile-template-pre">
             {CLOSE_TEMPLATE}
           </pre>
-          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.4rem' }}>
+          <p className="profile-template-note">
             Use this for exit signals. It will close your most recent open trade matching the ticker.
           </p>
-        </div>
 
-        <div style={{ marginTop: '1.25rem', padding: '0.75rem 1rem', borderRadius: 10, background: 'rgba(255,255,255,0.03)', fontSize: '0.85rem', color: 'var(--muted)' }}>
-          <strong style={{ color: 'var(--text)' }}>How it works:</strong> When TradingView fires an alert, it sends the JSON payload to your webhook URL. The server creates a trade entry automatically (buy/sell) or closes an existing open trade (close). A journal entry is created for today if one doesn't exist yet.
+        <div className="profile-how-it-works">
+          <strong>How it works:</strong> When TradingView fires an alert, it sends the JSON payload to your webhook URL. The server creates a trade entry automatically (buy/sell) or closes an existing open trade (close). A journal entry is created for today if one doesn't exist yet.
         </div>
       </div>
     </div>

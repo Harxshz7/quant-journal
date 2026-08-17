@@ -74,7 +74,7 @@ export default function Statistics() {
       <header className="header">
         <div>
           <h1>Statistics</h1>
-          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+          <p className="muted section-subtitle">
             Cached per-user aggregate performance
           </p>
         </div>
@@ -85,6 +85,10 @@ export default function Statistics() {
       <section className="section-card">
         {loading ? (
           <p className="loading">Loading statistics...</p>
+        ) : statistics && Object.values(statistics).every(v => v === null || v === 0) ? (
+          <div className="empty-state">
+            <p>No trade statistics yet. Close some trades to see your performance metrics.</p>
+          </div>
         ) : (
           <div className="stats-grid">
             {CARDS.map((card) => (

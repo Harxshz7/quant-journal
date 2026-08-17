@@ -86,10 +86,10 @@ export default function ImportWizard() {
     <div className="container">
       <NavBar active="import" />
 
-      <header className="header" style={{ marginBottom: '1.5rem' }}>
+      <header className="header">
         <div>
           <h1>📥 TradingView Import Wizard</h1>
-          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+          <p className="muted section-subtitle">
             Follow guided steps to import your order or trade history from TradingView
           </p>
         </div>
@@ -130,8 +130,8 @@ export default function ImportWizard() {
           {/* STEP 1: EXPORT GUIDE */}
           {currentStep === 1 && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0 }}>Step 1: Exporting from TradingView</h3>
+              <div className="wizard-step-header">
+                <h3>Step 1: Exporting from TradingView</h3>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -229,8 +229,8 @@ export default function ImportWizard() {
           {/* STEP 2: DOWNLOAD SAMPLES */}
           {currentStep === 2 && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0 }}>Step 2: Download Sample Files & Verify Layout</h3>
+              <div className="wizard-step-header">
+                <h3>Step 2: Download Sample Files & Verify Layout</h3>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -239,7 +239,7 @@ export default function ImportWizard() {
                   ⚡ Skip to Upload
                 </button>
               </div>
-              <p className="muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              <p className="muted wizard-mb">
                 Compare your CSV headers against our known-good templates. The importer automatically handles lowercase/uppercase variations.
               </p>
 
@@ -276,8 +276,7 @@ export default function ImportWizard() {
                   <a
                     href="/samples/tradingview-order-history-sample.csv"
                     download="tradingview-order-history-sample.csv"
-                    className="btn btn-secondary btn-sm"
-                    style={{ textDecoration: 'none', textAlign: 'center' }}
+                    className="btn btn-secondary btn-sm download-link"
                   >
                     📥 Download Order History Sample (.csv)
                   </a>
@@ -315,8 +314,7 @@ export default function ImportWizard() {
                   <a
                     href="/samples/tradingview-account-history-sample.csv"
                     download="tradingview-account-history-sample.csv"
-                    className="btn btn-secondary btn-sm"
-                    style={{ textDecoration: 'none', textAlign: 'center' }}
+                    className="btn btn-secondary btn-sm download-link"
                   >
                     📥 Download Account History Sample (.csv)
                   </a>
@@ -328,7 +326,7 @@ export default function ImportWizard() {
           {/* STEP 3: UPLOAD CSV */}
           {currentStep === 3 && (
             <div>
-              <h3 style={{ margin: '0 0 1rem 0' }}>Step 3: Select & Upload Your CSV File</h3>
+              <h3 className="wizard-step-title">Step 3: Select & Upload Your CSV File</h3>
 
               {error && <div className="error-message mb-3">{error}</div>}
 
@@ -368,7 +366,7 @@ export default function ImportWizard() {
           {/* STEP 4: RESULTS */}
           {currentStep === 4 && summary && (
             <div>
-              <h3 style={{ margin: '0 0 1.25rem 0' }}>Step 4: Import Summary & Guidance</h3>
+              <h3 className="wizard-step-title">Step 4: Import Summary & Guidance</h3>
 
               <div className="summary-cards-grid">
                 <div className="summary-card">

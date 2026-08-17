@@ -1,12 +1,10 @@
 package com.tradingjournal.presentation.dto;
 
 import com.tradingjournal.domain.entity.PositionType;
-import com.tradingjournal.domain.entity.MistakeTag;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public record CreateTradeRequest(

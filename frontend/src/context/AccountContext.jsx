@@ -27,6 +27,7 @@ export function AccountProvider({ children }) {
       });
     } catch (err) {
       console.error('Failed to load accounts:', err);
+      setAccounts([]);
     } finally {
       setLoading(false);
     }

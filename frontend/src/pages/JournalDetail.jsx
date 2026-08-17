@@ -193,17 +193,16 @@ export default function JournalDetail() {
       {/* Mood & Energy Section */}
       <section className="section-card">
         <h2>Daily State</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="daily-state-grid">
           <div className="form-group">
             <label>Mood</label>
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            <div className="mood-btn-row">
               {MOOD_OPTIONS.map(m => (
                 <button
                   key={m}
                   type="button"
-                  className={`btn btn-sm ${mood === m ? 'is-selected' : ''}`}
+                  className={`btn btn-sm mood-btn ${mood === m ? 'is-selected' : ''}`}
                   onClick={() => setMood(mood === m ? '' : m)}
-                  style={{ fontSize: '0.78rem' }}
                 >
                   {m}
                 </button>
@@ -212,14 +211,13 @@ export default function JournalDetail() {
           </div>
           <div className="form-group">
             <label>Energy (1-5)</label>
-            <div style={{ display: 'flex', gap: '0.3rem' }}>
+            <div className="energy-btn-row">
               {[1,2,3,4,5].map(n => (
                 <button
                   key={n}
                   type="button"
-                  className={`btn btn-sm ${energy == n ? 'is-selected' : ''}`}
+                  className={`btn btn-sm energy-btn ${energy == n ? 'is-selected' : ''}`}
                   onClick={() => setEnergy(energy == n ? '' : n)}
-                  style={{ width: 36, height: 36, fontSize: '0.85rem' }}
                 >
                   {n}
                 </button>
@@ -228,14 +226,13 @@ export default function JournalDetail() {
           </div>
           <div className="form-group">
             <label>Day Rating (1-5)</label>
-            <div style={{ display: 'flex', gap: '0.3rem' }}>
+            <div className="energy-btn-row">
               {[1,2,3,4,5].map(n => (
                 <button
                   key={n}
                   type="button"
-                  className={`btn btn-sm ${dayRating == n ? 'is-selected' : ''}`}
+                  className={`btn btn-sm energy-btn ${dayRating == n ? 'is-selected' : ''}`}
                   onClick={() => setDayRating(dayRating == n ? '' : n)}
-                  style={{ width: 36, height: 36, fontSize: '0.85rem' }}
                 >
                   {n}
                 </button>
@@ -243,7 +240,7 @@ export default function JournalDetail() {
             </div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="daily-state-grid">
           <div className="form-group">
             <label>Market Bias</label>
             <input type="text" placeholder="e.g. Bullish NIFTY" value={marketBias} onChange={(e) => setMarketBias(e.target.value)} />
@@ -278,7 +275,7 @@ export default function JournalDetail() {
       <section className="section-card">
         <h2>Trades ({entry.trades ? entry.trades.length : 0})</h2>
         {entry.trades && entry.trades.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="trades-flex-col">
             {entry.trades.map((t) => (
               <TradeCardWithScreenshots key={t.tradeId || t.id} trade={t} onTradeUpdate={fetchDetail} />
             ))}

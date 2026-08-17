@@ -90,18 +90,17 @@ export default function Lessons() {
       <header className="header">
         <div>
           <h1>Lessons Learned</h1>
-          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+          <p className="muted section-subtitle">
             Capture insights, patterns, and recurring mistakes
           </p>
         </div>
       </header>
 
       {allTags.length > 0 && (
-        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        <div className="tag-filter-row">
           <button
             className={`btn btn-sm ${!filterTag ? 'is-selected' : ''}`}
             onClick={() => setFilterTag('')}
-            style={{ fontSize: '0.78rem' }}
           >
             All
           </button>
@@ -110,7 +109,6 @@ export default function Lessons() {
               key={tag}
               className={`btn btn-sm ${filterTag === tag ? 'is-selected' : ''}`}
               onClick={() => setFilterTag(filterTag === tag ? '' : tag)}
-              style={{ fontSize: '0.78rem' }}
             >
               {tag}
             </button>
@@ -130,12 +128,11 @@ export default function Lessons() {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="trades-flex-col">
           {lessons.map((lesson) => (
             <div
               key={lesson.id}
               className="section-card"
-              style={{ position: 'relative' }}
             >
               {editingId === lesson.id ? (
                 <>
@@ -143,31 +140,31 @@ export default function Lessons() {
                     type="text"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    style={{ width: '100%', marginBottom: '0.5rem', fontWeight: 600, fontSize: '1rem' }}
+                    className="lesson-edit-input"
                   />
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     rows={4}
-                    style={{ width: '100%', marginBottom: '0.5rem' }}
+                    className="lesson-edit-textarea"
                   />
                   <input
                     type="text"
                     value={editTags}
                     onChange={(e) => setEditTags(e.target.value)}
                     placeholder="tags, comma, separated"
-                    style={{ width: '100%', marginBottom: '0.75rem', fontSize: '0.85rem' }}
+                    className="lesson-edit-tags"
                   />
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div className="btn-icon-row">
                     <button className="btn btn-primary btn-sm" onClick={() => handleUpdate(lesson.id)}>Save</button>
                     <button className="btn btn-secondary btn-sm" onClick={() => setEditingId(null)}>Cancel</button>
                   </div>
                 </>
               ) : (
                 <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)' }}>{lesson.title}</h3>
-                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                  <div className="lesson-header-row">
+                    <h3 className="lesson-title">{lesson.title}</h3>
+                    <div className="lesson-actions">
                       <button
                         className="btn btn-sm btn-secondary"
                         onClick={() => {
@@ -176,32 +173,26 @@ export default function Lessons() {
                           setEditContent(lesson.content);
                           setEditTags((lesson.tags || []).join(', '));
                         }}
-                        style={{ fontSize: '0.75rem' }}
                       >
                         Edit
                       </button>
                       <button
-                        className="btn btn-sm btn-secondary"
+                        className="btn btn-sm btn-secondary btn-danger-text"
                         onClick={() => handleDelete(lesson.id)}
-                        style={{ fontSize: '0.75rem', color: 'var(--pnl-negative)' }}
                       >
                         Delete
                       </button>
                     </div>
                   </div>
-                  <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  <p className="lesson-content">
                     {lesson.content}
                   </p>
                   {lesson.tags && lesson.tags.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                    <div className="lesson-tags">
                       {lesson.tags.map(tag => (
                         <span
                           key={tag}
-                          style={{
-                            fontSize: '0.72rem', padding: '0.15rem 0.45rem',
-                            borderRadius: 6, background: 'rgba(255,255,255,0.06)',
-                            color: 'var(--muted)', cursor: 'pointer',
-                          }}
+                          className="tag-chip"
                           onClick={() => setFilterTag(filterTag === tag ? '' : tag)}
                         >
                           {tag}

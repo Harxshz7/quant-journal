@@ -93,7 +93,7 @@ export default function Calculator() {
       <header className="header">
         <div>
           <h1>Position Size Calculator</h1>
-          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+          <p className="muted section-subtitle">
             Risk-based position sizing — pure math, no trade is created
           </p>
         </div>
@@ -116,15 +116,14 @@ export default function Calculator() {
             />
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
+              className="btn btn-secondary btn-sm calc-save-btn"
               onClick={saveAccountSize}
               disabled={saving}
-              style={{ alignSelf: 'flex-start', marginTop: '0.25rem' }}
             >
               {saving ? 'Saving...' : 'Save Account Size'}
             </button>
             {saveMsg && (
-              <p className="muted" style={{ fontSize: '0.8rem', margin: 0 }}>
+              <p className="muted calc-save-msg">
                 {saveMsg}
               </p>
             )}
@@ -171,24 +170,24 @@ export default function Calculator() {
           Risk amount = account size × risk % · Position size = risk amount ÷ |entry − stop| · Position value = size × entry
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-          <div className="calc-result-card" style={{ marginBottom: 0 }}>
+        <div className="calc-results-grid">
+          <div className="calc-result-card">
             <div className="calc-result-label">Risk Amount</div>
-            <div className="calc-result-value" style={{ color: 'var(--danger)' }}>
+            <div className="calc-result-value calc-danger">
               {formatMoney(riskAmount)}
             </div>
           </div>
-          <div className="calc-result-card" style={{ marginBottom: 0 }}>
+          <div className="calc-result-card">
             <div className="calc-result-label">Position Size</div>
             <div className="calc-result-value">{formatQty(positionSize)}</div>
           </div>
-          <div className="calc-result-card" style={{ marginBottom: 0 }}>
+          <div className="calc-result-card">
             <div className="calc-result-label">Position Value</div>
             <div className="calc-result-value">{formatMoney(positionValue)}</div>
           </div>
         </div>
 
-        <div style={{ marginTop: '1.25rem' }}>
+        <div className="calc-actions">
           <button
             type="button"
             className="btn btn-primary"
@@ -197,7 +196,7 @@ export default function Calculator() {
           >
             Use these values →
           </button>
-          <p className="muted" style={{ fontSize: '0.8rem', margin: '0.5rem 0 0 0' }}>
+          <p className="muted calc-hint">
             Opens the journal so you can create a trade with the calculated quantity, entry, and stop loss prefilled.
           </p>
         </div>

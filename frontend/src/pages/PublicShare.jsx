@@ -7,17 +7,17 @@ import {
 import { getPublicShare } from '../api/share';
 
 const COLORS = {
-  accent: '#6366f1',
-  positive: '#4ade80',
-  negative: '#f87171',
-  muted: '#94a3b8',
-  grid: 'rgba(255,255,255,0.06)',
-  text: '#e6eef6',
-  surface: '#232430',
+  accent: 'var(--accent)',
+  positive: 'var(--pnl-positive)',
+  negative: 'var(--pnl-negative)',
+  muted: 'var(--muted)',
+  grid: 'var(--border)',
+  text: 'var(--text)',
+  surface: 'var(--surface-2)',
 };
 
 const AXIS_STYLE = { fontSize: 11, fill: COLORS.muted };
-const GRID_STYLE = { strokeDasharray: '3 3', stroke: COLORS.grid };
+const GRID_STYLE = { strokeDasharray: '3 3' };
 
 function formatMoney(v) {
   if (v === null || v === undefined) return '-';
@@ -75,7 +75,7 @@ export default function PublicShare() {
     <div className="container">
       <header className="header">
         <h1>Quant Journal</h1>
-        <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+        <p className="muted section-subtitle">
           Public performance snapshot
         </p>
       </header>
@@ -114,7 +114,7 @@ export default function PublicShare() {
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={data.equityCurve}>
-                  <CartesianGrid {...GRID_STYLE} />
+                  <CartesianGrid {...GRID_STYLE} style={{ ...GRID_STYLE, stroke: COLORS.grid }} />
                   <XAxis
                     dataKey="date"
                     tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}

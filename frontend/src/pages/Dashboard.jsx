@@ -12,17 +12,17 @@ import RulesWidget from '../components/RulesWidget';
 import '../styles/Dashboard.css';
 
 const COLORS = {
-  accent: '#6366f1',
-  positive: '#4ade80',
-  negative: '#f87171',
-  muted: '#94a3b8',
-  grid: 'rgba(255,255,255,0.06)',
-  text: '#e6eef6',
-  surface: '#232430',
+  accent: 'var(--accent)',
+  positive: 'var(--pnl-positive)',
+  negative: 'var(--pnl-negative)',
+  muted: 'var(--muted)',
+  grid: 'var(--border)',
+  text: 'var(--text)',
+  surface: 'var(--surface-2)',
 };
 
 const AXIS_STYLE = { fontSize: 11, fill: COLORS.muted };
-const GRID_STYLE = { strokeDasharray: '3 3', stroke: COLORS.grid };
+const GRID_STYLE = { strokeDasharray: '3 3' };
 
 function toISODate(d) {
   const y = d.getFullYear();
@@ -144,6 +144,10 @@ export default function Dashboard() {
 
   const [rulesStatus, setRulesStatus] = useState(null);
 
+  const [statsError, setStatsError] = useState('');
+  const [equityError, setEquityError] = useState('');
+  const [tradesError, setTradesError] = useState('');
+
   const applyPreset = useCallback((p) => {
     setPreset(p);
     setCustomActive(false);
@@ -164,8 +168,8 @@ export default function Dashboard() {
     const fd = customActive ? fromDate || null : (preset === 'All' ? null : fromDate);
     const td = customActive ? toDate || null : (preset === 'All' ? null : toDate);
     getStatistics(fd, td)
-      .then(data => { if (!cancelled) setStats(data); })
-      .catch(() => {})
+      .then(data => { if (!cancelled) { setStats(data); setStatsError(''); } })
+      .catch(err => { if (!cancelled) setStatsError(err.response?.data?.message || 'Failed to load statistics'); })
       .finally(() => { if (!cancelled) setStatsLoading(false); });
     return () => { cancelled = true; };
   }, [fromDate, toDate, preset, customActive]);
@@ -177,8 +181,8 @@ export default function Dashboard() {
     const fd = customActive ? fromDate || null : (preset === 'All' ? null : fromDate);
     const td = customActive ? toDate || null : (preset === 'All' ? null : toDate);
     getEquityCurve(fd, td)
-      .then(data => { if (!cancelled) setEquity(data); })
-      .catch(() => {})
+      .then(data => { if (!cancelled) { setEquity(data); setEquityError(''); } })
+      .catch(err => { if (!cancelled) setEquityError(err.response?.data?.message || 'Failed to load equity curve'); })
       .finally(() => { if (!cancelled) setEquityLoading(false); });
     return () => { cancelled = true; };
   }, [fromDate, toDate, preset, customActive]);
@@ -197,9 +201,10 @@ export default function Dashboard() {
         if (!cancelled) {
           const content = data?.content || data || [];
           setRecentTrades(Array.isArray(content) ? content : []);
+          setTradesError('');
         }
       })
-      .catch(() => {})
+      .catch(err => { if (!cancelled) setTradesError(err.response?.data?.message || 'Failed to load recent trades'); })
       .finally(() => { if (!cancelled) setTradesLoading(false); });
     return () => { cancelled = true; };
   }, [fromDate, toDate, preset, customActive]);
@@ -261,6 +266,8 @@ export default function Dashboard() {
       <div className="dashboard-grid">
         {equityLoading ? (
           <div className="stat-card"><SectionLoader /></div>
+        ) : equityError ? (
+          <div className="stat-card"><span className="error-banner">{equityError}</span></div>
         ) : (
           <StatCard
             label="Total P&L"
@@ -276,6 +283,8 @@ export default function Dashboard() {
             <div className="stat-card"><SectionLoader /></div>
             <div className="stat-card"><SectionLoader /></div>
           </>
+        ) : statsError ? (
+          <div className="stat-card"><span className="error-banner">{statsError}</span></div>
         ) : (
           <>
             <StatCard label="Win Rate" value={formatPct(stats?.winRate)} />
@@ -305,12 +314,14 @@ export default function Dashboard() {
         </div>
         {equityLoading ? (
           <SectionLoader text="Loading equity curve..." />
+        ) : equityError ? (
+          <div className="chart-empty">{equityError}</div>
         ) : equity.length === 0 ? (
           <SectionEmpty text="No closed trades in this range" />
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={equity}>
-              <CartesianGrid {...GRID_STYLE} />
+              <CartesianGrid {...GRID_STYLE} style={{ ...GRID_STYLE, stroke: COLORS.grid }} />
               <XAxis
                 dataKey="date"
                 tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -337,10 +348,12 @@ export default function Dashboard() {
       <div className="chart-card">
         <div className="chart-card-header">
           <h2>Recent Trades</h2>
-          <Link to="/trades" className="btn btn-sm" style={{ textDecoration: 'none' }}>View All</Link>
+          <Link to="/trades" className="btn btn-sm no-underline">View All</Link>
         </div>
         {tradesLoading ? (
           <SectionLoader text="Loading recent trades..." />
+        ) : tradesError ? (
+          <div className="chart-empty">{tradesError}</div>
         ) : recentTrades.length === 0 ? (
           <SectionEmpty text="No closed trades in this range" />
         ) : (

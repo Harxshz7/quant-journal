@@ -269,7 +269,7 @@ export default function Trades() {
   return (
     <div className="container">
       <NavBar active="trades">
-        <Link to="/import" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+        <Link to="/import" className="btn btn-primary btn-sm no-underline">
           📥 Import TradingView
         </Link>
         <button
@@ -285,7 +285,7 @@ export default function Trades() {
       <header className="header">
         <div>
           <h1>Trades</h1>
-          <p className="muted" style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+          <p className="muted section-subtitle">
             Flat view across all journal entries
           </p>
         </div>
