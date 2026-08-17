@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
 import java.util.*;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,7 +150,7 @@ public class AnalyticsService {
         Map<DayOfWeek, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
-                        t -> t.getExitDate().atZone(zone()).getDayOfWeek(),
+                        t -> Objects.requireNonNull(t.getExitDate()).atZone(zone()).getDayOfWeek(),
                         LinkedHashMap::new,
                         Collectors.toList()));
 
@@ -165,7 +166,7 @@ public class AnalyticsService {
         Map<Integer, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
-                        t -> t.getExitDate().atZone(zone()).getHour(),
+                        t -> Objects.requireNonNull(t.getExitDate()).atZone(zone()).getHour(),
                         LinkedHashMap::new,
                         Collectors.toList()));
 
@@ -182,7 +183,7 @@ public class AnalyticsService {
         Map<String, List<Trade>> grouped = trades.stream()
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
-                        t -> t.getExitDate().atZone(zone()).format(DateTimeFormatter.ofPattern("yyyy-MM")),
+                        t -> Objects.requireNonNull(t.getExitDate()).atZone(zone()).format(DateTimeFormatter.ofPattern("yyyy-MM")),
                         LinkedHashMap::new,
                         Collectors.toList()));
 
@@ -200,7 +201,7 @@ public class AnalyticsService {
                 .filter(t -> t.getExitDate() != null)
                 .collect(Collectors.groupingBy(
                         t -> {
-                            LocalDate d = t.getExitDate().atZone(zone()).toLocalDate();
+                            LocalDate d = Objects.requireNonNull(t.getExitDate()).atZone(zone()).toLocalDate();
                             int year = d.getYear();
                             int week = d.get(wf.weekOfWeekBasedYear());
                             return year + "-W" + String.format("%02d", week);

@@ -76,7 +76,7 @@ public class TradeController {
             @PathVariable UUID itemId,
             @RequestBody Map<String, Boolean> body
     ) {
-        boolean checked = body.getOrDefault("checked", false);
+        boolean checked = body != null && body.getOrDefault("checked", false);
         TradeDTO updated = tradeService.toggleChecklistItem(user, tradeId, itemId, checked);
         return ResponseEntity.ok(updated);
     }

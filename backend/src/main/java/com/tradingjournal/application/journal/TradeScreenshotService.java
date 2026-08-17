@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -101,13 +102,12 @@ public class TradeScreenshotService {
         // Verify ownership via trade.journalEntry.user
         if (screenshot.getTrade() == null
                 || screenshot.getTrade().getJournalEntry() == null
-                || screenshot.getTrade().getJournalEntry().getUser() == null
-                || !screenshot.getTrade().getJournalEntry().getUser().getId().equals(user.getId())) {
+                || !Objects.requireNonNull(screenshot.getTrade().getJournalEntry().getUser(), "Journal entry must have an owner").getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Screenshot not found");
         }
 
         // Build file path
-        Path filePath = Paths.get(uploadDir, screenshot.getTrade().getId().toString(), screenshot.getStoredFileName());
+        Path filePath = Paths.get(uploadDir, Objects.requireNonNull(screenshot.getTrade()).getId().toString(), screenshot.getStoredFileName());
 
         // Read file from disk
         byte[] fileBytes;
@@ -130,13 +130,12 @@ public class TradeScreenshotService {
         // Verify ownership
         if (screenshot.getTrade() == null
                 || screenshot.getTrade().getJournalEntry() == null
-                || screenshot.getTrade().getJournalEntry().getUser() == null
-                || !screenshot.getTrade().getJournalEntry().getUser().getId().equals(user.getId())) {
+                || !Objects.requireNonNull(screenshot.getTrade().getJournalEntry().getUser(), "Journal entry must have an owner").getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Screenshot not found");
         }
 
         // Delete file from disk
-        Path filePath = Paths.get(uploadDir, screenshot.getTrade().getId().toString(), screenshot.getStoredFileName());
+        Path filePath = Paths.get(uploadDir, Objects.requireNonNull(screenshot.getTrade()).getId().toString(), screenshot.getStoredFileName());
         try {
             Files.deleteIfExists(filePath);
         } catch (IOException e) {

@@ -74,7 +74,7 @@ public class CsvExportService {
                         netPnl,
                         pnlPercent,
                         outcome,
-                        String.join(";", trade.getMistakeTags().stream().map(Enum::name).toList()),
+                        String.join(";", trade.getMistakeTags() != null ? trade.getMistakeTags().stream().map(Enum::name).toList() : List.of()),
                         trade.getSetupQuality()
                 );
             }

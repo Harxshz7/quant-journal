@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -59,7 +60,7 @@ public class ChecklistTemplateService {
     private ChecklistItemTemplate findOwnedOrThrow(User user, UUID id) {
         ChecklistItemTemplate template = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist template not found"));
-        if (!template.getUser().getId().equals(user.getId())) {
+        if (!Objects.requireNonNull(template.getUser(), "Template must have an owner").getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checklist template not found");
         }
         return template;

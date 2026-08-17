@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -89,10 +90,6 @@ public class TradeService {
 
         if (isClosed) {
             // Closed trades: only allow reflection fields to be edited
-            boolean onlyReflectionFields =
-                    request.postTradeReflection() != null ||
-                    request.mistakeTags() != null ||
-                    request.setupQuality() != null;
             boolean hasOtherChanges =
                     !request.ticker().equals(trade.getTicker()) ||
                     request.positionType() != trade.getPositionType() ||
@@ -224,7 +221,7 @@ public class TradeService {
 
         if (trade.getJournalEntry() == null
                 || trade.getJournalEntry().getUser() == null
-                || !trade.getJournalEntry().getUser().getId().equals(user.getId())) {
+                || !Objects.requireNonNull(trade.getJournalEntry().getUser()).getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trade not found");
         }
 
@@ -235,7 +232,7 @@ public class TradeService {
         JournalEntry journalEntry = journalEntryRepository.findById(journalEntryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found"));
 
-        if (journalEntry.getUser() == null || !journalEntry.getUser().getId().equals(user.getId())) {
+        if (journalEntry.getUser() == null || !Objects.requireNonNull(journalEntry.getUser()).getId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
         }
 
